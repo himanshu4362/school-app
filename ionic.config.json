@@ -1,0 +1,8 @@
+{
+  "name": "SchoolApp",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite",
+  "id": "13d64844"
+}
