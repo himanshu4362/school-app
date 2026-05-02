@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import CollectFeeModal from '../../components/finance/CollectFeeModal';
 import AdminLayout from '../../components/AdminLayout';
 import { Search, Filter, CheckCircle, Clock, AlertCircle, Receipt } from 'lucide-react';
+import { useState } from 'react';
 
 interface FeeRecord {
   id: string;
@@ -18,13 +19,25 @@ const mockFees: FeeRecord[] = [
   { id: 'FEE-203', studentName: 'Rohan Gupta', grade: '9-C', amount: 42000, dueDate: 'Sept 20, 2026', status: 'Overdue' },
 ];
 
+
+
 const FeeCollection: React.FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState({ name: '', id: '', due: 0 });
+
+  const openCollector = (name: string, id: string, amount: number) => {
+    setSelectedStudent({ name, id, due: amount });
+    setIsModalOpen(true);
+  };
   return (
-    <AdminLayout 
-      pageTitle="Fee Management" 
+    <AdminLayout
+      pageTitle="Fee Management"
       pageDescription="Monitor tuition inflows and manage payment verification."
       headerActions={
-        <button className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition shadow-sm flex items-center gap-2">
+        <button
+          onClick={() => openCollector('Manual Entry', 'NEW', 0)} // ✅ Wired
+          className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition shadow-sm flex items-center gap-2"
+        >
           <Receipt size={16} /> Collect New Fee
         </button>
       }
@@ -75,9 +88,9 @@ const FeeCollection: React.FC = () => {
                   </td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold ring-1 ring-inset
-                      ${fee.status === 'Paid' ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20' : 
-                        fee.status === 'Partial' ? 'bg-amber-50 text-amber-700 ring-amber-600/20' : 
-                        'bg-rose-50 text-rose-700 ring-rose-600/20'}`}
+                      ${fee.status === 'Paid' ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20' :
+                        fee.status === 'Partial' ? 'bg-amber-50 text-amber-700 ring-amber-600/20' :
+                          'bg-rose-50 text-rose-700 ring-rose-600/20'}`}
                     >
                       {fee.status === 'Paid' && <CheckCircle size={12} />}
                       {fee.status === 'Partial' && <Clock size={12} />}
@@ -94,6 +107,11 @@ const FeeCollection: React.FC = () => {
           </table>
         </div>
       </div>
+      <CollectFeeModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        student={selectedStudent} 
+      />
     </AdminLayout>
   );
 };

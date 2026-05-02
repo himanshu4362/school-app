@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useHistory } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, GraduationCap, DollarSign, Settings,
-  LogOut, ChevronDown, ChevronRight, UserPlus, CalendarCheck,
-  Banknote, Megaphone, MessageSquare, ClipboardCheck, ShieldCheck, IndianRupee, Monitor, Truck, Package,
-  Search, ListChecks, Wallet
+  LayoutDashboard, Users, GraduationCap, DollarSign, Banknote, Megaphone, MessageSquare, ClipboardCheck, ShieldCheck,
+  LogOut, ChevronDown, ChevronRight, UserPlus, CalendarCheck, IndianRupee, Monitor, Truck, Package, ListChecks, Wallet, Library,
+  Search, BookOpen
 } from 'lucide-react';
 import SchoolLogo from '../../../assets/school logo.jpg';
 import SessionModal from './SessionModal';
@@ -61,6 +60,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
       subItems: [
         { name: 'Inventory', path: '/admin/inventory', icon: <Monitor size={16} /> },
         { name: 'Transport', path: '/admin/transport', icon: <Truck size={16} /> },
+      ]
+    },
+    {
+      name: 'Academic Hub',
+      path: '/admin/academic',
+      icon: <BookOpen size={20} />,
+      subItems: [
+        { name: 'Syllabus', path: '/admin/academic/syllabus', icon: <ListChecks size={16} /> },
+        { name: 'Timetable', path: '/admin/academic/timetable', icon: <CalendarCheck size={16} /> },
+        { name: 'Library', path: '/admin/academic/library', icon: <Library size={16} /> },
+        { name: 'Marks Entry', path: '/admin/academic/marks-entry', icon: <ClipboardCheck size={16} /> },
       ]
     },
     { name: 'Notice Board', path: '/admin/notices', icon: <Megaphone size={20} /> },
@@ -142,10 +152,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         </nav>
 
         <div className="p-4 border-t border-white/5">
-          <button onClick={() => setShowSessions(true)} className="...">
+          <button onClick={() => setShowSessions(true)}
+           className="flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-rose-500/10 hover:text-rose-400 transition-colors text-left"
+            >
             <LogOut size={20} /> Logout
           </button>
         </div>
+
       </div>
 
       <SessionModal

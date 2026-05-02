@@ -3,12 +3,14 @@ import { IonContent, IonPage } from '@ionic/react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import { fetchTeachers, Teacher } from '../data/teacherData';
-import { Search, Plus, Eye, MoreVertical, Mail } from 'lucide-react';
+import { Search, Eye, MoreVertical, Mail } from 'lucide-react';
+import InviteTeacherModal from '../components/InviteTeacherModal';
 
 const ManageTeachers: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -51,23 +53,29 @@ const ManageTeachers: React.FC = () => {
             <Header toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
 
             <main className="flex-1 p-4 md:p-6">
-              
+
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                 <div>
                   <h1 className="text-2xl font-bold text-slate-800">Staff Directory</h1>
                   <p className="text-slate-500 text-sm">Manage onboarding, profiles, and staff lifecycle.</p>
                 </div>
-                
+
                 <div className="flex w-full sm:w-auto gap-3">
                   <div className="flex items-center bg-white border border-slate-200 rounded-lg px-3 py-2 w-full sm:w-64 focus-within:ring-2 focus-within:ring-blue-100">
                     <Search size={18} className="text-slate-400" />
                     <input type="text" placeholder="Search staff..." className="bg-transparent border-none outline-none text-sm w-full ml-2 text-slate-700" />
                   </div>
                   {/* Changed "Add New" to "Invite Teacher" to reflect the actual system flow */}
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition flex items-center gap-2 shrink-0 shadow-sm">
+                  <button
+                    onClick={() => setIsInviteOpen(true)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition flex items-center gap-2 shrink-0 shadow-sm">
                     <Mail size={16} /> Invite Teacher
                   </button>
                 </div>
+                <InviteTeacherModal
+                  isOpen={isInviteOpen}
+                  onClose={() => setIsInviteOpen(false)}
+                />
               </div>
 
               <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
@@ -115,7 +123,7 @@ const ManageTeachers: React.FC = () => {
                               ) : (
                                 <div className="flex items-center gap-2">
                                   <div className="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
-                                    <div 
+                                    <div
                                       className={`h-full ${teacher.attendanceRate > 90 ? 'bg-green-500' : 'bg-orange-500'}`}
                                       style={{ width: `${teacher.attendanceRate}%` }}
                                     ></div>

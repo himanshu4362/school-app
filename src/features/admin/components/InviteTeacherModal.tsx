@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Mail, Send } from 'lucide-react';
 
+
 interface InviteTeacherModalProps {
   isOpen: boolean;
   onClose: () => void;

@@ -1,8 +1,10 @@
 import React from 'react';
 import AdminLayout from '../components/AdminLayout';
-import { Megaphone, Plus, Bell, Calendar, Eye, Users } from 'lucide-react';
+import { Megaphone, Plus, Calendar, Eye, Users } from 'lucide-react';
+import { useHistory } from 'react-router';
 
 const NoticeBoard: React.FC = () => {
+  const history = useHistory();
   const notices = [
     { id: 1, title: "Summer Vacation Schedule 2026", audience: "All", date: "02 May, 2026", views: 2450, priority: "High" },
     { id: 2, title: "Staff Meeting: Curriculum Review", audience: "Teachers", date: "01 May, 2026", views: 142, priority: "Medium" },

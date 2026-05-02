@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import { Search, Filter, Download, UserPlus, MoreVertical, ShieldAlert, GraduationCap, Truck, Heart } from 'lucide-react';
+import { useHistory } from 'react-router';
 
 const StudentDirectory: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
+  const history = useHistory()
 
   const headerActions = (
     <>
       <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors shadow-sm">
         <Download size={16} /> Export
       </button>
-      <button className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors shadow-sm">
+      <button
+       onClick={() => history.push('/admin/students/enroll')}
+       className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors shadow-sm">
         <UserPlus size={16} /> New Admission
       </button>
     </>

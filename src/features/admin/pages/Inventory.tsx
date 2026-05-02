@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import { Package, Plus, AlertCircle, MapPin, Monitor, Book } from 'lucide-react';
+import IssueAssetModal from '../components/ops/IssueAssetModal'; // ✅ Import Modal
 
 const mockAssets = [
   { id: 'AST-001', name: 'Dell Latitude 3420', category: 'IT', status: 'Assigned', location: 'Lab 1', condition: 'Excellent' },
@@ -9,12 +10,20 @@ const mockAssets = [
 ];
 
 const Inventory: React.FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedAsset, setSelectedAsset] = useState('');
+
+  const handleIssue = (assetName: string) => {
+    setSelectedAsset(assetName);
+    setIsModalOpen(true);
+  };
   return (
     <AdminLayout 
       pageTitle="Inventory & Assets" 
       pageDescription="Track school property, equipment condition, and room assignments."
       headerActions={<button className="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg"><Plus size={18}/> Add Asset</button>}
     >
+      
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-8">
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 ring-1 ring-slate-900/5">
            <div className="p-3 bg-blue-50 text-blue-600 rounded-xl"><Package size={24}/></div>

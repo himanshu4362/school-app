@@ -49,6 +49,8 @@ import Inventory from './features/admin/pages/Inventory';
 import NoticeBoard from './features/admin/pages/NoticeBoard';
 import NewEnrollment from './features/admin/pages/student/NewEnrollment';
 import TeacherVerification from './features/admin/pages/TeacherVerification';
+import NoticeComposer from './features/admin/pages/NoticeComposer';
+import MarksEntry from './features/admin/pages/academic/MarksEntry';
 
 setupIonicReact();
 
@@ -57,6 +59,14 @@ const App: React.FC = () => (
     <IonReactRouter>
       <IonRouterOutlet>
         {/* Public & Auth Routes ... */}
+
+        <Route exact path="/" component={Home} />
+        <Route exact path="/auth" component={AuthLanding} />
+        <Route exact path="/auth/login" component={Login} />
+        <Route exact path="/auth/register" component={Register} />
+        <Route exact path="/auth/forgot-password" component={ResetPassword} />
+        <Route exact path="/auth/verify-otp" component={VerifyOtp} />
+
 
         {/* --- Admin Module --- */}
         <Route exact path="/admin" component={Dashboard} />
@@ -88,6 +98,10 @@ const App: React.FC = () => (
         <Route exact path="/admin/academic/syllabus" component={SyllabusManager} />
         <Route exact path="/admin/academic/timetable" component={Timetable} />
         <Route exact path="/admin/academic/library" component={LibraryManager} />
+
+        <Route exact path="/admin/notices/compose" component={NoticeComposer} />
+        <Route exact path="/admin/academic/marks-entry" component={MarksEntry} />
+
 
         <Route component={page404} />
       </IonRouterOutlet>
