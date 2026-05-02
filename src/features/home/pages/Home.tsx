@@ -5,7 +5,6 @@ import SchoolLogo from '../../../assets/school logo.jpg';
 import Footer from '../../../components/Footer';
 import { BookOpen, Calendar, Users, Trophy } from 'lucide-react';
 
-// Swiper imports
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 import 'swiper/css';
@@ -66,8 +65,8 @@ const Home: React.FC = () => {
               {images.map((src, idx) => (
                 <SwiperSlide key={idx}>
                   <img className='w-full h-full object-cover' src={src} alt={`slide-${idx}`} />
-                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                    <h2 className="text-white text-3xl md:text-5xl font-bold drop-shadow-lg text-center px-4">
+                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center md:items-end">
+                    <h2 className="text-white text-3xl md:text-5xl font-bold drop-shadow-lg text-center px-4 md:mb-10">
                       {idx === 0 && "Welcome to Excellence"}
                       {idx === 1 && "Shaping Future Leaders"}
                       {idx === 2 && "State of the Art Campus"}

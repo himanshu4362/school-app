@@ -46,7 +46,7 @@ const RegisterForm = () => {
       schoolCode: yup
         .string()
         .required("Student id required")
-        .matches(/^\d{6}$/, "Must be 8 digits"),
+        .matches(/^\d{6}$/, "Must be 6 digits"),
 
       password: yup
         .string()
