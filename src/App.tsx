@@ -38,7 +38,17 @@ import Dashboard from './features/admin/pages/Dashboard';
 import StudentDirectory from './features/admin/pages/student/StudentDirectory';
 import AdmissionsPipeline from './features/admin/pages/student/AdmissionsPipeline';
 import Complaints from './features/admin/pages/Complaints';
-import FeeCollection from './features/admin/finance/FeeCollection';
+import FeeCollection from './features/admin/pages/finance/FeeCollection';
+import ExamManagement from './features/admin/pages/student/ExamManagement';
+import MasterLedger from './features/admin/pages/finance/MasterLedger';
+import SyllabusManager from './features/admin/pages/academic/SyllabusManager';
+import Timetable from './features/admin/pages/academic/Timetable';
+import LibraryManager from './features/admin/pages/academic/LibraryManager';
+import TransportManagement from './features/admin/pages/transport/TransportManagement';
+import Inventory from './features/admin/pages/Inventory';
+import NoticeBoard from './features/admin/pages/NoticeBoard';
+import NewEnrollment from './features/admin/pages/student/NewEnrollment';
+import TeacherVerification from './features/admin/pages/TeacherVerification';
 
 setupIonicReact();
 
@@ -46,31 +56,38 @@ const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
       <IonRouterOutlet>
-        {/* --- Home Routes --- */}
-        <Route exact path="/" component={Home} />
+        {/* Public & Auth Routes ... */}
 
-        {/* --- Auth Routes --- */}
-        <Route exact path="/auth" component={AuthLanding} />
-        <Route exact path="/auth/login" component={Login} />
-        <Route exact path="/auth/register" component={Register} />
-        <Route exact path="/auth/verify-otp" component={VerifyOtp} />
-        <Route exact path="/auth/reset-password" component={ResetPassword} />
-        {/* --- Admin Dashboard Routes --- */}
+        {/* --- Admin Module --- */}
         <Route exact path="/admin" component={Dashboard} />
 
-        {/* Teacher Routes */}
+        {/* Teachers */}
         <Route exact path="/admin/teachers" component={TeacherOverview} />
         <Route exact path="/admin/teachers/manage" component={ManageTeachers} />
+        <Route exact path="/admin/teachers/verify" component={TeacherVerification} />
         <Route exact path="/admin/teachers/attendance" component={TeacherAttendance} />
         <Route exact path="/admin/teachers/payroll" component={TeacherPayroll} />
 
-        {/* Student Routes */}
+        {/* Students */}
         <Route exact path="/admin/students" component={StudentDirectory} />
         <Route exact path="/admin/students/admissions" component={AdmissionsPipeline} />
+        <Route exact path="/admin/students/enroll" component={NewEnrollment} />
+        <Route exact path="/admin/students/exams" component={ExamManagement} />
+
+        {/* Finance */}
+        <Route exact path="/admin/finance/ledger" component={MasterLedger} />
         <Route exact path="/admin/finance/fees" component={FeeCollection} />
+
+        {/* Operations & Communication */}
+        <Route exact path="/admin/notices" component={NoticeBoard} />
         <Route exact path="/admin/complaints" component={Complaints} />
+        <Route exact path="/admin/inventory" component={Inventory} />
+        <Route exact path="/admin/transport" component={TransportManagement} />
 
-
+        {/* Academic Hub */}
+        <Route exact path="/admin/academic/syllabus" component={SyllabusManager} />
+        <Route exact path="/admin/academic/timetable" component={Timetable} />
+        <Route exact path="/admin/academic/library" component={LibraryManager} />
 
         <Route component={page404} />
       </IonRouterOutlet>

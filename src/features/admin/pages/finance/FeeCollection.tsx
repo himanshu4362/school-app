@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AdminLayout from '../components/AdminLayout';
+import AdminLayout from '../../components/AdminLayout';
 import { Search, Filter, CheckCircle, Clock, AlertCircle, Receipt } from 'lucide-react';
 
 interface FeeRecord {
