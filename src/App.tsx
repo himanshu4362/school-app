@@ -47,10 +47,13 @@ import LibraryManager from './features/admin/pages/academic/LibraryManager';
 import TransportManagement from './features/admin/pages/transport/TransportManagement';
 import Inventory from './features/admin/pages/Inventory';
 import NoticeBoard from './features/admin/pages/NoticeBoard';
-import NewEnrollment from './features/admin/pages/student/NewEnrollment';
 import TeacherVerification from './features/admin/pages/TeacherVerification';
 import NoticeComposer from './features/admin/pages/NoticeComposer';
 import MarksEntry from './features/admin/pages/academic/MarksEntry';
+import NewTeacherAppointment from './features/admin/pages/NewTeacherAppointment';
+import StudentAdmissionWizard from './features/admin/pages/student/StudentAdmissionWizard';
+import ReportingCenter from './features/admin/pages/ReportingCenter';
+import HolidayConfig from './features/admin/pages/config/HolidayConfig';
 
 setupIonicReact();
 
@@ -81,7 +84,6 @@ const App: React.FC = () => (
         {/* Students */}
         <Route exact path="/admin/students" component={StudentDirectory} />
         <Route exact path="/admin/students/admissions" component={AdmissionsPipeline} />
-        <Route exact path="/admin/students/enroll" component={NewEnrollment} />
         <Route exact path="/admin/students/exams" component={ExamManagement} />
 
         {/* Finance */}
@@ -101,7 +103,10 @@ const App: React.FC = () => (
 
         <Route exact path="/admin/notices/compose" component={NoticeComposer} />
         <Route exact path="/admin/academic/marks-entry" component={MarksEntry} />
-
+        <Route exact path="/admin/teachers/new-appointment" component={NewTeacherAppointment} />
+        <Route exact path="/admin/students/enroll" component={StudentAdmissionWizard} />
+        <Route exact path="/admin/reports" component={ReportingCenter} />
+        <Route exact path="/admin/config/holidays" component={HolidayConfig} />
 
         <Route component={page404} />
       </IonRouterOutlet>

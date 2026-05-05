@@ -4,7 +4,6 @@ import { IonContent, IonPage } from '@ionic/react';
 import SchoolLogo from '../../../assets/school logo.jpg';
 import Footer from '../../../components/Footer';
 import { BookOpen, Calendar, Users, Trophy } from 'lucide-react';
-
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 import 'swiper/css';
@@ -57,7 +56,7 @@ const Home: React.FC = () => {
               spaceBetween={30}
               slidesPerView={1}
               loop={true}
-              autoplay={{ delay: 4000, disableOnInteraction: false }}
+              autoplay={{ delay: 3000, disableOnInteraction: false }}
               pagination={{ clickable: true }}
               navigation={true}
               className="w-full h-full rounded-2xl shadow-xl overflow-hidden"

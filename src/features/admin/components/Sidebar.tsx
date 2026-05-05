@@ -3,7 +3,7 @@ import { Link, useLocation, useHistory } from 'react-router-dom';
 import {
   LayoutDashboard, Users, GraduationCap, DollarSign, Banknote, Megaphone, MessageSquare, ClipboardCheck, ShieldCheck,
   LogOut, ChevronDown, ChevronRight, UserPlus, CalendarCheck, IndianRupee, Monitor, Truck, Package, ListChecks, Wallet, Library,
-  Search, BookOpen
+  Search, BookOpen, FileText, UserCheck, CreditCard, Settings, Calendar, Globe
 } from 'lucide-react';
 import SchoolLogo from '../../../assets/school logo.jpg';
 import SessionModal from './SessionModal';
@@ -71,6 +71,25 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         { name: 'Timetable', path: '/admin/academic/timetable', icon: <CalendarCheck size={16} /> },
         { name: 'Library', path: '/admin/academic/library', icon: <Library size={16} /> },
         { name: 'Marks Entry', path: '/admin/academic/marks-entry', icon: <ClipboardCheck size={16} /> },
+      ]
+    },
+    {
+      name: 'Document Hub',
+      path: '/admin/reports',
+      icon: <FileText size={20} />,
+      subItems: [
+        { name: 'HR Records', path: '/admin/reports?cat=HR', icon: <UserCheck size={16} /> },
+        { name: 'Fee Receipts', path: '/admin/reports?cat=Finance', icon: <CreditCard size={16} /> },
+        { name: 'Report Cards', path: '/admin/reports?cat=Academic', icon: <ClipboardCheck size={16} /> },
+      ]
+    },
+    {
+      name: 'System Config',
+      path: '/admin/config',
+      icon: <Settings size={20} />,
+      subItems: [
+        { name: 'Holiday Master', path: '/admin/config/holidays', icon: <Calendar size={16} /> },
+        { name: 'Class & House', path: '/admin/config/structure', icon: <Globe size={16} /> },
       ]
     },
     { name: 'Notice Board', path: '/admin/notices', icon: <Megaphone size={20} /> },
@@ -153,8 +172,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
 
         <div className="p-4 border-t border-white/5">
           <button onClick={() => setShowSessions(true)}
-           className="flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-rose-500/10 hover:text-rose-400 transition-colors text-left"
-            >
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-rose-500/10 hover:text-rose-400 transition-colors text-left"
+          >
             <LogOut size={20} /> Logout
           </button>
         </div>
