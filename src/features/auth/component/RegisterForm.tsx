@@ -4,6 +4,7 @@ import { HiMiniNoSymbol } from "react-icons/hi2";
 import { FaSpinner } from "react-icons/fa";
 import { useState } from "react";
 import { useHistory } from 'react-router-dom';
+import axios from "axios";
 
 const RegisterForm = () => {
   const history  = useHistory();
@@ -11,7 +12,7 @@ const RegisterForm = () => {
   const [isApiCall, setIsApiCall] = useState(false)
   const formik = useFormik({
     initialValues: {
-      name: "",
+      fullName: "",
       role: "",
       email: "",
       dob: "",
@@ -21,7 +22,7 @@ const RegisterForm = () => {
     },
 
     validationSchema: yup.object({
-      name: yup
+      fullName: yup
         .string()
         .required("Name is Required.")
         .trim("No leading/trailing spaces allowed")
@@ -62,14 +63,10 @@ const RegisterForm = () => {
       try {
         setIsApiCall(true)
         console.log(data)
-        // const response = await axios.post(
-        //   `${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/register`,
-        //   data,
-        // );
-        // if (response.data.success === true) {
-        //   console.log("Registration Successfull! now you can login.");
-        //   history.push("/auth/login");
-        // }
+        const response = await axios.post(
+          `${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/signup`,
+          data,
+        );
       } catch (error: any) {
         const status = error.response?.status;
         if (status === 409) {
@@ -83,7 +80,7 @@ const RegisterForm = () => {
   });
 
   const firstError =
-    (formik.touched.name && formik.errors.name) ||
+    (formik.touched.fullName && formik.errors.fullName) ||
     (formik.touched.role && formik.errors.role) ||
     (formik.touched.email && formik.errors.email) ||
     (formik.touched.dob && formik.errors.dob) ||
@@ -96,7 +93,7 @@ const RegisterForm = () => {
     e.preventDefault();
 
     formik.setTouched({
-      name: true,
+      fullName: true,
       role: true,
       email: true,
       dob: true,
@@ -137,17 +134,17 @@ const RegisterForm = () => {
         <div>
           <input
             type="text"
-            name="name"
+            name="fullName"
             placeholder="Full Name"
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            value={formik.values.name}
+            value={formik.values.fullName}
             className="w-full px-4 py-2 rounded-lg bg-white/70 border outline-none"
           />
-          {/* {formik.touched.name && formik.errors.name && (
+          {/* {formik.touched.fullName && formik.errors.fullName && (
           <p className="bg-[#341B2A] text-[#F9C1C4] px-1 py-1 rounded-lg flex gap-2 justify-center items-center mt-3">
             <CircleX color="#b13e3e" />
-            {formik.errors.name}
+            {formik.errors.fullName}
           </p>
         )} */}
         </div>
