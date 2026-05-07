@@ -30,18 +30,20 @@ const LoginForm = () => {
 
     onSubmit: async (values) => {
       try {
-        const response = await axios.post(
-          `${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/login`,
-          values,
-        );
 
-        if (response.status === 200 && response.data.user.role) {
-          // FIX: Store the token and user data[cite: 1]
-          localStorage.setItem("token", response.data.token);
-          localStorage.setItem("user", JSON.stringify(response.data.user));
+        console.log(values)
+        // const response = await axios.post(
+        //   `${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/login`,
+        //   values,
+        // );
 
-          history.push(`/${response.data.user.role}`);
-        }
+        // if (response.status === 200 && response.data.user.role) {
+        //   // FIX: Store the token and user data[cite: 1]
+        //   localStorage.setItem("token", response.data.token);
+        //   localStorage.setItem("user", JSON.stringify(response.data.user));
+
+        //   history.push(`/${response.data.user.role}`);
+        // }
         // ... rest of logic
       } catch (error) {
         // FIX: Add user-facing error handling here

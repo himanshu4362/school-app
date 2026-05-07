@@ -1,10 +1,8 @@
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { HiMiniNoSymbol } from "react-icons/hi2";
-import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
 import { useState } from "react";
-import { IonContent } from "@ionic/react";
 import { useHistory } from 'react-router-dom';
 
 const RegisterForm = () => {
@@ -63,14 +61,15 @@ const RegisterForm = () => {
     onSubmit: async (data) => {
       try {
         setIsApiCall(true)
-        const response = await axios.post(
-          `${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/register`,
-          data,
-        );
-        if (response.data.success === true) {
-          console.log("Registration Successfull! now you can login.");
-          history.push("/auth/login");
-        }
+        console.log(data)
+        // const response = await axios.post(
+        //   `${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/register`,
+        //   data,
+        // );
+        // if (response.data.success === true) {
+        //   console.log("Registration Successfull! now you can login.");
+        //   history.push("/auth/login");
+        // }
       } catch (error: any) {
         const status = error.response?.status;
         if (status === 409) {
@@ -183,13 +182,6 @@ const RegisterForm = () => {
             value={formik.values.dob}
             className="max-w-60  w-full px-4 py-2 rounded-lg cursor-pointer bg-white/70 border outline-none"
           />
-
-          {/* {formik.touched.dob && formik.errors.dob && (
-          <p className="bg-[#341B2A] text-[#F9C1C4] px-1 py-1 rounded-lg flex gap-2 justify-center items-center mt-3">
-            <CircleX color="#b13e3e" />
-            {formik.errors.dob}
-          </p>
-        )} */}
         </div>
 
         <div>

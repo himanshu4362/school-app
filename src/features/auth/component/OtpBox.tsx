@@ -108,10 +108,10 @@ const OtpBox = () => {
     setError("");
     setSubmitLoading(true);
 
-    // simulate API
+    
     setTimeout(() => {
       setSubmitLoading(false);
-      console.log(finalOtp);
+      console.log({finalOtp});
     }, 1000);
   };
 

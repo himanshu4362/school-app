@@ -41,7 +41,7 @@ import Complaints from './features/admin/pages/Complaints';
 import FeeCollection from './features/admin/pages/finance/FeeCollection';
 import ExamManagement from './features/admin/pages/student/ExamManagement';
 import MasterLedger from './features/admin/pages/finance/MasterLedger';
-import SyllabusManager from './features/admin/pages/academic/SyllabusManager';
+import SyllabusManager from './features/admin/pages/syllabus/SyllabusManager';
 import Timetable from './features/admin/pages/academic/Timetable';
 import LibraryManager from './features/admin/pages/academic/LibraryManager';
 import TransportManagement from './features/admin/pages/transport/TransportManagement';
@@ -54,6 +54,10 @@ import NewTeacherAppointment from './features/admin/pages/NewTeacherAppointment'
 import StudentAdmissionWizard from './features/admin/pages/student/StudentAdmissionWizard';
 import ReportingCenter from './features/admin/pages/ReportingCenter';
 import HolidayConfig from './features/admin/pages/config/HolidayConfig';
+import SyllabusCompletionDetail from './features/admin/pages/syllabus/SyllabusCompletionDetail';
+import ClassSyllabusManagement from './features/admin/pages/syllabus/ClassSyllabusManagement';
+import SyllabusDefinition from './features/admin/pages/syllabus/SyllabusDefinition';
+import SyllabusHistoryTracker from './features/admin/pages/syllabus/SyllabusHistoryTracker';
 
 setupIonicReact();
 
@@ -73,40 +77,34 @@ const App: React.FC = () => (
 
         {/* --- Admin Module --- */}
         <Route exact path="/admin" component={Dashboard} />
-
-        {/* Teachers */}
         <Route exact path="/admin/teachers" component={TeacherOverview} />
         <Route exact path="/admin/teachers/manage" component={ManageTeachers} />
         <Route exact path="/admin/teachers/verify" component={TeacherVerification} />
         <Route exact path="/admin/teachers/attendance" component={TeacherAttendance} />
         <Route exact path="/admin/teachers/payroll" component={TeacherPayroll} />
-
-        {/* Students */}
         <Route exact path="/admin/students" component={StudentDirectory} />
         <Route exact path="/admin/students/admissions" component={AdmissionsPipeline} />
         <Route exact path="/admin/students/exams" component={ExamManagement} />
-
-        {/* Finance */}
         <Route exact path="/admin/finance/ledger" component={MasterLedger} />
         <Route exact path="/admin/finance/fees" component={FeeCollection} />
-
-        {/* Operations & Communication */}
         <Route exact path="/admin/notices" component={NoticeBoard} />
         <Route exact path="/admin/complaints" component={Complaints} />
         <Route exact path="/admin/inventory" component={Inventory} />
         <Route exact path="/admin/transport" component={TransportManagement} />
-
-        {/* Academic Hub */}
         <Route exact path="/admin/academic/syllabus" component={SyllabusManager} />
         <Route exact path="/admin/academic/timetable" component={Timetable} />
         <Route exact path="/admin/academic/library" component={LibraryManager} />
-
         <Route exact path="/admin/notices/compose" component={NoticeComposer} />
         <Route exact path="/admin/academic/marks-entry" component={MarksEntry} />
         <Route exact path="/admin/teachers/new-appointment" component={NewTeacherAppointment} />
         <Route exact path="/admin/students/enroll" component={StudentAdmissionWizard} />
         <Route exact path="/admin/reports" component={ReportingCenter} />
         <Route exact path="/admin/config/holidays" component={HolidayConfig} />
+        <Route exact path="/admin/academic/syllabus" component={SyllabusManager} />
+        <Route exact path="/admin/academic/syllabus/detail" component={SyllabusCompletionDetail} />
+        <Route exact path="/admin/academic/syllabus/manage/:classId" component={ClassSyllabusManagement} />
+        <Route exact path="/admin/academic/syllabus/define/:classId/:subject" component={SyllabusDefinition} />
+        <Route exact path="/admin/academic/syllabus/history/:logId" component={SyllabusHistoryTracker} />
 
         <Route component={page404} />
       </IonRouterOutlet>

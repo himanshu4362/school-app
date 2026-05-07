@@ -109,7 +109,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
 
       <div className={`
       fixed md:sticky md:top-0 inset-y-0 left-0 z-50
-      w-64 bg-slate-900 text-slate-300
+      w-64 bg-slate-800 text-slate-300
       transition-transform duration-300 ease-in-out
       ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       flex flex-col h-screen border-r border-white/5
