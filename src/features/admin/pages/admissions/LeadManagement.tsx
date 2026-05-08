@@ -6,8 +6,9 @@ import {
 } from '../../../../store/slices/admissionSlice';
 import CaptureLeadDrawer from '../../components/admissions/CaptureLeadDrawer';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { Search, Filter, Phone, Plus, MessageSquare, Clock, Users } from 'lucide-react';
+import { Search, Filter, Phone, Plus, MessageSquare, Clock, Users, ChevronRight } from 'lucide-react';
 import { AdmissionLeadDTO } from '../../../../types/admission/lead.schema';
+import { initializeFromLead } from '../../../../store/slices/applicationSlice';
 import { useHistory } from 'react-router';
 
 const PIPELINE_COLUMNS = [
@@ -149,20 +150,40 @@ const LeadManagement: React.FC = () => {
                         )}
                       </div>
 
-                      {/* Operational Footer */}
-                      <div className="pt-3 border-t border-slate-50 flex items-center justify-between">
-                        <div className="flex items-center gap-1 text-[9px] font-bold text-slate-400">
-                          <Clock size={10} /> Just now
+                      {/* Operational Footer / The Bridge */}
+                      {column.id === 'converted' ? (
+                        <div className="pt-3 border-t border-slate-50 mt-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // 1. Send data across the bridge
+                              dispatch(initializeFromLead({
+                                classId: lead.interestedClassId || '',
+                                parentName: lead.parentName,
+                                mobile: lead.mobile
+                              }));
+                              // 2. Launch the Wizard!
+                              history.push('/admin/admissions/wizard');
+                            }}
+                            className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-black transition-all flex items-center justify-center gap-2 shadow-md shadow-emerald-900/10"
+                          >
+                            Start Application <ChevronRight size={14} />
+                          </button>
                         </div>
+                      ) : (
+                        <div className="pt-3 border-t border-slate-50 flex items-center justify-between mt-2">
+                          <div className="flex items-center gap-1 text-[9px] font-bold text-slate-400">
+                            <Clock size={10} /> Just now
+                          </div>
 
-                        {/* Direct Call Action */}
-                        <button
-                          onClick={(e) => { e.stopPropagation(); window.open(`tel:${lead.mobile}`); }}
-                          className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 rounded-lg transition-colors border border-slate-100 hover:border-emerald-200"
-                        >
-                          <Phone size={12} /> <span className="text-[10px] font-black">{lead.mobile}</span>
-                        </button>
-                      </div>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); window.open(`tel:${lead.mobile}`); }}
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 rounded-lg transition-colors border border-slate-100 hover:border-emerald-200"
+                          >
+                            <Phone size={12} /> <span className="text-[10px] font-black">{lead.mobile}</span>
+                          </button>
+                        </div>
+                      )}
 
                     </div>
                   ))}

@@ -1,9 +1,9 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 // 1. Define the sub-types cleanly
 export interface GuardianDraft {
   fullName: string;
-  relation: 'father' | 'mother' | 'guardian' | 'other';
+  relation: "father" | "mother" | "guardian" | "other";
   mobile: string;
   email?: string;
   occupation?: string;
@@ -14,7 +14,7 @@ export interface StudentProfileDraft {
   firstName: string;
   lastName: string;
   dob: string;
-  gender: 'male' | 'female' | 'other';
+  gender: "male" | "female" | "other";
   bloodGroup?: string;
   hasDisability: boolean;
 }
@@ -23,7 +23,7 @@ export interface StudentProfileDraft {
 export interface DraftApplicationState {
   currentStep: number;
   studentProfile: StudentProfileDraft | null;
-  admissionType: 'fresh' | 'transfer' | 're_admission' | null;
+  admissionType: "fresh" | "transfer" | "re_admission" | null;
   selectedClassId: string | null;
   guardians: GuardianDraft[] | null;
   currentAddress: AddressDraft | null;
@@ -35,7 +35,7 @@ export interface DraftApplicationState {
 export interface DocumentDraft {
   documentType: string;
   displayName: string;
-  status: 'submitted' | 'pending' | 'not_applicable';
+  status: "submitted" | "pending" | "not_applicable";
   documentNumber?: string;
   isMandatory: boolean;
 }
@@ -53,7 +53,7 @@ export interface AcademicHistoryDraft {
   district: string;
   city: string;
   previousClass: string;
-  hostelStatus: 'day_scholar' | 'hosteler';
+  hostelStatus: "day_scholar" | "hosteler";
   migrationReason?: string;
 }
 
@@ -72,19 +72,28 @@ const initialState: DraftApplicationState = {
 
 // 4. Create the Slice
 export const applicationSlice = createSlice({
-  name: 'application',
+  name: "application",
   initialState,
   reducers: {
-    nextStep: (state) => { state.currentStep += 1; },
-    prevStep: (state) => { state.currentStep -= 1; },
-    setStep: (state, action: PayloadAction<number>) => { state.currentStep = action.payload; },
-    
+    nextStep: (state) => {
+      state.currentStep = Math.max(1, state.currentStep + 1);
+    },
+    prevStep: (state) => {
+      state.currentStep = Math.max(1, state.currentStep - 1);
+    },
+    setStep: (state, action: PayloadAction<number>) => {
+      state.currentStep = action.payload;
+    },
+
     // Save Step 1 Data
-    saveStudentProfile: (state, action: PayloadAction<{
-      profile: StudentProfileDraft;
-      admissionType: 'fresh' | 'transfer' | 're_admission';
-      selectedClassId: string;
-    }>) => {
+    saveStudentProfile: (
+      state,
+      action: PayloadAction<{
+        profile: StudentProfileDraft;
+        admissionType: "fresh" | "transfer" | "re_admission";
+        selectedClassId: string;
+      }>,
+    ) => {
       state.studentProfile = action.payload.profile;
       state.admissionType = action.payload.admissionType;
       state.selectedClassId = action.payload.selectedClassId;
@@ -94,30 +103,56 @@ export const applicationSlice = createSlice({
     saveGuardians: (state, action: PayloadAction<GuardianDraft[]>) => {
       state.guardians = action.payload;
     },
-    saveAddress: (state, action: PayloadAction<{ current: AddressDraft; permanent: AddressDraft }>) => {
+    saveAddress: (
+      state,
+      action: PayloadAction<{ current: AddressDraft; permanent: AddressDraft }>,
+    ) => {
       state.currentAddress = action.payload.current;
       state.permanentAddress = action.payload.permanent;
     },
-    saveAcademics: (state, action: PayloadAction<AcademicHistoryDraft | null>) => {
+    saveAcademics: (
+      state,
+      action: PayloadAction<AcademicHistoryDraft | null>,
+    ) => {
       state.academicHistory = action.payload;
     },
     saveDocuments: (state, action: PayloadAction<DocumentDraft[]>) => {
       state.documents = action.payload;
     },
     resetApplication: () => initialState,
+    initializeFromLead: (
+      state,
+      action: PayloadAction<{
+        classId: string;
+        parentName: string;
+        mobile: string;
+      }>,
+    ) => {
+      state.currentStep = 1;
+      state.selectedClassId = action.payload.classId;
+      state.guardians = [
+        {
+          relation: "father",
+          fullName: action.payload.parentName,
+          mobile: action.payload.mobile,
+          isPrimaryContact: true,
+        },
+      ];
+    },
   },
 });
 
-export const { 
-  nextStep, 
-  prevStep, 
-  setStep, 
-  saveStudentProfile, 
-  saveGuardians, 
+export const {
+  nextStep,
+  prevStep,
+  setStep,
+  saveStudentProfile,
+  saveGuardians,
   resetApplication,
   saveAddress,
+  initializeFromLead,
   saveDocuments,
-  saveAcademics
+  saveAcademics,
 } = applicationSlice.actions;
 
 export default applicationSlice.reducer;

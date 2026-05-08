@@ -4,13 +4,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useDispatch, useSelector } from 'react-redux';
 import { X, User, Phone, BookOpen, Search } from 'lucide-react';
 import { RootState } from '../../../../store/store';
-import { closeLeadDrawer } from '../../../../store/slices/admissionSlice';
+import { closeLeadDrawer, addLead, updateLead } from '../../../../store/slices/admissionSlice';
 import { AdmissionLeadDTO, AdmissionLeadSchema } from '../../../../types/admission/lead.schema';
+
 
 const CaptureLeadDrawer: React.FC = () => {
   const dispatch = useDispatch();
-  const { isDrawerOpen, selectedLeadId } = useSelector((state: RootState) => state.admission);
-
+  const { isDrawerOpen, selectedLeadId, leads } = useSelector((state: RootState) => state.admission);
   // Initialize React Hook Form with Zod validation
   const {
     register,
@@ -22,35 +22,44 @@ const CaptureLeadDrawer: React.FC = () => {
     defaultValues: {
       status: 'new',
       source: 'walk_in',
-      campaignId: 'CAMP-2026-DEFAULT', // This would normally come from active config
+      campaignId: 'CAMP-2026-DEFAULT',
     }
   });
 
-  // Reset form when drawer opens/closes or when switching to editing a lead
   useEffect(() => {
-    if (isDrawerOpen && !selectedLeadId) {
+    if (isDrawerOpen && selectedLeadId) {
+      // FIXED: Added (l: AdmissionLeadDTO) to satisfy TypeScript
+      const leadToEdit = leads.find((l: AdmissionLeadDTO) => l.id === selectedLeadId);
+      if (leadToEdit) {
+        reset(leadToEdit);
+      }
+    } else if (isDrawerOpen) {
       reset({ status: 'new', source: 'walk_in', campaignId: 'CAMP-2026-DEFAULT' });
     }
-  }, [isDrawerOpen, selectedLeadId, reset]);
+  }, [isDrawerOpen, selectedLeadId, reset, leads]);
 
   const onSubmit = async (data: AdmissionLeadDTO) => {
     try {
-      console.log("🚀 Validated Lead Payload:", data);
-      // TODO: Dispatch API call here
-      
-      alert("Lead Captured Successfully!");
+      if (selectedLeadId) {
+        // If we are editing, update the existing lead
+        dispatch(updateLead({ ...data, id: selectedLeadId }));
+      } else {
+        // If no ID, it's a new lead
+        dispatch(addLead(data));
+      }
+
       dispatch(closeLeadDrawer());
       reset();
+      alert(selectedLeadId ? "Lead Updated!" : "New Lead Captured!");
     } catch (error) {
       console.error("Submission failed", error);
     }
   };
-
   return (
     <>
       {/* Backdrop */}
       {isDrawerOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 transition-opacity"
           onClick={() => dispatch(closeLeadDrawer())}
         />
@@ -60,7 +69,7 @@ const CaptureLeadDrawer: React.FC = () => {
       <div className={`fixed top-0 right-0 h-full w-full md:w-[450px] bg-white shadow-drawer z-50 flex flex-col transition-transform duration-300 ease-in-out border-l border-slate-200
         ${isDrawerOpen ? 'translate-x-0' : 'translate-x-full'}
       `}>
-        
+
         {/* Header */}
         <div className="px-6 py-5 border-b border-slate-100 bg-slate-50 flex justify-between items-center shrink-0">
           <div>
@@ -69,8 +78,8 @@ const CaptureLeadDrawer: React.FC = () => {
             </h2>
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Pre-Admission CRM</p>
           </div>
-          <button 
-            onClick={() => dispatch(closeLeadDrawer())} 
+          <button
+            onClick={() => dispatch(closeLeadDrawer())}
             className="p-2 text-slate-400 hover:bg-slate-200 hover:text-slate-700 rounded-xl transition-colors"
           >
             <X size={20} />
@@ -80,18 +89,18 @@ const CaptureLeadDrawer: React.FC = () => {
         {/* Form Body */}
         <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
           <form id="lead-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            
+
             {/* Contact Details Section */}
             <div className="space-y-4">
               <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest border-b border-slate-100 pb-2 flex items-center gap-2">
                 <User size={14} className="text-blue-500" /> Parent Details
               </h3>
-              
+
               <div>
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Parent / Guardian Name <span className="text-rose-500">*</span></label>
-                <input 
+                <input
                   {...register('parentName')}
-                  type="text" 
+                  type="text"
                   className={`w-full p-2.5 text-sm font-bold bg-white border-2 rounded-xl outline-none transition-all ${errors.parentName ? 'border-rose-400 focus:border-rose-500' : 'border-slate-200 focus:border-blue-500'}`}
                   placeholder="Full Name"
                 />
@@ -102,9 +111,9 @@ const CaptureLeadDrawer: React.FC = () => {
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Mobile Number <span className="text-rose-500">*</span></label>
                 <div className="relative">
                   <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input 
+                  <input
                     {...register('mobile')}
-                    type="tel" 
+                    type="tel"
                     maxLength={10}
                     className={`w-full pl-9 pr-4 py-2.5 text-sm font-bold bg-white border-2 rounded-xl outline-none transition-all ${errors.mobile ? 'border-rose-400 focus:border-rose-500' : 'border-slate-200 focus:border-blue-500'}`}
                     placeholder="10-digit mobile number"
@@ -114,15 +123,30 @@ const CaptureLeadDrawer: React.FC = () => {
               </div>
             </div>
 
+            {/* Status Selection (The Movement Engine) */}
+            <div>
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Pipeline Stage</label>
+              <select
+                {...register('status')}
+                className="w-full p-2.5 text-sm font-bold bg-blue-50 border-2 border-blue-200 text-blue-700 rounded-xl outline-none focus:border-blue-500"
+              >
+                <option value="new">New Enquiry</option>
+                <option value="contacted">Contacted</option>
+                <option value="follow_up">Follow Up</option>
+                <option value="converted">Converted to Application</option>
+                <option value="closed">Closed / Rejected</option>
+              </select>
+            </div>
+
             {/* Interest & Source Section */}
             <div className="space-y-4 pt-2">
               <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest border-b border-slate-100 pb-2 flex items-center gap-2">
                 <BookOpen size={14} className="text-purple-500" /> Enrollment Interest
               </h3>
-              
+
               <div>
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Interested Class</label>
-                <select 
+                <select
                   {...register('interestedClassId')}
                   className="w-full p-2.5 text-sm font-bold bg-white border-2 border-slate-200 rounded-xl outline-none focus:border-blue-500"
                 >
@@ -150,7 +174,7 @@ const CaptureLeadDrawer: React.FC = () => {
 
               <div>
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Internal Remarks</label>
-                <textarea 
+                <textarea
                   {...register('remarks')}
                   className="w-full p-3 text-sm font-medium bg-white border-2 border-slate-200 rounded-xl outline-none focus:border-blue-500"
                   rows={3}
@@ -164,7 +188,7 @@ const CaptureLeadDrawer: React.FC = () => {
 
         {/* Footer Actions */}
         <div className="p-5 border-t border-slate-100 bg-slate-50 shrink-0">
-          <button 
+          <button
             type="submit"
             form="lead-form"
             disabled={isSubmitting}

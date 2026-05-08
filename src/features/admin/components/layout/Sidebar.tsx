@@ -9,7 +9,8 @@ import {
   ChevronDown,
   ChevronRight,
   Settings,
-  TrendingUp
+  TrendingUp,
+  Award // Naya icon Examination ke liye add kiya
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -22,7 +23,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const history = useHistory();
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
 
-  // White-label configuration (This could eventually come from Redux/API)
+  // White-label configuration
   const schoolConfig = {
     shortName: "DPS Ranchi",
     logoText: "DPS"
@@ -31,16 +32,30 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   // Navigation Array with Sub-Menus
   const navItems = [
     { name: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard size={20} /> },
+    { 
+      name: 'Admissions Hub', 
+      path: '/admin/admissions', 
+      icon: <TrendingUp size={20} /> 
+    },
     { name: 'Students', path: '/admin/students', icon: <Users size={20} /> },
     { name: 'Teachers', path: '/admin/teachers', icon: <GraduationCap size={20} /> },
     { 
       name: 'Academic Hub', 
       icon: <BookOpen size={20} />,
-      basePath: '/admin/academic', // Used to keep menu open if we are in this section
+      basePath: '/admin/academic', 
       subItems: [
         { name: 'Syllabus', path: '/admin/academic/syllabus' },
         { name: 'Timetable', path: '/admin/academic/timetable' },
-        { name: 'Marks Entry', path: '/admin/academic/marks' },
+      ]
+    },
+    // YAHAN HUMNE NAYA EXAMINATION MODULE ADD KIYA HAI
+    { 
+      name: 'Examination', 
+      icon: <Award size={20} />,
+      basePath: '/admin/examination',
+      subItems: [
+        { name: 'Marks & Grading', path: '/admin/examination/marks-hub' },
+        { name: 'Monthly Tests', path: '/admin/examination/monthly-tests' },
       ]
     },
     {
@@ -49,13 +64,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
       basePath: '/admin/config',
       subItems: [
         { name: 'Holiday Calendar', path: '/admin/config/holidays' },
-        // We will add more config pages here later (e.g., grading rules, school profile)
       ]
-    },
-    { 
-      name: 'Admissions Hub', 
-      path: '/admin/admissions', 
-      icon: <TrendingUp size={20} /> 
     },
   ];
 

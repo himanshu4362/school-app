@@ -44,6 +44,10 @@ import TimetableEditor from './features/admin/pages/academic/TimetableEditor';
 import HolidayCalendarDashboard from './features/admin/pages/config/HolidayCalendarDashboard';
 import LeadManagement from './features/admin/pages/admissions/LeadManagement';
 import AdmissionWizard from './features/admin/components/admissions/AdmissionWizard';
+import MarksEntryHub from './features/admin/pages/examination/MarksEntryHub';
+import EvaluationTable from './features/admin/pages/examination/EvaluationTable';
+import MonthlyTestHub from './features/admin/pages/examination/MonthlyTestHub';
+import MonthlyTestEntry from './features/admin/pages/examination/MonthlyTestEntry';
 
 setupIonicReact();
 
@@ -74,6 +78,10 @@ const App: React.FC = () => (
         <Route exact path="/admin/config/holidays" component={HolidayCalendarDashboard} />
         <Route exact path="/admin/admissions" component={LeadManagement} />
         <Route exact path="/admin/admissions/wizard" component={AdmissionWizard} />
+        <Route exact path="/admin/examination/marks-hub" component={MarksEntryHub} />
+        <Route exact path="/admin/examination/evaluate" component={EvaluationTable} />
+        <Route exact path="/admin/examination/monthly-tests" component={MonthlyTestHub} />
+        <Route exact path="/admin/examination/monthly/entry" component={MonthlyTestEntry}  />
 
         <Route component={page404} />
       </IonRouterOutlet>

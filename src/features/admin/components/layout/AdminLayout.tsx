@@ -3,13 +3,13 @@ import { IonContent, IonPage } from '@ionic/react';
 import { ChevronRight, Home } from 'lucide-react';
 import { useHistory } from 'react-router-dom';
 
-// We will assume you have a clean Sidebar and Header component ready
+// Sidebar aur Header components import
 import Sidebar from './Sidebar';
 import Header from './Header';
 
 export interface Breadcrumb {
   label: string;
-  path?: string; // If no path, it's the current active page
+  path?: string; // Agar path nahi hai, toh ye current active page hai
 }
 
 interface AdminLayoutProps {
@@ -34,17 +34,19 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
     <IonPage>
       <IonContent>
         <div className="flex min-h-screen bg-slate-50">
-          {/* Main Navigation */}
+          
+          {/* Main Navigation Sidebar */}
           <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
           <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
-            {/* Top Bar */}
+            
+            {/* Top Header Bar */}
             <Header toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
 
             {/* Scrollable Content Area */}
             <main className="flex-1 p-4 md:p-6 overflow-y-auto custom-scrollbar">
               
-              {/* Breadcrumb Navigation (The deep navigation) */}
+              {/* Breadcrumb Navigation (Deep Linking) */}
               {breadcrumbs.length > 0 && (
                 <nav className="flex flex-wrap items-center gap-2 mb-6 text-[10px] font-black uppercase tracking-widest text-slate-400">
                   <button 
@@ -85,6 +87,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
 
               {/* The Actual Page Content */}
               {children}
+              
             </main>
           </div>
         </div>
