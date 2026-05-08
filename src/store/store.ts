@@ -1,10 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit';
 import adminReducer from '../features/admin/store/adminSlice';
-
+import admissionReducer from './slices/admissionSlice';
+import configSlice  from './slices/configSlice';
+import applicationSlice from './slices/applicationSlice';
 export const store = configureStore({
   reducer: {
     admin: adminReducer,
-    // auth: authReducer, <-- Add other feature reducers here later
+    admission: admissionReducer,
+    config: configSlice,
+    application: applicationSlice,
   },
 });
 

@@ -38,7 +38,12 @@ import AllSyllabusAnalytics from './features/admin/pages/syllabus/AllSyllabusAna
 import ClassSyllabusAnalytics from './features/admin/pages/syllabus/ClassSyllabusAnalytics';
 import SubjectDashboard from './features/admin/pages/syllabus/SubjectDashboard';
 import SyllabusEditorSandbox from './features/admin/pages/syllabus/SyllabusEditorSandbox';
-
+import TimetableOverview from './features/admin/pages/academic/TimetableOverview';
+import ClassTimetableDashboard from './features/admin/pages/academic/ClassTimetableDashboard';
+import TimetableEditor from './features/admin/pages/academic/TimetableEditor';
+import HolidayCalendarDashboard from './features/admin/pages/config/HolidayCalendarDashboard';
+import LeadManagement from './features/admin/pages/admissions/LeadManagement';
+import AdmissionWizard from './features/admin/components/admissions/AdmissionWizard';
 
 setupIonicReact();
 
@@ -63,6 +68,12 @@ const App: React.FC = () => (
         <Route exact path="/admin/academic/syllabus/analytics/:classId" component={ClassSyllabusAnalytics} />
         <Route exact path="/admin/academic/syllabus/manage/:classId/:subjectId" component={SubjectDashboard} />
         <Route exact path="/admin/academic/syllabus/editor/:classId/:subjectId" component={SyllabusEditorSandbox} />
+        <Route exact path="/admin/academic/timetable" component={TimetableOverview} />
+        <Route exact path="/admin/academic/timetable/manage/:classId" component={ClassTimetableDashboard} />
+        <Route exact path="/admin/academic/timetable/editor/:classId" component={TimetableEditor} />
+        <Route exact path="/admin/config/holidays" component={HolidayCalendarDashboard} />
+        <Route exact path="/admin/admissions" component={LeadManagement} />
+        <Route exact path="/admin/admissions/wizard" component={AdmissionWizard} />
 
         <Route component={page404} />
       </IonRouterOutlet>

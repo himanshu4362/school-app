@@ -7,7 +7,9 @@ import {
   BookOpen, 
   LogOut,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Settings,
+  TrendingUp
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -40,6 +42,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         { name: 'Timetable', path: '/admin/academic/timetable' },
         { name: 'Marks Entry', path: '/admin/academic/marks' },
       ]
+    },
+    {
+      name: 'System Config',
+      icon: <Settings size={20} />,
+      basePath: '/admin/config',
+      subItems: [
+        { name: 'Holiday Calendar', path: '/admin/config/holidays' },
+        // We will add more config pages here later (e.g., grading rules, school profile)
+      ]
+    },
+    { 
+      name: 'Admissions Hub', 
+      path: '/admin/admissions', 
+      icon: <TrendingUp size={20} /> 
     },
   ];
 
