@@ -10,7 +10,8 @@ import {
   ChevronRight,
   Settings,
   TrendingUp,
-  Award // Naya icon Examination ke liye add kiya
+  Award, // Naya icon Examination ke liye add kiya
+  Briefcase
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -30,15 +31,26 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   };
 
   // Navigation Array with Sub-Menus
-  const navItems = [
+const navItems = [
     { name: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard size={20} /> },
-    { 
-      name: 'Admissions Hub', 
-      path: '/admin/admissions', 
-      icon: <TrendingUp size={20} /> 
-    },
+    
+    { name: 'Admissions Hub', path: '/admin/admissions', icon: <TrendingUp size={20} /> },
+    
     { name: 'Students', path: '/admin/students', icon: <Users size={20} /> },
-    { name: 'Teachers', path: '/admin/teachers', icon: <GraduationCap size={20} /> },
+    { 
+      name: 'HR & Faculty', 
+      icon: <Briefcase size={20} />, 
+      basePath: '/admin/faculty',
+      subItems: [
+        { name: 'Talent Acquisition', path: '/admin/faculty/recruitment' },        
+        { name: 'Staff Directory', path: '/admin/faculty/directory' },
+        { name: 'Onboarding Wizard', path: '/admin/faculty/onboarding' },
+        { name: 'Leave Inbox', path: '/admin/faculty/leaves' },
+        { name: 'Payroll & Salary', path: '/admin/faculty/payroll' },
+      ]
+    },
+
+    // 4. ACADEMIC OPERATIONS
     { 
       name: 'Academic Hub', 
       icon: <BookOpen size={20} />,
@@ -48,7 +60,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         { name: 'Timetable', path: '/admin/academic/timetable' },
       ]
     },
-    // YAHAN HUMNE NAYA EXAMINATION MODULE ADD KIYA HAI
     { 
       name: 'Examination', 
       icon: <Award size={20} />,
@@ -58,12 +69,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         { name: 'Monthly Tests', path: '/admin/examination/monthly-tests' },
       ]
     },
+
+    // 5. SETTINGS
     {
       name: 'System Config',
       icon: <Settings size={20} />,
       basePath: '/admin/config',
       subItems: [
         { name: 'Holiday Calendar', path: '/admin/config/holidays' },
+        { name: 'Seat Management', path: '/admin/config/seats' }, // Good to have here too
       ]
     },
   ];

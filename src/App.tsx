@@ -48,6 +48,9 @@ import MarksEntryHub from './features/admin/pages/examination/MarksEntryHub';
 import EvaluationTable from './features/admin/pages/examination/EvaluationTable';
 import MonthlyTestHub from './features/admin/pages/examination/MonthlyTestHub';
 import MonthlyTestEntry from './features/admin/pages/examination/MonthlyTestEntry';
+import RecruitmentPipeline from './features/admin/pages/faculty/RecruitmentPipeline';
+import FacultyBulkImporter from './features/admin/pages/faculty/FacultyBulkImporter';
+import FacultyOnboardingWizard from './features/admin/pages/faculty/FacultyOnboardingWizard';
 
 setupIonicReact();
 
@@ -81,7 +84,10 @@ const App: React.FC = () => (
         <Route exact path="/admin/examination/marks-hub" component={MarksEntryHub} />
         <Route exact path="/admin/examination/evaluate" component={EvaluationTable} />
         <Route exact path="/admin/examination/monthly-tests" component={MonthlyTestHub} />
-        <Route exact path="/admin/examination/monthly/entry" component={MonthlyTestEntry}  />
+        <Route exact path="/admin/examination/monthly/entry" component={MonthlyTestEntry} />
+        <Route exact path="/admin/faculty/recruitment" component={RecruitmentPipeline} />
+        <Route exact path="/admin/faculty/migration" component={FacultyBulkImporter} />
+        <Route exact path="/admin/faculty/onboarding" component={FacultyOnboardingWizard} />
 
         <Route component={page404} />
       </IonRouterOutlet>

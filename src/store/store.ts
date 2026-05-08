@@ -5,6 +5,9 @@ import configSlice from "./slices/configSlice";
 import applicationSlice from "./slices/applicationSlice";
 import examinationReducer from "./slices/examinationSlice";
 import monthlyTestReducer from './slices/monthlyTestSlice';
+import facultySlice from './slices/facultySlice'
+import recruitmentSlice from "./slices/recruitmentSlice";
+
 export const store = configureStore({
   reducer: {
     admin: adminReducer,
@@ -13,6 +16,8 @@ export const store = configureStore({
     application: applicationSlice,
     examination: examinationReducer,
     monthlyTest: monthlyTestReducer,
+    faculty: facultySlice,
+    recruitment: recruitmentSlice
   },
 });
 
