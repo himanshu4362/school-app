@@ -3,14 +3,13 @@ import { useLocation, useHistory } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
-  GraduationCap, 
   BookOpen, 
   LogOut,
   ChevronDown,
   ChevronRight,
   Settings,
   TrendingUp,
-  Award, // Naya icon Examination ke liye add kiya
+  Award,
   Briefcase
 } from 'lucide-react';
 
@@ -44,8 +43,10 @@ const navItems = [
       subItems: [
         { name: 'Talent Acquisition', path: '/admin/faculty/recruitment' },        
         { name: 'Staff Directory', path: '/admin/faculty/directory' },
+        { name: 'Daily Attendance', path: '/admin/faculty/attendance' },
+        { name: 'Data Migration', path: '/admin/faculty/migration' },
         { name: 'Onboarding Wizard', path: '/admin/faculty/onboarding' },
-        { name: 'Leave Inbox', path: '/admin/faculty/leaves' },
+        { name: 'Leave Inbox', path: '/admin/faculty/leave' },
         { name: 'Payroll & Salary', path: '/admin/faculty/payroll' },
       ]
     },
@@ -60,24 +61,24 @@ const navItems = [
         { name: 'Timetable', path: '/admin/academic/timetable' },
       ]
     },
+    {
+      name: 'System Config',
+      icon: <Settings size={20} />,
+      basePath: '/admin/config',
+      subItems: [ 
+        { name: 'Master Data Hub', path: '/admin/config/master-data' }, 
+        { name: 'Holiday Calendar', path: '/admin/config/holidays' },
+        { name: 'Seat Management', path: "/admin/config/seats" }, 
+      ]
+    },
     { 
       name: 'Examination', 
       icon: <Award size={20} />,
       basePath: '/admin/examination',
       subItems: [
         { name: 'Marks & Grading', path: '/admin/examination/marks-hub' },
+        { name: 'Paper Evaluation', path: '/admin/examination/evaluate' },
         { name: 'Monthly Tests', path: '/admin/examination/monthly-tests' },
-      ]
-    },
-
-    // 5. SETTINGS
-    {
-      name: 'System Config',
-      icon: <Settings size={20} />,
-      basePath: '/admin/config',
-      subItems: [
-        { name: 'Holiday Calendar', path: '/admin/config/holidays' },
-        { name: 'Seat Management', path: '/admin/config/seats' }, // Good to have here too
       ]
     },
   ];

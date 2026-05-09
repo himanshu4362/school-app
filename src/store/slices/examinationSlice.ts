@@ -69,10 +69,10 @@ export const examinationSlice = createSlice({
   name: 'examination',
   initialState,
   reducers: {
-    // Navigation Actions
-    selectExam: (state, action: PayloadAction<string>) => { state.activeExamId = action.payload; },
-    selectClass: (state, action: PayloadAction<string>) => { state.selectedClassId = action.payload; },
-    selectSubject: (state, action: PayloadAction<string | null>) => { state.selectedSubjectId = action.payload; },
+    // 🔴 FIXED: Renamed these to match exactly what the Evaluation UI is calling
+    setActiveExamId: (state, action: PayloadAction<string>) => { state.activeExamId = action.payload; },
+    setSelectedClassId: (state, action: PayloadAction<string>) => { state.selectedClassId = action.payload; },
+    setSelectedSubjectId: (state, action: PayloadAction<string | null>) => { state.selectedSubjectId = action.payload; },
     
     // Drawer Actions
     openStudentReport: (state, action: PayloadAction<string>) => {
@@ -113,7 +113,7 @@ export const examinationSlice = createSlice({
 });
 
 export const { 
-  selectExam, selectClass, selectSubject, 
+  setActiveExamId, setSelectedClassId, setSelectedSubjectId, 
   openStudentReport, closeStudentReport, updateStudentMark 
 } = examinationSlice.actions;
 

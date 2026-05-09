@@ -2,12 +2,18 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { RootState } from '../../../../store/store';
-import { updateStudentMark, openStudentReport } from '../../../../store/slices/examinationSlice';
+import { 
+  updateStudentMark, 
+  openStudentReport,
+  setActiveExamId, 
+  setSelectedClassId, 
+  setSelectedSubjectId 
+} from '../../../../store/slices/examinationSlice';
 import AdminLayout from '../../components/layout/AdminLayout';
-import StudentReportDrawer from './StudentReportDrawer'; // Level 4 Drawer Import
+import StudentReportDrawer from './StudentReportDrawer';
 import { 
   ArrowLeft, Save, Lock, Search, Filter, 
-  MoreVertical, Award, Eye, User, AlertCircle 
+  MoreVertical, Award, Eye, User, FileText, CheckCircle2
 } from 'lucide-react';
 
 const EvaluationTable: React.FC = () => {
@@ -28,40 +34,95 @@ const EvaluationTable: React.FC = () => {
   const activeExam = exams.find(e => e.id === activeExamId);
   const activeSubject = classSubjectsData.find(s => s.id === selectedSubjectId);
 
-  // Fallback UI agar kisi ne bina subject select kiye page open kar liya
-  if (!selectedClassId || !selectedSubjectId) {
+  // ==========================================
+  // 🔴 THE NEW EVALUATION GATEWAY (Replaces the Dead End)
+  // ==========================================
+  if (!selectedClassId || !selectedSubjectId || !activeExamId) {
     return (
       <AdminLayout 
-        pageTitle="Evaluation Error" 
-        pageDescription="Please select a subject first."
-        breadcrumbs={[{ label: 'Examination' }]}
+        pageTitle="Paper Evaluation" 
+        pageDescription="Select an examination target to begin grading."
+        breadcrumbs={[{ label: 'Examination' }, { label: 'Evaluate' }]}
       >
-        <div className="flex flex-col items-center justify-center h-[60vh] bg-white rounded-2xl border border-slate-200 shadow-sm">
-          <AlertCircle size={48} className="text-rose-400 mb-4" />
-          <h2 className="text-xl font-black text-slate-900">No Subject Selected</h2>
-          <p className="text-sm font-bold text-slate-500 mb-6">Please select a class and subject from the Marks Hub first.</p>
-          <button 
-            onClick={() => history.push('/admin/examination/marks-hub')}
-            className="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-black text-sm hover:bg-blue-700 transition-all shadow-md"
-          >
-            Go back to Marks Hub
-          </button>
+        <div className="max-w-2xl mx-auto mt-8 bg-white p-8 rounded-3xl border border-slate-200 shadow-sm animate-in fade-in zoom-in-95 duration-300">
+          <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-100">
+            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shadow-inner">
+              <FileText size={24} />
+            </div>
+            <div>
+              <h2 className="text-xl font-black text-slate-900">Evaluation Gateway</h2>
+              <p className="text-sm font-bold text-slate-500">Please define your grading target.</p>
+            </div>
+          </div>
+
+          <div className="space-y-5">
+            {/* Exam Dropdown */}
+            <div>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Select Examination</label>
+              <select 
+                value={activeExamId || ''} 
+                onChange={(e) => dispatch(setActiveExamId(e.target.value))}
+                className="w-full p-3.5 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:border-blue-500 transition-colors"
+              >
+                <option value="">-- Choose Exam --</option>
+                {exams.map(ex => <option key={ex.id} value={ex.id}>{ex.name}</option>)}
+              </select>
+            </div>
+
+            {/* Class Dropdown */}
+            <div>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Target Class / Section</label>
+              <select 
+                value={selectedClassId || ''} 
+                onChange={(e) => dispatch(setSelectedClassId(e.target.value))}
+                disabled={!activeExamId}
+                className="w-full p-3.5 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <option value="">-- Choose Class --</option>
+                {/* Replace these mock options with your actual class list from Redux if you have it! */}
+                <option value="Class 10-A">Class 10-A</option>
+                <option value="Class 10-B">Class 10-B</option>
+                <option value="Class 11-Sci">Class 11-Sci</option>
+              </select>
+            </div>
+
+            {/* Subject Dropdown */}
+            <div>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Subject to Evaluate</label>
+              <select 
+                value={selectedSubjectId || ''} 
+                onChange={(e) => dispatch(setSelectedSubjectId(e.target.value))}
+                disabled={!selectedClassId}
+                className="w-full p-3.5 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <option value="">-- Choose Subject --</option>
+                {classSubjectsData.map(sub => <option key={sub.id} value={sub.id}>{sub.subjectName}</option>)}
+              </select>
+            </div>
+            
+            {/* Status Helper */}
+            {(selectedClassId && selectedSubjectId && activeExamId) && (
+              <div className="mt-4 p-4 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-3 animate-in fade-in">
+                <CheckCircle2 size={18} className="text-emerald-600" />
+                <p className="text-sm font-bold text-emerald-800">Target locked. Loading evaluation matrix...</p>
+              </div>
+            )}
+          </div>
         </div>
       </AdminLayout>
     );
   }
 
-  // Marks Handle Logic
+  // ==========================================
+  // EXISTING MARKS HANDLE LOGIC (Unchanged)
+  // ==========================================
   const handleMarkChange = (studentId: string, field: 'theoryMarks' | 'internalMarks', value: string) => {
     let numericValue = value === '' ? null : Number(value);
-    
-    // Enforcing Max Limits (Theory: 80, Internal: 20)
     if (numericValue !== null) {
       if (field === 'theoryMarks' && numericValue > 80) numericValue = 80;
       if (field === 'internalMarks' && numericValue > 20) numericValue = 20;
       if (numericValue < 0) numericValue = 0;
     }
-
     dispatch(updateStudentMark({ studentId, field, value: numericValue as any }));
   };
 
@@ -98,9 +159,12 @@ const EvaluationTable: React.FC = () => {
       <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <button 
-            onClick={() => history.push('/admin/examination/marks-hub')}
+            onClick={() => {
+              // 🔴 Clear the selection so they can pick a new subject when they go back!
+              dispatch(setSelectedSubjectId(''));
+            }}
             className="p-2.5 bg-slate-50 text-slate-500 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors border border-slate-200"
-            title="Back to Hub"
+            title="Go Back & Select New Subject"
           >
             <ArrowLeft size={18} />
           </button>
@@ -226,7 +290,6 @@ const EvaluationTable: React.FC = () => {
                   </td>
 
                   <td className="px-6 py-4 text-right flex items-center justify-end gap-3">
-                    {/* FIXED: Wrapped Award icon in a span to handle the title prop safely */}
                     {student.rank && student.rank <= 3 && (
                       <span title={`Rank ${student.rank}`}>
                         <Award size={18} className={
@@ -254,7 +317,7 @@ const EvaluationTable: React.FC = () => {
         </div>
       </div>
       
-      {/* 4. STUDENT REPORT DRAWER (Level 4 Integration) */}
+      {/* 4. STUDENT REPORT DRAWER */}
       <StudentReportDrawer />
       
     </AdminLayout>

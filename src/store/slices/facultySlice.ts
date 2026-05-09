@@ -72,11 +72,15 @@ export const facultySlice = createSlice({
     resetOnboarding: (state) => {
       state.onboardingDraft = initialDraftState;
     },
-    saveVault: (state, action: PayloadAction<any>) => { state.onboardingDraft.documents = action.payload; },
-    
+    saveVault: (state, action: PayloadAction<any>) => {
+      state.onboardingDraft.documents = action.payload;
+    },
+
     // 1. Save the final step data
-    saveAccess: (state, action: PayloadAction<any>) => { state.onboardingDraft.accessConfig = action.payload; },
-    
+    saveAccess: (state, action: PayloadAction<any>) => {
+      state.onboardingDraft.accessConfig = action.payload;
+    },
+
     // 2. MASTER COMMIT: Move draft to the official directory
     completeOnboarding: (state) => {
       const newFacultyMember = {
@@ -90,12 +94,18 @@ export const facultySlice = createSlice({
         access: state.onboardingDraft.accessConfig,
         hiredAt: new Date().toISOString(),
       };
-      
+      const finalEntity = {
+        id: crypto.randomUUID(),
+        employeeId: state.onboardingDraft.employment.employeeId,
+        fullName: `${state.onboardingDraft.identity.firstName} ${state.onboardingDraft.identity.lastName}`,
+        // ... map other fields from draft to the FacultyEmployee entity
+        status: "active",
+        createdAt: new Date().toISOString(),
+      };
       state.directory.push(newFacultyMember);
       state.onboardingDraft = initialDraftState; // Reset the wizard for the next hire
     },
   },
-  
 });
 
 export const {
@@ -110,7 +120,7 @@ export const {
   saveAllocation,
   saveVault,
   saveAccess,
-  completeOnboarding
+  completeOnboarding,
 } = facultySlice.actions;
 
 export default facultySlice.reducer;

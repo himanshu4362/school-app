@@ -7,6 +7,11 @@ import examinationReducer from "./slices/examinationSlice";
 import monthlyTestReducer from './slices/monthlyTestSlice';
 import facultySlice from './slices/facultySlice'
 import recruitmentSlice from "./slices/recruitmentSlice";
+import facultyDirectoryReducer from './slices/facultyDirectorySlice'; // Add this import
+import attendanceSlice from "./slices/attendanceSlice";
+import leaveSlice from './slices/leaveSlice'
+import systemConfigSlice from "./slices/systemConfigSlice";
+import seatSlice from "./slices/seatSlice";
 
 export const store = configureStore({
   reducer: {
@@ -17,7 +22,12 @@ export const store = configureStore({
     examination: examinationReducer,
     monthlyTest: monthlyTestReducer,
     faculty: facultySlice,
-    recruitment: recruitmentSlice
+    recruitment: recruitmentSlice,
+    facultyDirectory: facultyDirectoryReducer,
+    attendance: attendanceSlice,
+    leave: leaveSlice,
+    systemConfig: systemConfigSlice,
+    seats: seatSlice
   },
 });
 

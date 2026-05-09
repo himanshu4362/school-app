@@ -51,6 +51,11 @@ import MonthlyTestEntry from './features/admin/pages/examination/MonthlyTestEntr
 import RecruitmentPipeline from './features/admin/pages/faculty/RecruitmentPipeline';
 import FacultyBulkImporter from './features/admin/pages/faculty/FacultyBulkImporter';
 import FacultyOnboardingWizard from './features/admin/pages/faculty/FacultyOnboardingWizard';
+import StaffDirectory from './features/admin/pages/faculty/StaffDirectory';
+import StaffAttendancePage from './features/admin/pages/faculty/StaffAttendance';
+import LeaveManagementPage from './features/admin/pages/faculty/LeaveManagement';
+import SystemConfigHub from './features/admin/pages/system/SystemConfigHub';
+import SeatManagementHub from './features/admin/pages/system/SeatManagementHub';
 
 setupIonicReact();
 
@@ -88,6 +93,13 @@ const App: React.FC = () => (
         <Route exact path="/admin/faculty/recruitment" component={RecruitmentPipeline} />
         <Route exact path="/admin/faculty/migration" component={FacultyBulkImporter} />
         <Route exact path="/admin/faculty/onboarding" component={FacultyOnboardingWizard} />
+        <Route exact path="/admin/faculty/directory" component={StaffDirectory} />
+        <Route exact path="/admin/faculty/attendance" component={StaffAttendancePage} />
+        <Route exact path="/admin/faculty/leave" component={LeaveManagementPage} />
+        <Route exact path="/admin/config/master-data" component={SystemConfigHub} />
+        <Route exact path="/admin/config/seats" component={SeatManagementHub} />
+        {/* <Route exact path="/admin/students" component={StudentDirectoryHub} /> */}
+        {/* <Route exact path="/admin/faculty/payroll" component={PayrollManagementHub} /> */}
 
         <Route component={page404} />
       </IonRouterOutlet>
