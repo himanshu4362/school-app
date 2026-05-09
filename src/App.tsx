@@ -56,6 +56,13 @@ import StaffAttendancePage from './features/admin/pages/faculty/StaffAttendance'
 import LeaveManagementPage from './features/admin/pages/faculty/LeaveManagement';
 import SystemConfigHub from './features/admin/pages/system/SystemConfigHub';
 import SeatManagementHub from './features/admin/pages/system/SeatManagementHub';
+import FeeMasterHub from './features/admin/pages/finance/FeeMasterHub';
+import StudentLedgerHub from './features/admin/pages/finance/StudentLedgerHub';
+import CashDeskHub from './features/admin/pages/finance/CashDeskHub';
+import RevenuePassbookHub from './features/admin/pages/finance/RevenuePassbookHub';
+import PayrollHub from './features/admin/pages/finance/PayrollHub';
+import ExpensePassbookHub from './features/admin/pages/finance/ExpensePassbookHub';
+import ExecutiveDashboardHub from './features/admin/pages/finance/ExecutiveDashboardHub';
 
 setupIonicReact();
 
@@ -98,8 +105,13 @@ const App: React.FC = () => (
         <Route exact path="/admin/faculty/leave" component={LeaveManagementPage} />
         <Route exact path="/admin/config/master-data" component={SystemConfigHub} />
         <Route exact path="/admin/config/seats" component={SeatManagementHub} />
-        {/* <Route exact path="/admin/students" component={StudentDirectoryHub} /> */}
-        {/* <Route exact path="/admin/faculty/payroll" component={PayrollManagementHub} /> */}
+        <Route exact path="/admin/finance/fee-master" component={FeeMasterHub} />
+        <Route exact path="/admin/finance/ledger" component={StudentLedgerHub} />
+        <Route exact path="/admin/finance/pos" component={CashDeskHub} />
+        <Route exact path="/admin/finance/passbook" component={RevenuePassbookHub} />
+        <Route exact path="/admin/finance/payroll" component={PayrollHub} />
+        <Route exact path="/admin/finance/expenses" component={ExpensePassbookHub} />
+        <Route exact path="/admin/finance/executive-dashboard" component={ExecutiveDashboardHub} />
 
         <Route component={page404} />
       </IonRouterOutlet>

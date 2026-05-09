@@ -12,6 +12,7 @@ import attendanceSlice from "./slices/attendanceSlice";
 import leaveSlice from './slices/leaveSlice'
 import systemConfigSlice from "./slices/systemConfigSlice";
 import seatSlice from "./slices/seatSlice";
+import financeReducer from './slices/financeSlice'
 
 export const store = configureStore({
   reducer: {
@@ -27,7 +28,8 @@ export const store = configureStore({
     attendance: attendanceSlice,
     leave: leaveSlice,
     systemConfig: systemConfigSlice,
-    seats: seatSlice
+    seats: seatSlice,
+    finance: financeReducer
   },
 });
 

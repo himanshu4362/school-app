@@ -10,7 +10,8 @@ import {
   Settings,
   TrendingUp,
   Award,
-  Briefcase
+  Briefcase,
+  Wallet
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -47,10 +48,22 @@ const navItems = [
         { name: 'Data Migration', path: '/admin/faculty/migration' },
         { name: 'Onboarding Wizard', path: '/admin/faculty/onboarding' },
         { name: 'Leave Inbox', path: '/admin/faculty/leave' },
-        { name: 'Payroll & Salary', path: '/admin/faculty/payroll' },
       ]
     },
-
+    { 
+      name: 'Finance & Accounts', 
+      icon: <Wallet size={20} />, 
+      basePath: '/admin/finance',
+      subItems: [
+        { name: 'Executive P&L', path: '/admin/finance/executive-dashboard' },
+        { name: 'Revenue Passbook', path: '/admin/finance/passbook' },
+        { name: 'Expense Passbook', path: '/admin/finance/expenses' },
+        { name: 'Fee Master Catalog', path: '/admin/finance/fee-master' },
+        { name: 'Student Ledger', path: '/admin/finance/ledger' },
+        { name: 'Cash Desk (POS)', path: '/admin/finance/pos' },
+        { name: 'Payroll Engine', path: '/admin/finance/payroll' },
+      ]
+    },
     // 4. ACADEMIC OPERATIONS
     { 
       name: 'Academic Hub', 
