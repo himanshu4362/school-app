@@ -63,6 +63,14 @@ import RevenuePassbookHub from './features/admin/pages/finance/RevenuePassbookHu
 import PayrollHub from './features/admin/pages/finance/PayrollHub';
 import ExpensePassbookHub from './features/admin/pages/finance/ExpensePassbookHub';
 import ExecutiveDashboardHub from './features/admin/pages/finance/ExecutiveDashboardHub';
+import SeparationHub from './features/admin/pages/hr/SeparationHub';
+import StudentExitHub from './features/admin/pages/student/StudentExitHub';
+import StudentDirectoryHub from './features/admin/pages/student/StudentDirectoryHub';
+import LibraryAdminHub from './features/admin/pages/library/LibraryAdminHub';
+import CirculationDeskHub from './features/admin/pages/library/CirculationDeskHub';
+import OpacHub from './features/admin/pages/library/OpacHub';
+import LibraryAnalyticsHub from './features/admin/pages/library/LibraryAnalyticsHub';
+import AcademicAdminHub from './features/admin/pages/academic/AcademicAdminHub';
 
 setupIonicReact();
 
@@ -112,6 +120,14 @@ const App: React.FC = () => (
         <Route exact path="/admin/finance/payroll" component={PayrollHub} />
         <Route exact path="/admin/finance/expenses" component={ExpensePassbookHub} />
         <Route exact path="/admin/finance/executive-dashboard" component={ExecutiveDashboardHub} />
+        <Route exact path="/admin/hr/separations" component={SeparationHub} />
+        <Route exact path="/admin/student/exits" component={StudentExitHub} />
+        <Route exact path="/admin/students" component={StudentDirectoryHub} />
+        <Route exact path="/admin/library/procurement" component={LibraryAdminHub} />
+        <Route exact path="/admin/library/circulation" component={CirculationDeskHub} />
+        <Route exact path="/admin/library/opac" component={OpacHub} />
+        <Route exact path="/admin/library/analytics" component={LibraryAnalyticsHub} />
+        <Route exact path="/admin/academic/subjects" component={AcademicAdminHub} />
 
         <Route component={page404} />
       </IonRouterOutlet>

@@ -63,3 +63,42 @@ export const AttendanceSessionSchema = z.object({
 export type AttendanceRecord = z.infer<typeof DailyAttendanceRecordSchema>;
 export type AttendanceSession = z.infer<typeof AttendanceSessionSchema>;
 export type AttendanceChangeLog = z.infer<typeof ChangeLogSchema>;
+
+
+
+// ==========================================
+// LEAVE POLICY & REQUEST SCHEMA (Append to bottom)
+// ==========================================
+export const LeaveTypeEnum = z.enum(['CASUAL', 'SICK', 'EARNED', 'MATERNITY', 'UNPAID']);
+
+export const LeaveBalanceSchema = z.object({
+  id: z.string().uuid(),
+  staffId: z.string(),
+  academicYearId: z.string(),
+  casualLeaveTotal: z.number().default(12),
+  casualLeaveUsed: z.number().default(0),
+  sickLeaveTotal: z.number().default(10),
+  sickLeaveUsed: z.number().default(0),
+  earnedLeaveTotal: z.number().default(0),
+  earnedLeaveUsed: z.number().default(0),
+});
+
+export const LeaveRequestStatusEnum = z.enum(['PENDING', 'APPROVED', 'REJECTED', 'CANCELLED']);
+
+export const LeaveRequestSchema = z.object({
+  id: z.string().uuid(),
+  staffId: z.string(),
+  type: LeaveTypeEnum,
+  startDate: z.string(),
+  endDate: z.string(),
+  totalDays: z.number(),
+  reason: z.string(),
+  documentUrl: z.string().optional(),
+  status: LeaveRequestStatusEnum.default('PENDING'),
+  appliedOn: z.string(),
+  reviewedBy: z.string().nullable(),
+  reviewRemarks: z.string().optional(),
+});
+
+export type LeaveBalance = z.infer<typeof LeaveBalanceSchema>;
+export type LeaveRequest = z.infer<typeof LeaveRequestSchema>;

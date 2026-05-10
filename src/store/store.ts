@@ -13,6 +13,14 @@ import leaveSlice from './slices/leaveSlice'
 import systemConfigSlice from "./slices/systemConfigSlice";
 import seatSlice from "./slices/seatSlice";
 import financeReducer from './slices/financeSlice'
+import hrSlice from "./slices/hrSlice";
+import studentExitReducer from './slices/studentExitSlice';
+import studentReducer from './slices/studentSlice';
+import libraryReducer from './slices/librarySlice'
+import academicReducer from './slices/academicSlice';
+
+
+
 
 export const store = configureStore({
   reducer: {
@@ -29,7 +37,12 @@ export const store = configureStore({
     leave: leaveSlice,
     systemConfig: systemConfigSlice,
     seats: seatSlice,
-    finance: financeReducer
+    finance: financeReducer,
+    hr: hrSlice,
+    studentExit: studentExitReducer, 
+    student: studentReducer,
+    library: libraryReducer,
+    academic: academicReducer,
   },
 });
 

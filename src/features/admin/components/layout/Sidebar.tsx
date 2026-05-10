@@ -11,7 +11,8 @@ import {
   TrendingUp,
   Award,
   Briefcase,
-  Wallet
+  Wallet,
+  Library
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -36,7 +37,15 @@ const navItems = [
     
     { name: 'Admissions Hub', path: '/admin/admissions', icon: <TrendingUp size={20} /> },
     
-    { name: 'Students', path: '/admin/students', icon: <Users size={20} /> },
+    { 
+      name: 'Students & Alumni', 
+      icon: <Users size={20} />, 
+      basePath: '/admin/student',
+      subItems: [
+        { name: 'Active Directory', path: '/admin/students' },
+        { name: 'Exit & Alumni Hub', path: '/admin/student/exits' },
+      ]
+    },
     { 
       name: 'HR & Faculty', 
       icon: <Briefcase size={20} />, 
@@ -44,6 +53,7 @@ const navItems = [
       subItems: [
         { name: 'Talent Acquisition', path: '/admin/faculty/recruitment' },        
         { name: 'Staff Directory', path: '/admin/faculty/directory' },
+        { name: 'Separation Engine', path: '/admin/hr/separations' },
         { name: 'Daily Attendance', path: '/admin/faculty/attendance' },
         { name: 'Data Migration', path: '/admin/faculty/migration' },
         { name: 'Onboarding Wizard', path: '/admin/faculty/onboarding' },
@@ -70,8 +80,9 @@ const navItems = [
       icon: <BookOpen size={20} />,
       basePath: '/admin/academic', 
       subItems: [
-        { name: 'Syllabus', path: '/admin/academic/syllabus' },
-        { name: 'Timetable', path: '/admin/academic/timetable' },
+        { name: 'Subjects & Allocation', path: '/admin/academic/subjects' },
+        { name: 'Timetable Desk', path: '/admin/academic/timetable' },
+        { name: 'Syllabus Tracker', path: '/admin/academic/syllabus' }
       ]
     },
     {
@@ -94,6 +105,17 @@ const navItems = [
         { name: 'Monthly Tests', path: '/admin/examination/monthly-tests' },
       ]
     },
+    { 
+      name: 'Library Hub', 
+      icon: <Library size={20} />, 
+      basePath: '/admin/library',
+      subItems: [
+        { name: 'Procurement & Catalog', path: '/admin/library/procurement' },
+        { name: 'Circulation Desk', path: '/admin/library/circulation' },
+        { name: 'OPAC Search', path: '/admin/library/opac' },
+        { name: 'Inventory & Analytics', path: '/admin/library/analytics' }
+      ]
+    }
   ];
 
   // Auto-expand the menu if the user is currently on a nested route
