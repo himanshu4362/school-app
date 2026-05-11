@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-// Added 'SKIPPED' for students not explicitly marked before closing
 export type StudentDailyStatus = 'PRESENT' | 'ABSENT' | 'LATE' | 'HALF_DAY' | 'MEDICAL_EXIT' | 'ON_LEAVE' | 'SKIPPED';
 export type InstructionalDayType = 'FULL_DAY' | 'HALF_DAY' | 'EXAM_DAY' | 'HOLIDAY' | 'EVENT_DAY';
 
@@ -19,16 +18,19 @@ interface ClassSession {
 interface StudentAttendanceState {
   selectedDate: string;
   instructionalDayType: InstructionalDayType;
-  // Current active view context
+  
+  // Navigation Router State
+  currentStage: 'GATEWAY' | 'PRE_FLIGHT' | 'ACTIVE' | 'POST_SUBMISSION';
   activeClassId: string | null;
   activeSectionId: string | null;
-  // All isolated sessions
-  sessions: Record<string, ClassSession>; // Keyed by "classId-sectionId"
+  
+  sessions: Record<string, ClassSession>;
 }
 
 const initialState: StudentAttendanceState = {
   selectedDate: new Date().toISOString().split('T')[0],
   instructionalDayType: 'FULL_DAY',
+  currentStage: 'GATEWAY',
   activeClassId: null,
   activeSectionId: null,
   sessions: {},
@@ -50,39 +52,41 @@ export const studentAttendanceSlice = createSlice({
       state.instructionalDayType = action.payload;
     },
     
-    // 1. Gateway Action: Teacher selects a class
-    startAttendanceSession: (state, action: PayloadAction<{ classId: string; sectionId: string }>) => {
-      const { classId, sectionId } = action.payload;
-      state.activeClassId = classId;
-      state.activeSectionId = sectionId;
-      
-      const session = getSession(state, classId, sectionId);
+    // NAVIGATION ACTIONS (The Breadcrumb Engine)
+    navToGateway: (state) => {
+      state.currentStage = 'GATEWAY';
+      state.activeClassId = null;
+      state.activeSectionId = null;
+    },
+    
+    navToPreFlight: (state, action: PayloadAction<{ classId: string; sectionId: string }>) => {
+      state.activeClassId = action.payload.classId;
+      state.activeSectionId = action.payload.sectionId;
+      state.currentStage = 'PRE_FLIGHT';
+      getSession(state, action.payload.classId, action.payload.sectionId); // Init session if new
+    },
+
+    navToActiveSession: (state) => {
+      if (!state.activeClassId || !state.activeSectionId) return;
+      state.currentStage = 'ACTIVE';
+      const session = getSession(state, state.activeClassId, state.activeSectionId);
       if (session.status === 'PENDING') {
         session.status = 'IN_PROGRESS';
         session.startedAt = new Date().toISOString();
       }
     },
 
-    // 2. Gateway Action: Teacher leaves the active session view
-    exitAttendanceSession: (state) => {
-      state.activeClassId = null;
-      state.activeSectionId = null;
-    },
-
     updateStudentStatus: (state, action: PayloadAction<{ studentId: string; status: StudentDailyStatus }>) => {
       if (!state.activeClassId || !state.activeSectionId) return;
       const session = getSession(state, state.activeClassId, state.activeSectionId);
       if (session.status === 'SUBMITTED' || session.status === 'LOCKED') return; 
-      
       session.draftRegister[action.payload.studentId] = { studentId: action.payload.studentId, status: action.payload.status };
     },
 
-    // 3. The API Payload Compiler & SKIPPED Logic
     compileAndSubmitRegister: (state, action: PayloadAction<{ classRosterIds: string[], teacherId: string }>) => {
       if (!state.activeClassId || !state.activeSectionId) return;
       const session = getSession(state, state.activeClassId, state.activeSectionId);
       
-      // Auto-assign SKIPPED to anyone unmarked
       action.payload.classRosterIds.forEach(id => {
         if (!session.draftRegister[id]) {
           session.draftRegister[id] = { studentId: id, status: 'SKIPPED' };
@@ -91,38 +95,31 @@ export const studentAttendanceSlice = createSlice({
 
       session.status = 'SUBMITTED';
       session.submittedAt = new Date().toISOString();
+      state.currentStage = 'POST_SUBMISSION'; // Auto-navigate to success screen
 
-      // 🟢 MOCK API CONSOLE LOG FOR YOUR BACKEND
       const apiPayload = {
-        teacherId: action.payload.teacherId,
-        classId: state.activeClassId,
-        sectionId: state.activeSectionId,
-        date: state.selectedDate,
-        instructionalDay: state.instructionalDayType,
-        sessionStartedAt: session.startedAt,
-        sessionSubmittedAt: session.submittedAt,
+        teacherId: action.payload.teacherId, classId: state.activeClassId, sectionId: state.activeSectionId,
+        date: state.selectedDate, instructionalDay: state.instructionalDayType,
+        sessionStartedAt: session.startedAt, sessionSubmittedAt: session.submittedAt,
         attendanceData: Object.values(session.draftRegister)
       };
       
-      console.log("🚀 [API REQUEST] POST /api/v1/attendance/submit");
-      console.log("📦 PAYLOAD:", JSON.stringify(apiPayload, null, 2));
+      console.log("[API REQUEST] POST /api/v1/attendance/submit\n PAYLOAD:", JSON.stringify(apiPayload, null, 2));
     },
 
-    // 4. The 30-Minute Reopen Engine
     requestModifyAttendance: (state) => {
       if (!state.activeClassId || !state.activeSectionId) return;
       const session = getSession(state, state.activeClassId, state.activeSectionId);
       
       if (session.submittedAt) {
-        const timePassedMs = new Date().getTime() - new Date(session.submittedAt).getTime();
-        const minutesPassed = timePassedMs / (1000 * 60);
-        
-        if (minutesPassed <= 30) {
+        const minsPassed = (new Date().getTime() - new Date(session.submittedAt).getTime()) / 60000;
+        if (minsPassed <= 30) {
           session.status = 'IN_PROGRESS';
-          console.log("🔓 [API REQUEST] PUT /api/v1/attendance/modify - Session unlocked for modification.");
+          state.currentStage = 'PRE_FLIGHT'; // Take them back to pre-flight to review
+          console.log("🔓 [API REQUEST] PUT /api/v1/attendance/modify - Unlocked.");
         } else {
           session.status = 'LOCKED';
-          alert("Security Lock: 30 minutes have passed. You can no longer modify this attendance. Please contact an Admin.");
+          alert("Security Lock: 30 minutes have passed. Cannot modify.");
         }
       }
     }
@@ -130,7 +127,7 @@ export const studentAttendanceSlice = createSlice({
 });
 
 export const { 
-  setInstructionalDayType, startAttendanceSession, exitAttendanceSession, 
+  setInstructionalDayType, navToGateway, navToPreFlight, navToActiveSession, 
   updateStudentStatus, compileAndSubmitRegister, requestModifyAttendance 
 } = studentAttendanceSlice.actions;
 

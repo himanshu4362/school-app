@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CheckCircle, Lock, Unlock, ArrowLeft } from 'lucide-react';
 import { RootState } from '../../../../store/store';
-import { requestModifyAttendance, exitAttendanceSession } from '../../../../store/slices/studentAttendanceSlice';
+import { requestModifyAttendance, navToGateway } from '../../../../store/slices/studentAttendanceSlice';
 
 const PostSubmissionLockScreen: React.FC = () => {
   const dispatch = useDispatch();
@@ -62,7 +62,7 @@ const PostSubmissionLockScreen: React.FC = () => {
 
       <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
         <button 
-          onClick={() => dispatch(exitAttendanceSession())}
+          onClick={() => dispatch(navToGateway())}
           className="flex-1 px-6 py-4 rounded-xl border-2 border-slate-200 text-slate-600 text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-colors flex justify-center items-center gap-2"
         >
           <ArrowLeft size={16} /> Back to Dashboard
