@@ -4,23 +4,23 @@ import admissionReducer from "./slices/admissionSlice";
 import configSlice from "./slices/configSlice";
 import applicationSlice from "./slices/applicationSlice";
 import examinationReducer from "./slices/examinationSlice";
-import monthlyTestReducer from './slices/monthlyTestSlice';
-import facultySlice from './slices/facultySlice'
+import monthlyTestReducer from "./slices/monthlyTestSlice";
+import facultySlice from "./slices/facultySlice";
 import recruitmentSlice from "./slices/recruitmentSlice";
-import facultyDirectoryReducer from './slices/facultyDirectorySlice'; // Add this import
+import facultyDirectoryReducer from "./slices/facultyDirectorySlice"; // Add this import
 import attendanceSlice from "./slices/attendanceSlice";
-import leaveSlice from './slices/leaveSlice'
+import leaveSlice from "./slices/leaveSlice";
 import systemConfigSlice from "./slices/systemConfigSlice";
 import seatSlice from "./slices/seatSlice";
-import financeReducer from './slices/financeSlice'
+import financeReducer from "./slices/financeSlice";
 import hrSlice from "./slices/hrSlice";
-import studentExitReducer from './slices/studentExitSlice';
-import studentReducer from './slices/studentSlice';
-import libraryReducer from './slices/librarySlice'
-import academicReducer from './slices/academicSlice';
-import executionReducer from './slices/executionSlice';
-import studentAttendanceReducer from './slices/studentAttendanceSlice';
-
+import studentExitReducer from "./slices/studentExitSlice";
+import studentReducer from "./slices/studentSlice";
+import libraryReducer from "./slices/librarySlice";
+import academicReducer from "./slices/academicSlice";
+import executionReducer from "./slices/executionSlice";
+import studentAttendanceReducer from "./slices/studentAttendanceSlice";
+import gatePassReducer from "./slices/gatePassSlice";
 
 export const store = configureStore({
   reducer: {
@@ -39,12 +39,13 @@ export const store = configureStore({
     seats: seatSlice,
     finance: financeReducer,
     hr: hrSlice,
-    studentExit: studentExitReducer, 
+    studentExit: studentExitReducer,
     student: studentReducer,
     library: libraryReducer,
     academic: academicReducer,
-    execution: executionReducer, 
+    execution: executionReducer,
     studentAttendance: studentAttendanceReducer,
+    gatePass: gatePassReducer,
   },
 });
 

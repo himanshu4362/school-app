@@ -1,0 +1,68 @@
+import React from 'react';
+import { Users, ArrowRight, LogOut } from 'lucide-react';
+
+interface ClassData { classId: string; sectionId: string; label: string; isHomeroom: boolean; }
+
+interface Props {
+  onSelectClass: (classId: string, sectionId: string) => void;
+}
+
+const AVAILABLE_CLASSES: ClassData[] = [
+  { classId: '10', sectionId: 'A', label: 'Class 10-A', isHomeroom: true },
+  { classId: '10', sectionId: 'B', label: 'Class 10-B', isHomeroom: false },
+  { classId: '9', sectionId: 'A', label: 'Class 9-A', isHomeroom: false },
+];
+
+const ExitClassSelector: React.FC<Props> = ({ onSelectClass }) => {
+  const homeroom = AVAILABLE_CLASSES.find(c => c.isHomeroom);
+  const proxies = AVAILABLE_CLASSES.filter(c => !c.isHomeroom);
+
+  return (
+    <div className="flex-1 flex flex-col space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div>
+        <h2 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
+          <LogOut size={16} className="text-rose-400" /> Early Exit - Homeroom
+        </h2>
+        {homeroom && (
+          <div 
+            onClick={() => onSelectClass(homeroom.classId, homeroom.sectionId)}
+            className="group bg-rose-500 hover:bg-rose-400 cursor-pointer rounded-3xl p-6 sm:p-8 flex justify-between items-center transition-all shadow-lg shadow-rose-600/20"
+          >
+            <div>
+              <h3 className="text-3xl font-black text-white">{homeroom.label}</h3>
+              <p className="text-rose-100 font-bold mt-1 text-sm">Issue gate pass for your assigned class</p>
+            </div>
+            <div className="w-12 h-12 rounded-full bg-rose-400 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+              <ArrowRight size={24} />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div>
+        <h2 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
+          <Users size={16} className="text-slate-500" /> Proxy Early Exit
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {proxies.map(proxy => (
+            <div 
+              key={`${proxy.classId}-${proxy.sectionId}`}
+              onClick={() => onSelectClass(proxy.classId, proxy.sectionId)}
+              className="group bg-white border-2 border-slate-200 hover:border-rose-300 cursor-pointer rounded-3xl p-6 flex justify-between items-center transition-all shadow-sm hover:shadow-md"
+            >
+              <div>
+                <h3 className="text-xl font-black text-slate-800 group-hover:text-rose-600 transition-colors">{proxy.label}</h3>
+                <p className="text-slate-400 font-bold mt-1 text-xs uppercase tracking-widest">Proxy Authority</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-slate-50 group-hover:bg-rose-100 flex items-center justify-center text-slate-400 group-hover:text-rose-600 transition-all">
+                <ArrowRight size={20} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ExitClassSelector;
