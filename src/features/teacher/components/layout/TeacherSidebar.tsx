@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Calendar, ClipboardCheck, BookOpen, UserCircle, LogOut, GraduationCap, X } from 'lucide-react';
+import { LayoutDashboard, Calendar, ClipboardCheck, BookOpen, UserCircle, LogOut, GraduationCap, X, Users} from 'lucide-react';
 
 interface TeacherSidebarProps {
   isMobileOpen: boolean;
@@ -9,10 +9,11 @@ interface TeacherSidebarProps {
 
 const NAV_LINKS = [
   { path: '/teacher', label: 'Daily Execution', icon: LayoutDashboard, exact: true },
+  { path: '/teacher/attendance', label: 'My Attendance', icon: UserCircle },
+  { path: '/teacher/attendance/homeroom', label: 'Homeroom Register', icon: Users },
   { path: '/teacher/schedule', label: 'My Timetable', icon: Calendar },
   { path: '/teacher/examinations', label: 'Marks Entry', icon: ClipboardCheck },
   { path: '/teacher/syllabus', label: 'Syllabus Tracker', icon: BookOpen },
-  { path: '/teacher/attendance', label: 'My Leaves', icon: UserCircle },
 ];
 
 const TeacherSidebar: React.FC<TeacherSidebarProps> = ({ isMobileOpen, setMobileOpen }) => {

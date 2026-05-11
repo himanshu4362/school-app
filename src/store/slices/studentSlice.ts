@@ -17,72 +17,25 @@ interface StudentDirectoryState {
   selectedIds: string[];
 }
 
-// Seed some initial data so the directory isn't empty
+// Seed some initial data perfectly formatted for the Attendance Hub
 const MOCK_SEED: Record<string, StudentProfile> = {
-  "STU-001": {
-    id: "STU-001",
-    rollNumber: "101",
-    admissionNumber: "ADM-2016-042",
-    firstName: "Rahul",
-    lastName: "Sharma",
-    gender: "MALE",
-    dateOfBirth: "2010-05-14",
-    classId: "Class 10",
-    sectionId: "A",
-    academicYearId: "AY-2026-27",
-    parentName: "Rajesh Sharma",
-    parentPhone: "9876543210",
-    status: "ACTIVE",
-    joinDate: "2016-04-01",
-  },
-  "STU-002": {
-    id: "STU-002",
-    rollNumber: "205",
-    admissionNumber: "ADM-2022-089",
-    firstName: "Aarti",
-    lastName: "Singh",
-    gender: "FEMALE",
-    dateOfBirth: "2008-11-22",
-    classId: "Class 12",
-    sectionId: "Science",
-    academicYearId: "AY-2026-27",
-    parentName: "Vikram Singh",
-    parentPhone: "9876543211",
-    status: "ACTIVE",
-    joinDate: "2022-06-15",
-  },
-  "STU-003": {
-    id: "STU-003",
-    rollNumber: "042",
-    admissionNumber: "ADM-2020-011",
-    firstName: "Karan",
-    lastName: "Patel",
-    gender: "MALE",
-    dateOfBirth: "2012-03-08",
-    classId: "Class 8",
-    sectionId: "B",
-    academicYearId: "AY-2026-27",
-    parentName: "Amit Patel",
-    parentPhone: "9876543212",
-    status: "ACTIVE",
-    joinDate: "2020-04-01",
-  },
-  "STU-ALUM-01": {
-    id: "STU-ALUM-01",
-    rollNumber: "105",
-    admissionNumber: "ADM-2014-001",
-    firstName: "Priya",
-    lastName: "Verma",
-    gender: "FEMALE",
-    dateOfBirth: "2007-01-10",
-    classId: "Class 12",
-    sectionId: "Commerce",
-    academicYearId: "AY-2025-26",
-    parentName: "Sanjay Verma",
-    parentPhone: "9876543213",
-    status: "ALUMNI",
-    joinDate: "2014-04-01",
-  },
+  // === CLASS 10-A (Homeroom) ===
+  "STU-10A-001": { id: "STU-10A-001", rollNumber: "1", admissionNumber: "ADM-2016-042", firstName: "Rahul", lastName: "Sharma", gender: "MALE", dateOfBirth: "2010-05-14", classId: "10", sectionId: "A", academicYearId: "AY-2026-27", parentName: "Rajesh Sharma", parentPhone: "9876543210", status: "ACTIVE", joinDate: "2016-04-01" },
+  "STU-10A-002": { id: "STU-10A-002", rollNumber: "2", admissionNumber: "ADM-2022-089", firstName: "Aarti", lastName: "Singh", gender: "FEMALE", dateOfBirth: "2010-11-22", classId: "10", sectionId: "A", academicYearId: "AY-2026-27", parentName: "Vikram Singh", parentPhone: "9876543211", status: "ACTIVE", joinDate: "2022-06-15" },
+  "STU-10A-003": { id: "STU-10A-003", rollNumber: "3", admissionNumber: "ADM-2018-112", firstName: "Kavya", lastName: "Mehta", gender: "FEMALE", dateOfBirth: "2010-02-18", classId: "10", sectionId: "A", academicYearId: "AY-2026-27", parentName: "Sanjay Mehta", parentPhone: "9876543212", status: "ACTIVE", joinDate: "2018-04-01" },
+  "STU-10A-004": { id: "STU-10A-004", rollNumber: "4", admissionNumber: "ADM-2017-033", firstName: "Aryan", lastName: "Kapoor", gender: "MALE", dateOfBirth: "2010-08-30", classId: "10", sectionId: "A", academicYearId: "AY-2026-27", parentName: "Anil Kapoor", parentPhone: "9876543213", status: "ACTIVE", joinDate: "2017-04-01" },
+  "STU-10A-005": { id: "STU-10A-005", rollNumber: "5", admissionNumber: "ADM-2019-077", firstName: "Sneha", lastName: "Reddy", gender: "FEMALE", dateOfBirth: "2010-12-05", classId: "10", sectionId: "A", academicYearId: "AY-2026-27", parentName: "Vijay Reddy", parentPhone: "9876543214", status: "ACTIVE", joinDate: "2019-04-01" },
+
+  // === CLASS 10-B (Proxy) ===
+  "STU-10B-001": { id: "STU-10B-001", rollNumber: "1", admissionNumber: "ADM-2020-011", firstName: "Karan", lastName: "Patel", gender: "MALE", dateOfBirth: "2010-03-08", classId: "10", sectionId: "B", academicYearId: "AY-2026-27", parentName: "Amit Patel", parentPhone: "9876543215", status: "ACTIVE", joinDate: "2020-04-01" },
+  "STU-10B-002": { id: "STU-10B-002", rollNumber: "2", admissionNumber: "ADM-2021-044", firstName: "Anjali", lastName: "Desai", gender: "FEMALE", dateOfBirth: "2010-07-19", classId: "10", sectionId: "B", academicYearId: "AY-2026-27", parentName: "Ramesh Desai", parentPhone: "9876543216", status: "ACTIVE", joinDate: "2021-04-01" },
+  "STU-10B-003": { id: "STU-10B-003", rollNumber: "3", admissionNumber: "ADM-2016-099", firstName: "Vikram", lastName: "Malhotra", gender: "MALE", dateOfBirth: "2009-11-01", classId: "10", sectionId: "B", academicYearId: "AY-2026-27", parentName: "Suresh Malhotra", parentPhone: "9876543217", status: "ACTIVE", joinDate: "2016-04-01" },
+  "STU-10B-004": { id: "STU-10B-004", rollNumber: "4", admissionNumber: "ADM-2018-022", firstName: "Pooja", lastName: "Bhatia", gender: "FEMALE", dateOfBirth: "2010-01-14", classId: "10", sectionId: "B", academicYearId: "AY-2026-27", parentName: "Deepak Bhatia", parentPhone: "9876543218", status: "ACTIVE", joinDate: "2018-04-01" },
+
+  // === CLASS 9-A (Proxy) ===
+  "STU-09A-001": { id: "STU-09A-001", rollNumber: "1", admissionNumber: "ADM-2023-005", firstName: "Rohan", lastName: "Iyer", gender: "MALE", dateOfBirth: "2011-04-20", classId: "9", sectionId: "A", academicYearId: "AY-2026-27", parentName: "Karthik Iyer", parentPhone: "9876543219", status: "ACTIVE", joinDate: "2023-04-01" },
+  "STU-09A-002": { id: "STU-09A-002", rollNumber: "2", admissionNumber: "ADM-2022-065", firstName: "Meera", lastName: "Nair", gender: "FEMALE", dateOfBirth: "2011-09-12", classId: "9", sectionId: "A", academicYearId: "AY-2026-27", parentName: "Prakash Nair", parentPhone: "9876543220", status: "ACTIVE", joinDate: "2022-04-01" },
+  "STU-09A-003": { id: "STU-09A-003", rollNumber: "3", admissionNumber: "ADM-2024-012", firstName: "Dev", lastName: "Joshi", gender: "MALE", dateOfBirth: "2011-12-01", classId: "9", sectionId: "A", academicYearId: "AY-2026-27", parentName: "Manish Joshi", parentPhone: "9876543221", status: "ACTIVE", joinDate: "2024-04-01" },
 };
 
 const initialState: StudentDirectoryState = {

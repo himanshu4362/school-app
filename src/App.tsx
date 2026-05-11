@@ -75,6 +75,8 @@ import TeacherDashboardHub from './features/teacher/pages/dashboard/TeacherDashb
 import TeacherTimetableHub from './features/teacher/pages/schedule/TeacherTimetableHub';
 import ClassroomExecutionHub from './features/teacher/pages/execution/ClassroomExecutionHub';
 import TeacherMarksEntryHub from './features/teacher/pages/examination/TeacherMarksEntryHub';
+import TeacherAttendanceHub from './features/teacher/pages/attendance/TeacherAttendanceHub';
+import StudentDailyAttendanceHub from './features/teacher/pages/attendance/StudentDailyAttendanceHub';
 
 setupIonicReact();
 
@@ -137,6 +139,8 @@ const App: React.FC = () => (
         <Route exact path="/teacher/schedule" component={TeacherTimetableHub} />        
         <Route exact path="/teacher/execution/cockpit/:sessionId" component={ClassroomExecutionHub} />
         <Route exact path="/teacher/examinations" component={TeacherMarksEntryHub} />
+        <Route exact path="/teacher/attendance" component={TeacherAttendanceHub} />
+        <Route exact path="/teacher/attendance/homeroom" component={StudentDailyAttendanceHub} />
 
         <Route component={page404} />
       </IonRouterOutlet>
