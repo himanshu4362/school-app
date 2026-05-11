@@ -18,9 +18,7 @@ import studentExitReducer from './slices/studentExitSlice';
 import studentReducer from './slices/studentSlice';
 import libraryReducer from './slices/librarySlice'
 import academicReducer from './slices/academicSlice';
-
-
-
+import executionReducer from './slices/executionSlice';
 
 export const store = configureStore({
   reducer: {
@@ -43,6 +41,7 @@ export const store = configureStore({
     student: studentReducer,
     library: libraryReducer,
     academic: academicReducer,
+    execution: executionReducer,
   },
 });
 

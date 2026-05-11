@@ -11,6 +11,10 @@ export const SubjectSchema = z.object({
   name: z.string(), // e.g., "Physics"
   type: SubjectTypeEnum.default('THEORY'),
   description: z.string().optional(),
+  topics: z.array(z.object({
+     id: z.string(),
+     name: z.string()
+  })).default([])
 });
 
 // Maps which subjects belong to which Class (e.g., Class 10 has Physics, Chem, Math)
