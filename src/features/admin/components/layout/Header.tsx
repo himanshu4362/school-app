@@ -22,7 +22,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
           <Search size={18} className="text-slate-400" />
           <input
             type="text"
-            placeholder="Search NEXUS..."
+            placeholder="Search..."
             className="bg-transparent border-none outline-none text-sm w-full ml-2 text-slate-700"
           />
         </div>

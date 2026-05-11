@@ -71,8 +71,10 @@ import CirculationDeskHub from './features/admin/pages/library/CirculationDeskHu
 import OpacHub from './features/admin/pages/library/OpacHub';
 import LibraryAnalyticsHub from './features/admin/pages/library/LibraryAnalyticsHub';
 import AcademicAdminHub from './features/admin/pages/academic/AcademicAdminHub';
-import TeacherDashboardHub from './features/teacher/pages/dashboardv/TeacherDashboardHub';
+import TeacherDashboardHub from './features/teacher/pages/dashboard/TeacherDashboardHub';
+import TeacherTimetableHub from './features/teacher/pages/schedule/TeacherTimetableHub';
 import ClassroomExecutionHub from './features/teacher/pages/execution/ClassroomExecutionHub';
+import TeacherMarksEntryHub from './features/teacher/pages/examination/TeacherMarksEntryHub';
 
 setupIonicReact();
 
@@ -131,12 +133,10 @@ const App: React.FC = () => (
         <Route exact path="/admin/library/analytics" component={LibraryAnalyticsHub} />
         <Route exact path="/admin/academic/subjects" component={AcademicAdminHub} />
 
-
-
-
-
         <Route exact path="/teacher" component={TeacherDashboardHub} />
+        <Route exact path="/teacher/schedule" component={TeacherTimetableHub} />        
         <Route exact path="/teacher/execution/cockpit/:sessionId" component={ClassroomExecutionHub} />
+        <Route exact path="/teacher/examinations" component={TeacherMarksEntryHub} />
 
         <Route component={page404} />
       </IonRouterOutlet>

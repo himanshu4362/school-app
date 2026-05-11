@@ -1,32 +1,32 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react'
-import React from 'react'
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { IonPage } from '@ionic/react';
 
-const page404 = () => {
+const page404: React.FC = () => {
     return (
         <IonPage>
-            <IonHeader>
-                <IonToolbar>
-                    <IonTitle>
+            <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-6 py-24 sm:py-32 lg:px-8 w-full">
+                <div className="text-center max-w-lg mx-auto">
+                    <p className="text-base font-black text-blue-600 tracking-widest uppercase">404 Error</p>
+                    <h1 className="mt-4 text-4xl font-black tracking-tight text-slate-900 sm:text-5xl">
                         Page not found
-                    </IonTitle>
-                </IonToolbar>
-            </IonHeader>
-
-            <IonContent>
-                <main className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
-                    <div className="text-center">
-                        <p className="text-base font-semibold text-indigo-600">404</p>
-                        <h1 className="mt-4 text-balance text-5xl font-semibold tracking-tight text-gray-900 sm:text-7xl">Page not found</h1>
-                        <p className="mt-6 text-pretty text-lg font-medium text-gray-500 sm:text-xl/8">Sorry, we couldn’t find the page you’re looking for.</p>
-                        <div className="mt-10 flex items-center justify-center gap-x-6">
-                            <a href="/" className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Go back home</a>
-                            <a href="/" className="text-sm font-semibold text-gray-900">Contact support <span aria-hidden="true">&rarr;</span></a>
-                        </div>
+                    </h1>
+                    <p className="mt-6 text-base font-bold text-slate-500">
+                        Sorry, the module you are looking for is currently under construction or does not exist.
+                    </p>
+                    <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+                        {/* React Router Link prevents the hard reload bug */}
+                        <Link 
+                            to="/teacher" 
+                            className="rounded-xl bg-blue-600 px-6 py-3 text-sm font-black uppercase tracking-widest text-white shadow-lg shadow-blue-600/20 hover:bg-blue-500 transition-all w-full sm:w-auto"
+                        >
+                            Return to Dashboard
+                        </Link>
                     </div>
-                </main>
-            </IonContent>
+                </div>
+            </div>
         </IonPage>
-    )
-}
+    );
+};
 
-export default page404
+export default page404;

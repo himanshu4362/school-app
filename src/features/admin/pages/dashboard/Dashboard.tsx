@@ -30,7 +30,7 @@ const Dashboard: React.FC = () => {
   return (
     <AdminLayout 
       pageTitle="System Overview" 
-      pageDescription="Real-time operational health of NEXUS ERP."
+      pageDescription="Real-time operational health of school management system."
       breadcrumbs={[{ label: 'Dashboard' }]}
     >
       {/* Loading State using Ionic Spinner */}
