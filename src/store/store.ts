@@ -22,7 +22,7 @@ import executionReducer from "./slices/executionSlice";
 import studentAttendanceReducer from "./slices/studentAttendanceSlice";
 import gatePassReducer from "./slices/gatePassSlice";
 import evaluationReducer from "./slices/evaluationSlice"
-
+import quizBuilderSlice from "./slices/quizBuilderSlice"
 
 export const store = configureStore({
   reducer: {
@@ -49,7 +49,7 @@ export const store = configureStore({
     studentAttendance: studentAttendanceReducer,
     gatePass: gatePassReducer,
     evaluation: evaluationReducer,
-    
+    quizBuilder: quizBuilderSlice,
   },
 });
 

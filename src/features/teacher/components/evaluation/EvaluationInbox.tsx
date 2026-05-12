@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../../store/store';
-import { setFilters, startEvaluationSession, navToCreateTest } from '../../../../store/slices/evaluationSlice';
-import { BookOpen, Clock, FileText, CheckCircle, ShieldAlert, ArrowRight, Filter, Lock } from 'lucide-react';
+import { setFilters, viewExamAnalytics, startEvaluationSession, navToCreateTest } from '../../../../store/slices/evaluationSlice';
+import { BookOpen, Clock, FileText, CheckCircle, ShieldAlert, ArrowRight, Filter, Lock, BarChart3 } from 'lucide-react';
 
 const EvaluationInbox: React.FC = () => {
     const dispatch = useDispatch();
@@ -91,12 +91,23 @@ const EvaluationInbox: React.FC = () => {
                             </div>
                         </div>
 
-                        <button
-                            onClick={() => dispatch(startEvaluationSession(exam.id))}
-                            className="w-full bg-slate-900 hover:bg-blue-600 text-white py-4 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-colors group-hover:shadow-lg group-hover:shadow-blue-600/20"
-                        >
-                            {exam.status === 'PUBLISHED' ? 'View Snapshot' : 'Open Evaluation Session'} <ArrowRight size={16} />
-                        </button>
+                        <div className="flex gap-2 mt-auto pt-4">
+                            <button
+                                onClick={() => dispatch(startEvaluationSession(exam.id))}
+                                className="flex-1 bg-slate-900 hover:bg-slate-800 text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-colors shadow-md"
+                            >
+                                {exam.status === 'PUBLISHED' ? 'View Snapshot' : 'Evaluate'} <ArrowRight size={16} />
+                            </button>
+
+                            {['PREPARED', 'VERIFIED', 'PUBLISHED'].includes(exam.status) && (
+                                <button
+                                    onClick={() => dispatch(viewExamAnalytics(exam.id))}
+                                    className="flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-colors"
+                                >
+                                    <BarChart3 size={16} /> Analytics
+                                </button>
+                            )}
+                        </div>
 
                     </div>
                 ))}

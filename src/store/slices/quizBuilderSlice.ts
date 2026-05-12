@@ -143,7 +143,7 @@ export const quizBuilderSlice = createSlice({
     publishImmutableSnapshot: (state) => {
       // 1. Validate data (ensure at least 1 question, positive marks, etc.)
       if (state.questions.length === 0) {
-        alert("Cannot publish an exam with no questions.");
+        console.log("Cannot publish an exam with no questions.");
         return;
       }
 
