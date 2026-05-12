@@ -1,18 +1,19 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Calendar, ClipboardCheck, BookOpen, UserCircle, LogOut, GraduationCap, X, Users} from 'lucide-react';
-
+import { LayoutDashboard, UserCircle, Users, LogOut, Calendar, BookOpenCheck, BookOpen, ClipboardCheck, GraduationCap, X } from 'lucide-react';
 interface TeacherSidebarProps {
   isMobileOpen: boolean;
   setMobileOpen: (isOpen: boolean) => void;
 }
 
+
 const NAV_LINKS = [
   { path: '/teacher', label: 'Daily Execution', icon: LayoutDashboard, exact: true },
   { path: '/teacher/attendance', label: 'My Attendance', icon: UserCircle },
   { path: '/teacher/attendance/homeroom', label: 'Homeroom Register', icon: Users },
+  { path: '/teacher/attendance/gate-pass', label: 'Issue Gate Pass', icon: LogOut }, // 🟢 NEW
   { path: '/teacher/schedule', label: 'My Timetable', icon: Calendar },
-  { path: '/teacher/examinations', label: 'Marks Entry', icon: ClipboardCheck },
+  { path: '/teacher/evaluation', label: 'Marks & Evaluation', icon: BookOpenCheck }, // 🟢 UPDATED
   { path: '/teacher/syllabus', label: 'Syllabus Tracker', icon: BookOpen },
 ];
 

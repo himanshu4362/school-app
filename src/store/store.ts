@@ -21,6 +21,8 @@ import academicReducer from "./slices/academicSlice";
 import executionReducer from "./slices/executionSlice";
 import studentAttendanceReducer from "./slices/studentAttendanceSlice";
 import gatePassReducer from "./slices/gatePassSlice";
+import evaluationReducer from "./slices/evaluationSlice"
+
 
 export const store = configureStore({
   reducer: {
@@ -46,6 +48,8 @@ export const store = configureStore({
     execution: executionReducer,
     studentAttendance: studentAttendanceReducer,
     gatePass: gatePassReducer,
+    evaluation: evaluationReducer,
+    
   },
 });
 
