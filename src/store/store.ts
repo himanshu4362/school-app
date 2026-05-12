@@ -23,6 +23,7 @@ import studentAttendanceReducer from "./slices/studentAttendanceSlice";
 import gatePassReducer from "./slices/gatePassSlice";
 import evaluationReducer from "./slices/evaluationSlice"
 import quizBuilderSlice from "./slices/quizBuilderSlice"
+import studentAttemptReducer from "./slices/studentAttemptSlice"
 
 export const store = configureStore({
   reducer: {
@@ -50,7 +51,8 @@ export const store = configureStore({
     gatePass: gatePassReducer,
     evaluation: evaluationReducer,
     quizBuilder: quizBuilderSlice,
-  },
+    studentAttempt: studentAttemptReducer,
+  }
 });
 
 export type RootState = ReturnType<typeof store.getState>;

@@ -79,6 +79,9 @@ import TeacherAttendanceHub from './features/teacher/pages/attendance/TeacherAtt
 import StudentDailyAttendanceHub from './features/teacher/pages/attendance/StudentDailyAttendanceHub';
 import GatePassHub from './features/teacher/pages/attendance/GatePassHub';
 import EvaluationHub from './features/teacher/pages/evaluation/EvaluationHub';
+import StudentDashboardHub from './features/student/pages/dashboard/StudentDashboardHub';
+import StudentExamsHub from './features/student/pages/exam/StudentExamsHub';
+import ProvisionTenantForm from './features/platform/components/ProvisionTenantForm';
 
 setupIonicReact();
 
@@ -138,13 +141,18 @@ const App: React.FC = () => (
         <Route exact path="/admin/academic/subjects" component={AcademicAdminHub} />
 
         <Route exact path="/teacher" component={TeacherDashboardHub} />
-        <Route exact path="/teacher/schedule" component={TeacherTimetableHub} />        
+        <Route exact path="/teacher/schedule" component={TeacherTimetableHub} />
         <Route exact path="/teacher/execution/cockpit/:sessionId" component={ClassroomExecutionHub} />
         <Route exact path="/teacher/examinations" component={TeacherMarksEntryHub} />
         <Route exact path="/teacher/attendance" component={TeacherAttendanceHub} />
         <Route exact path="/teacher/attendance/homeroom" component={StudentDailyAttendanceHub} />
         <Route exact path="/teacher/attendance/gate-pass" component={GatePassHub} />
         <Route exact path="/teacher/evaluation" component={EvaluationHub} />
+
+        <Route exact path="/student" component={StudentDashboardHub} />
+        <Route exact path="/student/exams" component={StudentExamsHub} />
+
+        <Route exact path="/asms-create" component={ProvisionTenantForm} />
 
         <Route component={page404} />
       </IonRouterOutlet>
