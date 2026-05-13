@@ -19,6 +19,13 @@ const SubjectPanel: React.FC = () => {
   });
 
   const onSubmit = (data: Subject) => {
+    const apiPayload = {
+      code: data.code,
+      name: data.name,
+      status: data.status || 'draft'
+    };
+    console.log(JSON.stringify(apiPayload, null, 2));
+
     const newSubject: Subject = { ...data, id: crypto.randomUUID() };
     dispatch(upsertSubject(newSubject));
     setTimeout(() => { setIsDrawerOpen(false); reset(); }, 100);

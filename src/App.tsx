@@ -81,7 +81,6 @@ import GatePassHub from './features/teacher/pages/attendance/GatePassHub';
 import EvaluationHub from './features/teacher/pages/evaluation/EvaluationHub';
 import StudentDashboardHub from './features/student/pages/dashboard/StudentDashboardHub';
 import StudentExamsHub from './features/student/pages/exam/StudentExamsHub';
-import ProvisionTenantForm from './features/platform/components/ProvisionTenantForm';
 
 setupIonicReact();
 
@@ -152,7 +151,6 @@ const App: React.FC = () => (
         <Route exact path="/student" component={StudentDashboardHub} />
         <Route exact path="/student/exams" component={StudentExamsHub} />
 
-        <Route exact path="/asms-create" component={ProvisionTenantForm} />
 
         <Route component={page404} />
       </IonRouterOutlet>

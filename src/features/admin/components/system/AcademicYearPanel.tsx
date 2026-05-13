@@ -21,6 +21,14 @@ const AcademicYearPanel: React.FC = () => {
   });
 
   const onSubmit = (data: AcademicYear) => {
+    const apiPayload = {
+      code: data.code,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      status: data.status || 'draft'
+    };
+    console.log(JSON.stringify(apiPayload, null, 2));
+
     const newYear: AcademicYear = { ...data, id: crypto.randomUUID() };
     dispatch(upsertAcademicYear(newYear));
     setTimeout(() => { setIsDrawerOpen(false); reset(); }, 100);

@@ -21,10 +21,18 @@ const DesignationPanel: React.FC = () => {
     });
 
     const onSubmit = (data: Designation) => {
-        const newDesig: Designation = { ...data, id: crypto.randomUUID() };
-        dispatch(upsertDesignation(newDesig));
-        setTimeout(() => { setIsDrawerOpen(false); reset(); }, 100);
+    const apiPayload = {
+      title: data.title,
+      departmentId: data.departmentId || null, // Null if General/Admin
+      hierarchyLevel: data.hierarchyLevel,
+      status: data.status || 'draft'
     };
+    console.log(JSON.stringify(apiPayload, null, 2));
+
+    const newDesig: Designation = { ...data, id: crypto.randomUUID() };
+    dispatch(upsertDesignation(newDesig));
+    setTimeout(() => { setIsDrawerOpen(false); reset(); }, 100);
+  };
 
     return (
         <div className="space-y-6 animate-in fade-in duration-300">

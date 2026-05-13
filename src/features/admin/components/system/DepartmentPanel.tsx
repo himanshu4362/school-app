@@ -20,10 +20,18 @@ const DepartmentPanel: React.FC = () => {
     });
 
     const onSubmit = (data: Department) => {
-        const newDept: Department = { ...data, id: crypto.randomUUID() };
-        dispatch(upsertDepartment(newDept));
-        setTimeout(() => { setIsDrawerOpen(false); reset(); }, 100);
+    const apiPayload = {
+      code: data.code,
+      name: data.name,
+      budget: data.budget,
+      status: data.status || 'draft'
     };
+    console.log(JSON.stringify(apiPayload, null, 2));
+
+    const newDept: Department = { ...data, id: crypto.randomUUID() };
+    dispatch(upsertDepartment(newDept));
+    setTimeout(() => { setIsDrawerOpen(false); reset(); }, 100);
+  };
 
     return (
         <div className="space-y-6 animate-in fade-in duration-300">

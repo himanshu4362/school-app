@@ -13,13 +13,10 @@ import AdminLayout from '../../components/layout/AdminLayout';
 
 // ==========================================
 // COMPONENT: Individual Grade Inventory Card
-// (Separated so we can safely use the Redux Selector per policy)
 // ==========================================
 const GradeInventoryCard: React.FC<{ policy: GradeSeatPolicy }> = ({ policy }) => {
     const grades = useSelector((state: RootState) => state.systemConfig.grades);
     const gradeName = grades[policy.gradeId]?.name || 'Unknown Grade';
-
-    // 🔥 THE MAGIC: Calling our Live Inventory Engine
     const liveStats = useSelector(selectLiveGradeInventory(policy.gradeId, policy.academicYearId));
 
     return (
@@ -37,7 +34,6 @@ const GradeInventoryCard: React.FC<{ policy: GradeSeatPolicy }> = ({ policy }) =
                 </div>
             </div>
 
-            {/* Quota Breakdown */}
             <div className="space-y-3 mb-6 flex-1">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Configured Quotas</p>
                 {policy.quotas.map((q, i) => (
@@ -51,7 +47,6 @@ const GradeInventoryCard: React.FC<{ policy: GradeSeatPolicy }> = ({ policy }) =
                 ))}
             </div>
 
-            {/* Live Transactional Status */}
             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
                 <div className="flex justify-between items-center mb-2">
                     <span className="text-xs font-bold text-slate-500">Live Escrow State</span>
@@ -72,20 +67,15 @@ const GradeInventoryCard: React.FC<{ policy: GradeSeatPolicy }> = ({ policy }) =
     );
 };
 
-
 // ==========================================
 // MAIN HUB COMPONENT
 // ==========================================
 const SeatManagementHub: React.FC = () => {
     const dispatch = useDispatch();
-
-    // Data for the Dropdowns & Dashboard
     const { academicYears, grades, sections } = useSelector((state: RootState) => state.systemConfig);
     const { policies, validationErrors } = useSelector((state: RootState) => state.seats);
-
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-    // Form Setup
     const { register, control, handleSubmit, watch, reset, formState: { errors } } = useForm<GradeSeatPolicy>({
         resolver: zodResolver(GradeSeatPolicySchema.omit({ id: true })) as any,
         defaultValues: {
@@ -100,12 +90,10 @@ const SeatManagementHub: React.FC = () => {
 
     const { fields, append, remove } = useFieldArray({ control, name: "quotas" });
 
-    // Watchers to calculate live physical capacity dynamically in the form!
     const watchYear = watch('academicYearId');
     const watchGrade = watch('gradeId');
     const watchQuotas = watch('quotas');
 
-    // Dynamically calculate the physical capacity while they fill the form
     const activePhysicalCapacity = Object.values(sections)
         .filter(s => s.gradeId === watchGrade && s.academicYearId === watchYear && s.status !== 'closed')
         .reduce((sum, sec) => sum + sec.maxCapacity, 0);
@@ -113,13 +101,23 @@ const SeatManagementHub: React.FC = () => {
     const totalAllocated = (watchQuotas || []).reduce((sum, q) => sum + (Number(q.reservedSeats) || 0), 0);
 
     const onSubmit = (data: GradeSeatPolicy) => {
-        // 🔴 THE GOLDEN ERP RULE: Validate allocations against physical reality
         if (totalAllocated > activePhysicalCapacity) {
             alert(`SYSTEM GUARD: You cannot allocate ${totalAllocated} seats. The physical rooms for this grade only hold ${activePhysicalCapacity} students.`);
             return;
         }
 
-        // Add unique IDs to the quotas and the policy
+        const apiPayload = {
+            academicYearId: data.academicYearId,
+            gradeId: data.gradeId,
+            status: data.status || 'draft',
+            quotas: data.quotas.map(q => ({
+                name: q.name,
+                reservedSeats: q.reservedSeats,
+                isSpilloverAllowed: q.isSpilloverAllowed
+            }))
+        };
+        console.log(JSON.stringify(apiPayload, null, 2));
+
         const newPolicy: GradeSeatPolicy = {
             ...data,
             id: crypto.randomUUID(),
@@ -137,7 +135,6 @@ const SeatManagementHub: React.FC = () => {
             pageDescription="Govern admissions inventory, legal quotas, and physical capacities."
             breadcrumbs={[{ label: 'System Config' }, { label: 'Seat Management' }]}
         >
-            {/* ERROR BANNER */}
             {validationErrors?.length > 0 && (
                 <div className="mb-6 p-4 bg-rose-50 border-2 border-rose-200 rounded-2xl flex items-start gap-3 shadow-sm">
                     <AlertCircle className="text-rose-600 shrink-0 mt-0.5" size={18} />
@@ -153,14 +150,12 @@ const SeatManagementHub: React.FC = () => {
                 </div>
             )}
 
-            {/* HEADER ACTION */}
             <div className="flex justify-end mb-6">
                 <button onClick={() => setIsDrawerOpen(true)} className="bg-indigo-600 text-white px-5 py-3 rounded-xl text-sm font-black flex items-center gap-2 hover:bg-indigo-700 shadow-md">
                     <Shield size={18} /> Define New Grade Policy
                 </button>
             </div>
 
-            {/* DASHBOARD GRID */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {Object.values(policies).length === 0 ? (
                     <div className="col-span-full py-20 border-2 border-dashed border-slate-200 rounded-3xl text-center flex flex-col items-center justify-center">
@@ -175,21 +170,15 @@ const SeatManagementHub: React.FC = () => {
                 )}
             </div>
 
-            {/* POLICY CREATOR MODAL (Using Portals for 100% overlay) */}
             {isDrawerOpen && createPortal(
                 <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[9999] flex justify-end p-2 sm:p-4">
                     <div className="bg-white w-full max-w-lg h-full shadow-2xl rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-right-8">
-
                         <div className="p-6 border-b border-slate-100 flex justify-between bg-slate-50 items-center">
-                            <div>
-                                <h3 className="text-sm font-black text-slate-900 flex items-center gap-2"><Shield size={16} className="text-indigo-600" /> Policy Engine</h3>
-                            </div>
+                            <h3 className="text-sm font-black text-slate-900 flex items-center gap-2"><Shield size={16} className="text-indigo-600" /> Policy Engine</h3>
                             <button onClick={() => setIsDrawerOpen(false)} className="text-slate-400 hover:text-rose-500"><X size={20} /></button>
                         </div>
 
                         <form onSubmit={handleSubmit(onSubmit)} className="p-6 flex-1 overflow-y-auto space-y-6">
-
-                            {/* Core Assignments */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Academic Year *</label>
@@ -207,7 +196,6 @@ const SeatManagementHub: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* DYNAMIC REALITY CHECK (The ERP Magic) */}
                             {watchYear && watchGrade && (
                                 <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-center gap-4">
                                     <div className="p-3 bg-indigo-100 rounded-xl text-indigo-600"><TrendingUp size={24} /></div>
@@ -220,7 +208,6 @@ const SeatManagementHub: React.FC = () => {
                                 </div>
                             )}
 
-                            {/* QUOTA BUILDER */}
                             <div>
                                 <div className="flex justify-between items-end mb-3 border-b border-slate-100 pb-2">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Allocation Matrix</label>
@@ -243,11 +230,7 @@ const SeatManagementHub: React.FC = () => {
                                     ))}
                                 </div>
 
-                                <button
-                                    type="button"
-                                    onClick={() => append({ id: crypto.randomUUID(), name: 'New Quota', reservedSeats: 0, isSpilloverAllowed: false })}
-                                    className="mt-3 text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-800 flex items-center gap-1"
-                                >
+                                <button type="button" onClick={() => append({ id: crypto.randomUUID(), name: 'New Quota', reservedSeats: 0, isSpilloverAllowed: false })} className="mt-3 text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-800 flex items-center gap-1">
                                     <Plus size={12} /> Add Quota Row
                                 </button>
                             </div>

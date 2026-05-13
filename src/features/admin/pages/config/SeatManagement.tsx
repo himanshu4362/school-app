@@ -3,17 +3,28 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../../../store/store';
 import { toggleAdmissionStatus } from '../../../../store/slices/configSlice';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { Plus, Users, ShieldAlert, CheckCircle2, Lock, ArrowUpRight } from 'lucide-react';
+import { Users, ShieldAlert } from 'lucide-react';
 
 const SeatManagement: React.FC = () => {
   const dispatch = useDispatch();
   const { classes } = useSelector((state: RootState) => state.config);
 
+  const handleToggleStatus = (cls: any) => {
+    const newStatus = !cls.admissionOpen;
+
+    const apiPayload = {
+      admissionOpen: newStatus
+    };
+    console.log(JSON.stringify(apiPayload, null, 2));
+
+    dispatch(toggleAdmissionStatus(cls.id!));
+  };
+
   return (
     <AdminLayout 
-      pageTitle="Seat Management" 
+      pageTitle="Seat Status Dashboard" 
       pageDescription="Monitor class occupancy and control enrollment availability."
-      breadcrumbs={[{ label: 'System Config' }, { label: 'Seats' }]}
+      breadcrumbs={[{ label: 'System Config' }, { label: 'Seat Status' }]}
     >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {classes.map((cls) => {
@@ -27,7 +38,7 @@ const SeatManagement: React.FC = () => {
                   <Users size={20} />
                 </div>
                 <button 
-                  onClick={() => dispatch(toggleAdmissionStatus(cls.id!))}
+                  onClick={() => handleToggleStatus(cls)}
                   className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-tighter border transition-colors ${
                     cls.admissionOpen 
                     ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
@@ -41,7 +52,6 @@ const SeatManagement: React.FC = () => {
               <h3 className="text-lg font-black text-slate-900 mb-1">{cls.name}</h3>
               <p className="text-xs font-bold text-slate-400 mb-4">Section: {cls.section || 'N/A'}</p>
 
-              {/* Progress Bar */}
               <div className="space-y-2">
                 <div className="flex justify-between text-[10px] font-black uppercase">
                   <span className="text-slate-400">Occupancy</span>

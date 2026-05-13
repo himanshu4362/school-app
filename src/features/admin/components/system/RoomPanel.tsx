@@ -25,6 +25,15 @@ const RoomPanel: React.FC = () => {
   };;
 
   const onSubmit = (data: Room) => {
+    const apiPayload = {
+      roomNumber: data.roomNumber,
+      capacity: data.capacity,
+      buildingWing: data.buildingWing || null,
+      roomType: data.roomType,
+      status: data.status || 'draft'
+    };
+    console.log(JSON.stringify(apiPayload, null, 2));
+
     const newRoom: Room = { ...data, id: crypto.randomUUID() };
     dispatch(upsertRoom(newRoom));
     setTimeout(() => { setIsDrawerOpen(false); reset(); }, 100);

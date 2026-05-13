@@ -20,12 +20,19 @@ const SectionPanel: React.FC = () => {
   });
 
   const onSubmit = (data: Section) => {
+    const apiPayload = {
+      academicYearId: data.academicYearId,
+      gradeId: data.gradeId,
+      name: data.name,
+      roomId: data.roomId || null,
+      maxCapacity: data.maxCapacity,
+      status: data.status || 'draft'
+    };
+    console.log(JSON.stringify(apiPayload, null, 2));
+
     const newSec: Section = { ...data, id: crypto.randomUUID() };
     dispatch(upsertSection(newSec));
-    setTimeout(() => {
-      setIsDrawerOpen(false);
-      reset();
-    }, 100);
+    setTimeout(() => { setIsDrawerOpen(false); reset(); }, 100);
   };
 
   const onError = (errors: any) => {

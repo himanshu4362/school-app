@@ -24,6 +24,13 @@ const { register, handleSubmit, reset, formState: { errors } } = useForm<Grade>(
   };
 
   const onSubmit = (data: Grade) => {
+    const apiPayload = {
+      name: data.name,
+      level: data.level,
+      status: data.status || 'draft'
+    };
+    console.log(JSON.stringify(apiPayload, null, 2));
+
     const newGrade: Grade = { ...data, id: crypto.randomUUID() };
     dispatch(upsertGrade(newGrade));
     setTimeout(() => { setIsDrawerOpen(false); reset(); }, 100);

@@ -36,7 +36,6 @@ const SystemConfigHub: React.FC = () => {
             pageDescription="Manage organizational hierarchy, infrastructure, and academic boundaries."
             breadcrumbs={[{ label: 'System Admin' }, { label: 'Master Data' }]}
         >
-            {/* 🔴 DEPENDENCY ERROR BANNER */}
             {validationErrors.length > 0 && (
                 <div className="mb-6 p-4 bg-rose-50 border-2 border-rose-200 rounded-2xl flex items-start gap-3 animate-in slide-in-from-top-2 shadow-sm">
                     <AlertCircle className="text-rose-600 shrink-0 mt-0.5" size={18} />
