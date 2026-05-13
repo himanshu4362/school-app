@@ -82,6 +82,7 @@ import EvaluationHub from './features/teacher/pages/evaluation/EvaluationHub';
 import StudentDashboardHub from './features/student/pages/dashboard/StudentDashboardHub';
 import StudentExamsHub from './features/student/pages/exam/StudentExamsHub';
 import SchoolRegistration from './SchoolRegistration';
+import SetupPassword from './features/auth/pages/SetupPassword';
 
 setupIonicReact();
 
@@ -97,7 +98,8 @@ const App: React.FC = () => (
         <Route exact path="/auth/register" component={Register} />
         <Route exact path="/auth/forgot-password" component={ResetPassword} />
         <Route exact path="/auth/verify-otp" component={VerifyOtp} />
-
+        <Route exact path="/auth/setup-password" component={SetupPassword} />
+        
         <Route exact path="/admin" render={() => <Redirect to="/admin/dashboard" />} />
         <Route exact path="/admin/dashboard" component={Dashboard} />
         <Route exact path="/admin/academic/syllabus" component={SyllabusOverview} />

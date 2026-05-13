@@ -24,6 +24,7 @@ import gatePassReducer from "./slices/gatePassSlice";
 import evaluationReducer from "./slices/evaluationSlice"
 import quizBuilderSlice from "./slices/quizBuilderSlice"
 import studentAttemptReducer from "./slices/studentAttemptSlice"
+import authSlice from "./slices/authSlice"
 
 export const store = configureStore({
   reducer: {
@@ -52,6 +53,7 @@ export const store = configureStore({
     evaluation: evaluationReducer,
     quizBuilder: quizBuilderSlice,
     studentAttempt: studentAttemptReducer,
+    auth: authSlice,
   }
 });
 

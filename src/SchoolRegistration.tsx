@@ -88,7 +88,6 @@ const SchoolRegistration: React.FC = () => {
             // Auto-fill if found
             if (locationData) {
                 setValue('schoolAddress.state', locationData.state, { shouldValidate: true });
-                // Small delay ensures state is set before district attempts to select
                 setTimeout(() => {
                     setValue('schoolAddress.district', locationData.district, { shouldValidate: true });
                     setValue('schoolAddress.city', locationData.city, { shouldValidate: true });
@@ -97,7 +96,6 @@ const SchoolRegistration: React.FC = () => {
         }
     }, [watchPincode, setValue]);
 
-    // Clear district if state changes manually
     useEffect(() => {
         if (watchState && watchPincode?.length !== 6) {
             setValue('schoolAddress.district', '');

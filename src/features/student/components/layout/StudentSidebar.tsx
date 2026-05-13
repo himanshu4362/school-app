@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import shcoolLogo from "../../../../../public/images.jpg"
+import shcoolLogo from "../../../../assets/school logo.jpg"
 import { 
   LayoutDashboard, 
   BookOpen, 
@@ -11,7 +11,6 @@ import {
   LogOut,  
 } from 'lucide-react';
 
-// 🟢 FIXED: Removed 'exact: true' to stop the React DOM error bleeding
 const STUDENT_NAV = [
   { path: '/student', label: 'My Dashboard', icon: LayoutDashboard },
   { path: '/student/exams', label: 'Examinations', icon: ClipboardList },
@@ -23,7 +22,6 @@ const STUDENT_NAV = [
 
 const StudentSidebar: React.FC = () => {
   return (
-    // 🟢 FIXED: Removed 'hidden lg:flex' from here so the Layout component can control it via Drawer
     <aside className="w-72 bg-slate-900 h-full flex flex-col border-r border-slate-800 shrink-0">
       
       {/* BRANDING */}
@@ -42,7 +40,6 @@ const StudentSidebar: React.FC = () => {
           <NavLink
             key={link.path}
             to={link.path}
-            // 🟢 FIXED: Completely removed the 'end' prop hack that was causing the red console error
             className={(navData: any) => `
               flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 group
               ${(navData.isActive || navData === true) 
