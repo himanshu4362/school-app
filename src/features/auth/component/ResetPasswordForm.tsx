@@ -3,7 +3,7 @@ import * as yup from "yup";
 import React, { useState } from "react";
 import { HiMiniNoSymbol } from "react-icons/hi2";
 import { useHistory } from 'react-router-dom';
-import axios from "axios";
+import api from '../../../services/api';
 import { IonDatetime, IonDatetimeButton, IonModal } from '@ionic/react';
 const ResetPasswordForm = () => {
   const history = useHistory();
@@ -33,7 +33,7 @@ const ResetPasswordForm = () => {
       try {
         setIsApiCall(true);
         console.log("data collected", values);
-        const response = await axios.post(
+        const response = await api.post(
           `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/forgot-password`,
           values,
         );

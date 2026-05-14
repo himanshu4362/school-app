@@ -5,34 +5,57 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, X, Lock } from 'lucide-react';
 
 import { RootState } from '../../../../store/store';
-import { upsertSection, attemptCloseSection } from '../../../../store/slices/systemConfigSlice';
+import { upsertSection } from '../../../../store/slices/systemConfigSlice';
+import { attemptCloseSection } from '../../../../store/slices/systemConfigSlice';
 import { SectionSchema, Section } from '../../../../types/core/systemConfig.schema';
 import { createPortal } from 'react-dom';
+import api from '../../../../services/api';
 
 const SectionPanel: React.FC = () => {
   const dispatch = useDispatch();
   const { sections, rooms, academicYears, grades } = useSelector((state: RootState) => state.systemConfig);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<Section>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors }
+  } = useForm<Section>({
     resolver: zodResolver(SectionSchema.omit({ id: true })) as any,
     defaultValues: { status: 'draft', maxCapacity: 40 }
   });
 
-  const onSubmit = (data: Section) => {
-    const apiPayload = {
-      academicYearId: data.academicYearId,
-      gradeId: data.gradeId,
-      name: data.name,
-      roomId: data.roomId || null,
-      maxCapacity: data.maxCapacity,
-      status: data.status || 'draft'
-    };
-    console.log(JSON.stringify(apiPayload, null, 2));
+  const watchRoomId = watch('roomId');
 
-    const newSec: Section = { ...data, id: crypto.randomUUID() };
-    dispatch(upsertSection(newSec));
-    setTimeout(() => { setIsDrawerOpen(false); reset(); }, 100);
+  const selectedRoom = watchRoomId
+    ? rooms[watchRoomId]
+    : null;
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+
+  const onSubmit = async (data: any) => {
+    const selectedRoom = rooms[data.roomId];
+    if (selectedRoom && data.maxCapacity > selectedRoom.capacity) {
+      alert(`Physical Limit Breach: Room ${selectedRoom.roomNumber} only has ${selectedRoom.capacity} seats.`);
+      return;
+    }
+
+    try {
+      const response = await api.post('http://localhost:5000/api/master-data/sections', {
+        academicYearId: data.academicYearId,
+        gradeId: data.gradeId,
+        roomId: data.roomId,
+        name: data.name,
+        targetCapacity: data.maxCapacity
+      });
+
+      const newSec = { ...response.data.data, id: response.data.data._id };
+      dispatch(upsertSection(newSec));
+      setIsDrawerOpen(false);
+      reset();
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Section creation failed.");
+    }
   };
 
   const onError = (errors: any) => {
@@ -59,10 +82,10 @@ const SectionPanel: React.FC = () => {
           <div className="col-span-full p-10 border-2 border-dashed border-slate-200 rounded-3xl text-center text-slate-400 font-bold text-sm">No Sections configured yet.</div>
         ) : (
           Object.values(sections).map(sec => {
-             const gradeName = grades[sec.gradeId]?.name || sec.gradeId;
-             const roomName = sec.roomId ? (rooms[sec.roomId]?.roomNumber || sec.roomId) : 'Unassigned';
+            const gradeName = grades[sec.gradeId]?.name || sec.gradeId;
+            const roomName = sec.roomId ? (rooms[sec.roomId]?.roomNumber || sec.roomId) : 'Unassigned';
 
-             return (
+            return (
               <div key={sec.id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
                 <div className="flex justify-between items-start">
                   <div>
@@ -81,7 +104,7 @@ const SectionPanel: React.FC = () => {
                   )}
                 </div>
               </div>
-             )
+            )
           })
         )}
       </div>
@@ -131,6 +154,20 @@ const SectionPanel: React.FC = () => {
                     ))}
                   </select>
                   <p className="text-[9px] text-amber-600 mt-1 font-bold">Assigning a room limits max capacity automatically.</p>
+                </div>
+                <div>
+                  <label className="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-1.5 block">
+                    Max Capacity Target {selectedRoom && `(Limit: ${selectedRoom.capacity})`}
+                  </label>
+                  <input
+                    type="number"
+                    {...register('maxCapacity', { valueAsNumber: true })}
+                    className={`w-full p-3 bg-white border-2 rounded-xl text-sm font-bold ${selectedRoom && watch('maxCapacity') > selectedRoom.capacity ? 'border-rose-500 text-rose-600' : 'border-amber-100'
+                      }`}
+                  />
+                  {selectedRoom && watch('maxCapacity') > selectedRoom.capacity && (
+                    <p className="text-[10px] font-bold text-rose-500 mt-1">This exceeds physical room capacity!</p>
+                  )}
                 </div>
                 <div>
                   <label className="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-1.5 block">Max Capacity Target</label>

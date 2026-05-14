@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,11 +8,25 @@ import { RootState } from '../../../../store/store';
 import { upsertRoom } from '../../../../store/slices/systemConfigSlice';
 import { RoomSchema, Room } from '../../../../types/core/systemConfig.schema';
 import { createPortal } from 'react-dom';
+import api from '../../../../services/api';
 
 const RoomPanel: React.FC = () => {
   const dispatch = useDispatch();
   const rooms = useSelector((state: RootState) => state.systemConfig.rooms);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [roomTypeOptions, setRoomTypeOptions] = useState<{ value: string, label: string }[]>([]);
+
+  useEffect(() => {
+    const fetchMetadata = async () => {
+      try {
+        const response = await api.get('http://localhost:5000/api/master-data/config/room-types');
+        setRoomTypeOptions(response.data.data);
+      } catch (err) {
+        console.error("Failed to fetch room types", err);
+      }
+    };
+    fetchMetadata();
+  }, []);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<Room>({
     resolver: zodResolver(RoomSchema.omit({ id: true })) as any,
@@ -24,21 +38,23 @@ const RoomPanel: React.FC = () => {
     console.warn("Form Validation Failed:", validationErrors);
   };;
 
-  const onSubmit = (data: Room) => {
-    const apiPayload = {
-      roomNumber: data.roomNumber,
-      capacity: data.capacity,
-      buildingWing: data.buildingWing || null,
-      roomType: data.roomType,
-      status: data.status || 'draft'
-    };
-    console.log(JSON.stringify(apiPayload, null, 2));
+  const onSubmit = async (data: Room) => {
+    try {
+      const response = await api.post('http://localhost:5000/api/master-data/rooms', {
+        roomNumber: data.roomNumber,
+        capacity: data.capacity,
+        building: data.buildingWing, // Mapping frontend 'buildingWing' to backend 'building'
+        roomType: data.roomType.toUpperCase() // Backend uses uppercase ENUMs
+      });
 
-    const newRoom: Room = { ...data, id: crypto.randomUUID() };
-    dispatch(upsertRoom(newRoom));
-    setTimeout(() => { setIsDrawerOpen(false); reset(); }, 100);
+      const newRoom = { ...response.data.data, id: response.data.data._id };
+      dispatch(upsertRoom(newRoom));
+      setIsDrawerOpen(false);
+      reset();
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Room registration failed.");
+    }
   };
-
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="flex justify-between items-center">
@@ -97,11 +113,14 @@ const RoomPanel: React.FC = () => {
               <div>
                 <label className="text-[10px] font-black text-slate-400 uppercase mb-1.5 block">Room Type</label>
                 <select {...register('roomType')} className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold">
-                  <option value="classroom">Standard Classroom</option>
-                  <option value="laboratory">Laboratory</option>
-                  <option value="computer_lab">Computer Lab</option>
-                  <option value="auditorium">Auditorium</option>
+                  <option value="">Select Type...</option>
+                  {roomTypeOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
                 </select>
+                {errors.roomType && <p className="text-xs text-rose-500 mt-1 font-bold">Please select a type.</p>}
               </div>
               <button type="submit" className="w-full bg-indigo-600 text-white p-3.5 rounded-xl font-black text-xs uppercase tracking-widest mt-4">Save Room</button>
             </form>

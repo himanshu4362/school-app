@@ -154,7 +154,7 @@ const App: React.FC = () => (
         <Route exact path="/student" component={StudentDashboardHub} />
         <Route exact path="/student/exams" component={StudentExamsHub} />
 
-        <Route exact path="/school/register" component={SchoolRegistration} />
+        <Route exact path="/register-school" component={SchoolRegistration} />
 
         <Route component={page404} />
       </IonRouterOutlet>

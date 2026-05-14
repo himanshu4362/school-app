@@ -78,5 +78,10 @@ export const seatSlice = createSlice({
   }
 });
 
-export const { clearSeatErrors, upsertSeatPolicy, createReservation, updateReservationState } = seatSlice.actions;
+export const {
+  clearSeatErrors,
+  upsertSeatPolicy,
+  createReservation,
+  updateReservationState
+} = seatSlice.actions;
 export default seatSlice.reducer;

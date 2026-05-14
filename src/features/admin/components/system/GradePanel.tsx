@@ -8,6 +8,7 @@ import { RootState } from '../../../../store/store';
 import { upsertGrade } from '../../../../store/slices/systemConfigSlice';
 import { GradeSchema, Grade } from '../../../../types/core/systemConfig.schema';
 import { createPortal } from 'react-dom';
+import api from '../../../../services/api';
 
 const GradePanel: React.FC = () => {
   const dispatch = useDispatch();
@@ -23,19 +24,22 @@ const { register, handleSubmit, reset, formState: { errors } } = useForm<Grade>(
     console.warn("Form Validation Failed:", errors);
   };
 
-  const onSubmit = (data: Grade) => {
-    const apiPayload = {
-      name: data.name,
-      level: data.level,
-      status: data.status || 'draft'
-    };
-    console.log(JSON.stringify(apiPayload, null, 2));
+const onSubmit = async (data: Grade) => {
+    try {
+        const response = await api.post('http://localhost:5000/api/master-data/grades', {
+            name: data.name,
+            level: data.level,
+            admissionOpen: true // Or whatever your default is
+        });
 
-    const newGrade: Grade = { ...data, id: crypto.randomUUID() };
-    dispatch(upsertGrade(newGrade));
-    setTimeout(() => { setIsDrawerOpen(false); reset(); }, 100);
-  };
-
+        const newGrade = { ...response.data.data, id: response.data.data._id };
+        dispatch(upsertGrade(data));
+        setIsDrawerOpen(false);
+        reset();
+    } catch (error: any) {
+        alert(error.response?.data?.message || "Failed to create Grade");
+    }
+};
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="flex justify-between items-center">

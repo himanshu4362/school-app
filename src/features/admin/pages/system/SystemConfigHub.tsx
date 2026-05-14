@@ -1,12 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Building2, Users, Presentation, GraduationCap, BookOpen, Library, CalendarDays, Settings, AlertCircle, X } from 'lucide-react';
-
+import { IonLoading } from '@ionic/react';
 import { RootState } from '../../../../store/store';
 import { setModule, clearValidationErrors } from '../../../../store/slices/systemConfigSlice';
 import AdminLayout from '../../components/layout/AdminLayout';
-
-// Import our newly destructured components
 import AcademicYearPanel from '../../components/system/AcademicYearPanel';
 import RoomPanel from '../../components/system/RoomPanel';
 import GradePanel from '../../components/system/GradePanel';
@@ -14,8 +12,13 @@ import SectionPanel from '../../components/system/SectionPanel';
 import DepartmentPanel from '../../components/system/DepartmentPanel';
 import DesignationPanel from '../../components/system/DesignationPanel';
 import SubjectPanel from '../../components/system/SubjectPanel';
-// import DepartmentPanel from '../../components/system/DepartmentPanel'; // Add this when you split Department!
-
+import api from '../../../../services/api';
+import {
+    upsertAcademicYear,
+    upsertRoom,
+    upsertSection
+} from '../../../../store/slices/systemConfigSlice';
+import { upsertGrade } from '../../../../store/slices/systemConfigSlice';
 const MODULE_MENU = [
     { id: 'academicYears', label: 'Academic Years', icon: <CalendarDays size={18} /> },
     { id: 'departments', label: 'Departments', icon: <Building2 size={18} /> },
@@ -29,6 +32,41 @@ const MODULE_MENU = [
 const SystemConfigHub: React.FC = () => {
     const dispatch = useDispatch();
     const { activeModule, validationErrors } = useSelector((state: RootState) => state.systemConfig);
+    const [isLoading, setIsLoading] = useState(false);
+    useEffect(() => {
+        const fetchMasterData = async () => {
+            try {
+                setIsLoading(true)
+                const [years, grades, rooms, sections, seats] = await Promise.all([
+                    api.get('/master-data/academic-years'),
+                    api.get('/master-data/grades'),
+                    api.get('/master-data/rooms'),
+                    api.get('/master-data/sections'),
+                    api.get('/master-data/seats')
+                ]);
+                years.data.data.forEach((year: any) => {
+                    dispatch(upsertAcademicYear(year));
+                });
+
+                grades.data.data.forEach((grade: any) => {
+                    dispatch(upsertGrade(grade));
+                });
+
+                rooms.data.data.forEach((room: any) => {
+                    dispatch(upsertRoom(room));
+                });
+
+                sections.data.data.forEach((section: any) => {
+                    dispatch(upsertSection(section));
+                });
+            } catch (err) {
+                console.error("Failed to hydrate Master Data Hub", err);
+            } finally {
+                setIsLoading(false)
+            }
+        };
+        fetchMasterData();
+    }, [dispatch]);
 
     return (
         <AdminLayout
@@ -36,6 +74,11 @@ const SystemConfigHub: React.FC = () => {
             pageDescription="Manage organizational hierarchy, infrastructure, and academic boundaries."
             breadcrumbs={[{ label: 'System Admin' }, { label: 'Master Data' }]}
         >
+            <IonLoading
+                isOpen={isLoading}
+                message="Loading Master Data..."
+                spinner="crescent"
+            />
             {validationErrors.length > 0 && (
                 <div className="mb-6 p-4 bg-rose-50 border-2 border-rose-200 rounded-2xl flex items-start gap-3 animate-in slide-in-from-top-2 shadow-sm">
                     <AlertCircle className="text-rose-600 shrink-0 mt-0.5" size={18} />

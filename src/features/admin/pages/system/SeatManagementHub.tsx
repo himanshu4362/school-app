@@ -10,6 +10,7 @@ import { clearSeatErrors, upsertSeatPolicy } from '../../../../store/slices/seat
 import { GradeSeatPolicySchema, GradeSeatPolicy } from '../../../../types/admission/seats.schema';
 import { selectLiveGradeInventory } from '../../../../store/selectors/seatSelectors';
 import AdminLayout from '../../components/layout/AdminLayout';
+import api from '../../../../services/api';
 
 // ==========================================
 // COMPONENT: Individual Grade Inventory Card
@@ -100,33 +101,40 @@ const SeatManagementHub: React.FC = () => {
 
     const totalAllocated = (watchQuotas || []).reduce((sum, q) => sum + (Number(q.reservedSeats) || 0), 0);
 
-    const onSubmit = (data: GradeSeatPolicy) => {
-        if (totalAllocated > activePhysicalCapacity) {
-            alert(`SYSTEM GUARD: You cannot allocate ${totalAllocated} seats. The physical rooms for this grade only hold ${activePhysicalCapacity} students.`);
+    const onSubmit = async (data: GradeSeatPolicy) => {
+        // Backend expects an object where keys are the Category Names
+        // We must transform the Array from useFieldArray into the Backend Object format
+        const quotaMap: Record<string, any> = {};
+        let totalSum = 0;
+
+        data.quotas.forEach(q => {
+            quotaMap[q.name.toUpperCase()] = {
+                capacity: q.reservedSeats
+            };
+            totalSum += q.reservedSeats;
+        });
+
+        // 🟢 Condition Check: Quota Sum == Section Capacity
+        if (totalSum !== activePhysicalCapacity) {
+            alert(`Quota Mismatch: You have allocated ${totalSum} seats, but the section capacity is ${activePhysicalCapacity}. They must be equal.`);
             return;
         }
 
-        const apiPayload = {
+        try {
+            await api.post('http://localhost:5000/api/master-data/seats', {
             academicYearId: data.academicYearId,
             gradeId: data.gradeId,
-            status: data.status || 'draft',
-            quotas: data.quotas.map(q => ({
-                name: q.name,
-                reservedSeats: q.reservedSeats,
-                isSpilloverAllowed: q.isSpilloverAllowed
-            }))
-        };
-        console.log(JSON.stringify(apiPayload, null, 2));
+            sectionId: (data as any).sectionId,
+            allowSpillover: true,
+            quotas: quotaMap
+        });
 
-        const newPolicy: GradeSeatPolicy = {
-            ...data,
-            id: crypto.randomUUID(),
-            quotas: data.quotas.map(q => ({ ...q, id: crypto.randomUUID() }))
-        };
-
-        dispatch(upsertSeatPolicy(newPolicy));
-        setIsDrawerOpen(false);
-        reset();
+            alert("Seat Policy Enacted Successfully.");
+            setIsDrawerOpen(false);
+            reset();
+        } catch (error: any) {
+            alert(error.response?.data?.message || "Seat policy failed.");
+        }
     };
 
     return (

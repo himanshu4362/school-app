@@ -4,7 +4,7 @@ import { HiMiniNoSymbol } from "react-icons/hi2";
 import { FaSpinner } from "react-icons/fa";
 import { useState } from "react";
 import { useHistory } from 'react-router-dom';
-import axios from "axios";
+import api from '../../../services/api';
 
 const RegisterForm = () => {
   const history  = useHistory();
@@ -63,7 +63,7 @@ const RegisterForm = () => {
       try {
         setIsApiCall(true)
         console.log(data)
-        const response = await axios.post(
+        const response = await api.post(
           `${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/signup`,
           data,
         );
