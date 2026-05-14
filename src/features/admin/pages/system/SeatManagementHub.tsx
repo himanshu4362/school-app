@@ -1,250 +1,275 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm, useFieldArray } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Shield, PieChart, Plus, X, Save, AlertCircle, TrendingUp, Users } from 'lucide-react';
+import { Shield, PieChart, Plus, X, Save, Layers } from 'lucide-react';
 
 import { RootState } from '../../../../store/store';
-import { clearSeatErrors, upsertSeatPolicy } from '../../../../store/slices/seatSlice';
-import { GradeSeatPolicySchema, GradeSeatPolicy } from '../../../../types/admission/seats.schema';
-import { selectLiveGradeInventory } from '../../../../store/selectors/seatSelectors';
 import AdminLayout from '../../components/layout/AdminLayout';
 import api from '../../../../services/api';
 
-// ==========================================
-// COMPONENT: Individual Grade Inventory Card
-// ==========================================
-const GradeInventoryCard: React.FC<{ policy: GradeSeatPolicy }> = ({ policy }) => {
-    const grades = useSelector((state: RootState) => state.systemConfig.grades);
-    const gradeName = grades[policy.gradeId]?.name || 'Unknown Grade';
-    const liveStats = useSelector(selectLiveGradeInventory(policy.gradeId, policy.academicYearId));
+// 🟢 Import the Redux setters to populate the dropdowns
+import { setAcademicYears, setGrades, setSections } from '../../../../store/slices/systemConfigSlice';
 
-    return (
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col hover:border-indigo-300 transition-all">
-            <div className="flex justify-between items-start mb-6">
-                <div>
-                    <h4 className="text-lg font-black text-slate-900">{gradeName}</h4>
-                    <span className="px-2.5 py-1 mt-2 inline-block rounded-md text-[10px] font-black uppercase tracking-widest bg-emerald-100 text-emerald-700">
-                        {policy.status} Policy
-                    </span>
-                </div>
-                <div className="text-right">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Physical Limit</p>
-                    <p className="text-2xl font-black text-slate-800">{liveStats.totalPhysicalCapacity} <span className="text-sm text-slate-400">Seats</span></p>
-                </div>
-            </div>
-
-            <div className="space-y-3 mb-6 flex-1">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Configured Quotas</p>
-                {policy.quotas.map((q, i) => (
-                    <div key={i} className="flex justify-between items-center text-sm">
-                        <span className="font-bold text-slate-700 flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${i === 0 ? 'bg-amber-400' : i === 1 ? 'bg-indigo-400' : 'bg-rose-400'}`} />
-                            {q.name} {q.isSpilloverAllowed && <span className="text-[9px] text-indigo-500 bg-indigo-50 px-1.5 py-0.5 rounded">(Spillover)</span>}
-                        </span>
-                        <span className="font-black text-slate-900">{q.reservedSeats}</span>
-                    </div>
-                ))}
-            </div>
-
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-bold text-slate-500">Live Escrow State</span>
-                    <Users size={14} className="text-slate-400" />
-                </div>
-                <div className="flex gap-4">
-                    <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Soft-Locked</p>
-                        <p className="text-sm font-black text-amber-600">{liveStats.currentlyReserved}</p>
-                    </div>
-                    <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Consumed</p>
-                        <p className="text-sm font-black text-indigo-600">{liveStats.currentlyConsumed}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-// ==========================================
-// MAIN HUB COMPONENT
-// ==========================================
 const SeatManagementHub: React.FC = () => {
     const dispatch = useDispatch();
     const { academicYears, grades, sections } = useSelector((state: RootState) => state.systemConfig);
-    const { policies, validationErrors } = useSelector((state: RootState) => state.seats);
+    const globalCurrentYear = useSelector((state: RootState) => state.systemConfig.globalCurrentAcademicYearId);
+    
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [liveInventories, setLiveInventories] = useState<any[]>([]);
 
-    const { register, control, handleSubmit, watch, reset, formState: { errors } } = useForm<GradeSeatPolicy>({
-        resolver: zodResolver(GradeSeatPolicySchema.omit({ id: true })) as any,
+    // 🟢 FETCH EVERYTHING ON LOAD (Bulletproof Hydration)
+    const fetchAllData = async () => {
+        try {
+            const [yearsRes, gradesRes, sectionsRes, seatsRes] = await Promise.all([
+                api.get('/api/master-data/academic-years'),
+                api.get('/api/master-data/grades'),
+                api.get('/api/master-data/sections'),
+                api.get('/api/master-data/seats')
+            ]);
+
+            // Populate Redux so the dropdowns have data!
+            if (yearsRes.data.success) dispatch(setAcademicYears(yearsRes.data.data));
+            if (gradesRes.data.success) dispatch(setGrades(gradesRes.data.data));
+            if (sectionsRes.data.success) dispatch(setSections(sectionsRes.data.data));
+
+            // Populate the live dashboard cards
+            if (seatsRes.data.success) setLiveInventories(seatsRes.data.data);
+            
+        } catch (error) {
+            console.error("Failed to load seat management dependencies", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchAllData();
+    }, [dispatch]);
+
+    // Form Setup
+    const { register, handleSubmit, control, watch, reset } = useForm<any>({
         defaultValues: {
-            status: 'draft',
+            academicYearId: globalCurrentYear || '',
+            gradeId: '',
+            sectionId: '',
+            allowSpillover: true,
             quotas: [
-                { id: crypto.randomUUID(), name: 'General', reservedSeats: 0, isSpilloverAllowed: false },
-                { id: crypto.randomUUID(), name: 'RTE (Legal)', reservedSeats: 0, isSpilloverAllowed: false },
-                { id: crypto.randomUUID(), name: 'Management', reservedSeats: 0, isSpilloverAllowed: true }
+                { id: crypto.randomUUID(), name: 'GENERAL', reservedSeats: 20 },
+                { id: crypto.randomUUID(), name: 'OBC', reservedSeats: 10 },
+                { id: crypto.randomUUID(), name: 'SC', reservedSeats: 5 },
+                { id: crypto.randomUUID(), name: 'ST', reservedSeats: 2 },
+                { id: crypto.randomUUID(), name: 'EWS', reservedSeats: 3 }
             ]
         }
     });
 
     const { fields, append, remove } = useFieldArray({ control, name: "quotas" });
 
+    // Dynamic Watchers
     const watchYear = watch('academicYearId');
     const watchGrade = watch('gradeId');
-    const watchQuotas = watch('quotas');
+    const watchSection = watch('sectionId');
+    const watchQuotas = watch('quotas') || [];
 
-    const activePhysicalCapacity = Object.values(sections)
-        .filter(s => s.gradeId === watchGrade && s.academicYearId === watchYear && s.status !== 'closed')
-        .reduce((sum, sec) => sum + sec.maxCapacity, 0);
+    // Filter Sections based on selected Year & Grade
+    const availableSections = Object.values(sections).filter(
+        sec => sec.academicYearId === watchYear && sec.gradeId === watchGrade
+    );
 
-    const totalAllocated = (watchQuotas || []).reduce((sum, q) => sum + (Number(q.reservedSeats) || 0), 0);
+    // Calculate Physical Balance
+    const selectedSectionData = watchSection ? sections[watchSection] : null;
+    const activePhysicalCapacity = selectedSectionData?.targetCapacity || 0;
+    
+    const totalAllocated = watchQuotas.reduce((sum: number, q: any) => sum + (Number(q.reservedSeats) || 0), 0);
+    const remaining = activePhysicalCapacity - totalAllocated;
 
-    const onSubmit = async (data: GradeSeatPolicy) => {
-        // Backend expects an object where keys are the Category Names
-        // We must transform the Array from useFieldArray into the Backend Object format
-        const quotaMap: Record<string, any> = {};
-        let totalSum = 0;
+    // SUBMIT HANDLER
+    const onSubmit = async (data: any) => {
+        if (!selectedSectionData) return alert("Please select a valid section.");
 
-        data.quotas.forEach(q => {
-            quotaMap[q.name.toUpperCase()] = {
-                capacity: q.reservedSeats
-            };
-            totalSum += q.reservedSeats;
-        });
-
-        // 🟢 Condition Check: Quota Sum == Section Capacity
-        if (totalSum !== activePhysicalCapacity) {
-            alert(`Quota Mismatch: You have allocated ${totalSum} seats, but the section capacity is ${activePhysicalCapacity}. They must be equal.`);
-            return;
+        if (totalAllocated !== activePhysicalCapacity) {
+            return alert(`QUOTA MISMATCH: You allocated ${totalAllocated} seats, but Section ${selectedSectionData.name} only has ${activePhysicalCapacity} capacity. They must match perfectly!`);
         }
 
-        try {
-            await api.post('http://localhost:5000/api/master-data/seats', {
-            academicYearId: data.academicYearId,
-            gradeId: data.gradeId,
-            sectionId: (data as any).sectionId,
-            allowSpillover: true,
-            quotas: quotaMap
+        const quotaMap: Record<string, any> = {};
+        data.quotas.forEach((q: any) => {
+            if (q.name && q.reservedSeats >= 0) {
+                quotaMap[q.name.toUpperCase()] = { capacity: Number(q.reservedSeats) };
+            }
         });
 
-            alert("Seat Policy Enacted Successfully.");
+        try {
+            const apiPayload = {
+                academicYearId: data.academicYearId,
+                gradeId: data.gradeId,
+                sectionId: data.sectionId,
+                allowSpillover: data.allowSpillover,
+                quotas: quotaMap
+            };
+
+            await api.post('/api/master-data/seats', apiPayload);
+
+            alert("Seat Inventory Policy Enacted Successfully!");
             setIsDrawerOpen(false);
             reset();
+            fetchAllData(); // Refresh cards
         } catch (error: any) {
-            alert(error.response?.data?.message || "Seat policy failed.");
+            alert(error.response?.data?.message || "Failed to enact seat policy.");
         }
     };
 
     return (
-        <AdminLayout
-            pageTitle="Seat & Quota Management"
-            pageDescription="Govern admissions inventory, legal quotas, and physical capacities."
-            breadcrumbs={[{ label: 'System Config' }, { label: 'Seat Management' }]}
-        >
-            {validationErrors?.length > 0 && (
-                <div className="mb-6 p-4 bg-rose-50 border-2 border-rose-200 rounded-2xl flex items-start gap-3 shadow-sm">
-                    <AlertCircle className="text-rose-600 shrink-0 mt-0.5" size={18} />
-                    <div className="flex-1">
-                        <h4 className="text-xs font-black text-rose-900 uppercase tracking-widest mb-1">Policy Blocked</h4>
-                        <ul className="list-disc pl-4 space-y-1">
-                            {validationErrors.map((err, i) => (
-                                <li key={i} className="text-sm font-bold text-rose-700">{err.message}</li>
-                            ))}
-                        </ul>
+        <AdminLayout pageTitle="Seat & Quota Engine" pageDescription="Define category-wise reservations and capacities based on physical constraints.">
+            
+            <div className="flex justify-between items-center mb-8">
+                <div className="flex gap-4">
+                    <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 min-w-[220px]">
+                        <div className="p-3 bg-blue-50 text-blue-600 rounded-xl"><PieChart size={24} /></div>
+                        <div>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Inventories</p>
+                            <h3 className="text-2xl font-black text-slate-900">{liveInventories.length} Configured</h3>
+                        </div>
                     </div>
-                    <button onClick={() => dispatch(clearSeatErrors())} className="text-rose-400 hover:text-rose-700 bg-white p-1 rounded-lg"><X size={16} /></button>
                 </div>
-            )}
-
-            <div className="flex justify-end mb-6">
-                <button onClick={() => setIsDrawerOpen(true)} className="bg-indigo-600 text-white px-5 py-3 rounded-xl text-sm font-black flex items-center gap-2 hover:bg-indigo-700 shadow-md">
-                    <Shield size={18} /> Define New Grade Policy
+                <button onClick={() => setIsDrawerOpen(true)} className="bg-slate-900 text-white px-6 py-3.5 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-2 shadow-xl shadow-slate-900/20">
+                    <Plus size={16} /> New Policy
                 </button>
             </div>
 
+            {/* LIVE INVENTORY DISPLAY GRID */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {Object.values(policies).length === 0 ? (
-                    <div className="col-span-full py-20 border-2 border-dashed border-slate-200 rounded-3xl text-center flex flex-col items-center justify-center">
-                        <PieChart size={48} className="text-slate-300 mb-4" />
-                        <h3 className="text-lg font-black text-slate-900">No Inventory Policies Active</h3>
-                        <p className="text-sm font-bold text-slate-500 mt-2 max-w-md">Admissions cannot proceed without a defined seat ledger. Click above to allocate your physical capacities.</p>
-                    </div>
-                ) : (
-                    Object.values(policies).map(policy => (
-                        <GradeInventoryCard key={policy.id} policy={policy} />
-                    ))
-                )}
-            </div>
+                {liveInventories.map(inv => {
+                    const sec = sections[inv.sectionId];
+                    const grade = grades[inv.gradeId];
+                    const year = academicYears[inv.academicYearId];
 
-            {isDrawerOpen && createPortal(
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[9999] flex justify-end p-2 sm:p-4">
-                    <div className="bg-white w-full max-w-lg h-full shadow-2xl rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-right-8">
-                        <div className="p-6 border-b border-slate-100 flex justify-between bg-slate-50 items-center">
-                            <h3 className="text-sm font-black text-slate-900 flex items-center gap-2"><Shield size={16} className="text-indigo-600" /> Policy Engine</h3>
-                            <button onClick={() => setIsDrawerOpen(false)} className="text-slate-400 hover:text-rose-500"><X size={20} /></button>
-                        </div>
-
-                        <form onSubmit={handleSubmit(onSubmit)} className="p-6 flex-1 overflow-y-auto space-y-6">
-                            <div className="grid grid-cols-2 gap-4">
+                    return (
+                        <div key={inv._id} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:border-indigo-300 transition-all flex flex-col">
+                            <div className="flex justify-between items-start mb-4">
                                 <div>
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Academic Year *</label>
-                                    <select {...register('academicYearId')} className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold">
-                                        <option value="">Select Year...</option>
-                                        {Object.values(academicYears).map(y => <option key={y.id} value={y.id}>{y.code}</option>)}
-                                    </select>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <Layers size={14} className="text-indigo-500" />
+                                        <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-50 px-2 py-0.5 rounded-md">
+                                            {year?.name || 'Unknown Year'}
+                                        </span>
+                                    </div>
+                                    <h3 className="text-lg font-black text-slate-900">{grade?.name || 'Unknown Grade'} - {sec?.name || 'Sec'}</h3>
                                 </div>
-                                <div>
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Target Grade *</label>
-                                    <select {...register('gradeId')} className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold">
-                                        <option value="">Select Grade...</option>
-                                        {Object.values(grades).map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
-                                    </select>
+                                <div className="text-right">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Cap</p>
+                                    <p className="text-lg font-black text-slate-900">{inv.totalCapacity}</p>
                                 </div>
                             </div>
 
-                            {watchYear && watchGrade && (
-                                <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-center gap-4">
-                                    <div className="p-3 bg-indigo-100 rounded-xl text-indigo-600"><TrendingUp size={24} /></div>
+                            <div className="space-y-2 mt-auto">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2 mb-2">Quota Breakdown</p>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {Object.entries(inv.quotas).map(([category, data]: [string, any]) => {
+                                        if (data.capacity === 0) return null;
+                                        return (
+                                            <div key={category} className="flex justify-between items-center bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                                <span className="text-xs font-black text-slate-600 uppercase">{category}</span>
+                                                <span className="text-xs font-bold text-slate-900">{data.capacity}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+
+            {liveInventories.length === 0 && (
+                <div className="text-center py-20 bg-white border border-slate-200 border-dashed rounded-3xl">
+                    <Shield size={48} className="mx-auto text-slate-300 mb-4" />
+                    <h3 className="text-lg font-black text-slate-900">No Seat Inventories Configured</h3>
+                    <p className="text-sm font-bold text-slate-500 mt-1">Click "New Policy" to bind quotas to your sections.</p>
+                </div>
+            )}
+
+            {/* SLIDE-OVER DRAWER (PORTAL) */}
+            {isDrawerOpen && createPortal(
+                <div className="fixed inset-0 z-[9999] flex justify-end">
+                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setIsDrawerOpen(false)} />
+                    <div className="relative w-full max-w-lg bg-slate-50 h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+                        <div className="p-6 border-b border-slate-200 flex justify-between items-center bg-white">
+                            <div>
+                                <h3 className="font-black text-slate-900 flex items-center gap-2"><Shield size={18} className="text-indigo-600" /> Seat Allocation Matrix</h3>
+                            </div>
+                            <button onClick={() => setIsDrawerOpen(false)} className="text-slate-400 hover:text-rose-500 transition-colors"><X size={20} /></button>
+                        </div>
+                        
+                        <form onSubmit={handleSubmit(onSubmit)} className="p-6 flex-1 overflow-y-auto space-y-6">
+                            
+                            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                                <div>
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Academic Year *</label>
+                                    <select {...register('academicYearId', { required: true })} className="w-full p-3 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-bold outline-none focus:border-indigo-500">
+                                        <option value="">Select Year...</option>
+                                        {Object.values(academicYears).map(year => <option key={year.id} value={year.id}>{year.name}</option>)}
+                                    </select>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Physical Room Limit</p>
-                                        <p className="text-xl font-black text-indigo-900">
-                                            {activePhysicalCapacity} <span className="text-sm">Seats Available</span>
-                                        </p>
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Target Grade *</label>
+                                        <select {...register('gradeId', { required: true })} className="w-full p-3 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-bold outline-none focus:border-indigo-500">
+                                            <option value="">Select Grade...</option>
+                                            {Object.values(grades).map(grade => <option key={grade.id} value={grade.id}>{grade.name}</option>)}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        {/* 🟢 SMART PLACEHOLDER LOGIC */}
+                                        <label className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1.5 block">Target Section *</label>
+                                        <select {...register('sectionId', { required: true })} disabled={!watchGrade || !watchYear} className="w-full p-3 bg-indigo-50 border-2 border-indigo-100 rounded-xl text-sm font-bold text-indigo-900 outline-none focus:border-indigo-500 disabled:opacity-50">
+                                            <option value="">
+                                                {!watchYear ? 'Select Year first...' : !watchGrade ? 'Select Grade first...' : availableSections.length === 0 ? 'No Sections Found' : 'Select Section...'}
+                                            </option>
+                                            {availableSections.map(sec => <option key={sec.id} value={sec.id}>{sec.name}</option>)}
+                                        </select>
                                     </div>
                                 </div>
-                            )}
+                            </div>
 
-                            <div>
-                                <div className="flex justify-between items-end mb-3 border-b border-slate-100 pb-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Allocation Matrix</label>
-                                    <span className={`text-xs font-black ${totalAllocated > activePhysicalCapacity ? 'text-rose-500' : 'text-emerald-500'}`}>
-                                        {totalAllocated} / {activePhysicalCapacity} Allocated
-                                    </span>
-                                </div>
-
+                            <div className={`p-5 rounded-2xl border-2 transition-colors ${watchSection ? 'bg-white border-indigo-100' : 'bg-slate-100 border-slate-200 opacity-60 pointer-events-none'}`}>
+                                <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest flex items-center gap-2 mb-4">
+                                    <PieChart size={14} className="text-indigo-500" /> Category Distribution
+                                </h4>
+                                
                                 <div className="space-y-3">
                                     {fields.map((field, index) => (
-                                        <div key={field.id} className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                        <div key={field.id} className="flex gap-3 items-center">
                                             <div className="flex-1">
-                                                <input {...register(`quotas.${index}.name`)} placeholder="Quota Name" className="w-full bg-transparent text-sm font-bold outline-none" />
+                                                <input {...register(`quotas.${index}.name`)} placeholder="Category (e.g. GENERAL, OBC)" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold uppercase outline-none focus:border-indigo-500" />
                                             </div>
                                             <div className="w-24">
-                                                <input type="number" {...register(`quotas.${index}.reservedSeats`, { valueAsNumber: true })} placeholder="Seats" className="w-full p-2 bg-white border border-slate-200 rounded-lg text-sm font-bold text-center" />
+                                                <input type="number" {...register(`quotas.${index}.reservedSeats`, { valueAsNumber: true })} placeholder="Seats" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-center outline-none focus:border-indigo-500" />
                                             </div>
-                                            <button type="button" onClick={() => remove(index)} className="text-slate-400 hover:text-rose-500"><X size={16} /></button>
+                                            <button type="button" onClick={() => remove(index)} className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"><X size={16} /></button>
                                         </div>
                                     ))}
                                 </div>
 
-                                <button type="button" onClick={() => append({ id: crypto.randomUUID(), name: 'New Quota', reservedSeats: 0, isSpilloverAllowed: false })} className="mt-3 text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-800 flex items-center gap-1">
-                                    <Plus size={12} /> Add Quota Row
+                                <button type="button" onClick={() => append({ id: crypto.randomUUID(), name: '', reservedSeats: 0 })} className="mt-4 text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-800 flex items-center gap-1 p-2 hover:bg-indigo-50 rounded-lg transition-colors">
+                                    <Plus size={12} /> Add Quota Category
                                 </button>
+
+                                <div className="mt-6 p-4 rounded-xl bg-slate-900 text-white">
+                                    <div className="flex justify-between items-center mb-1">
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Section Target Capacity</span>
+                                        <span className="text-sm font-black">{activePhysicalCapacity} Seats</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Allocation Balance</span>
+                                        <span className={`text-lg font-black ${remaining === 0 ? 'text-emerald-400' : remaining < 0 ? 'text-rose-400' : 'text-amber-400'}`}>
+                                            {remaining === 0 ? 'Balanced' : remaining < 0 ? `Over by ${Math.abs(remaining)}` : `${remaining} Seats Unallocated`}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
 
-                            <button type="submit" className="w-full bg-indigo-600 text-white p-4 rounded-xl font-black text-sm uppercase tracking-widest mt-8 hover:bg-indigo-700 transition-all flex justify-center items-center gap-2">
-                                <Save size={18} /> Enact Policy
+                            <button type="submit" disabled={!watchSection || remaining !== 0} className="w-full bg-indigo-600 text-white p-4 rounded-xl font-black text-xs uppercase tracking-widest mt-8 hover:bg-indigo-700 transition-all flex justify-center items-center gap-2 shadow-xl shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <Save size={18} /> Enact Seat Policy
                             </button>
                         </form>
                     </div>

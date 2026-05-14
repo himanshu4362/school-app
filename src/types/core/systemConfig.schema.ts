@@ -1,8 +1,6 @@
 import { z } from 'zod';
 
-// ==========================================
 // SHARED LIFECYCLES (Fix 5: Semantic Clarity)
-// ==========================================
 export const OperationalStatus = z.enum(['draft', 'active', 'inactive', 'archived']);
 export const AcademicLifecycle = z.enum(['draft', 'active', 'sunsetting', 'closed', 'archived']);
 
@@ -10,16 +8,15 @@ export const AcademicLifecycle = z.enum(['draft', 'active', 'sunsetting', 'close
 // 1. ACADEMIC YEAR
 // ==========================================
 export const AcademicYearSchema = z.object({
-  id: z.string().uuid(),
-  code: z.string(), 
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Must be YYYY-MM-DD"),
-  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Must be YYYY-MM-DD"),
-  status: z.enum(['draft', 'active', 'closed', 'archived']), 
+  id: z.string(), // REMOVED .uuid()
+  name: z.string(), // 🟢 MUST BE 'name', NOT 'code'
+  startDate: z.string(),
+  endDate: z.string(),
+  isActive: z.boolean()
 });
 
-// ==========================================
+
 // 2 & 3. ORGANIZATION (Dept & Designation)
-// ==========================================
 export const DepartmentSchema = z.object({
   id: z.string().uuid(),
   code: z.string().min(2), // Unique Code
@@ -37,42 +34,39 @@ export const DesignationSchema = z.object({
   status: OperationalStatus.default('draft'),
 });
 
-// ==========================================
 // 4. INFRASTRUCTURE (Room Engine)
-// ==========================================
 export const RoomSchema = z.object({
   id: z.string().uuid(),
   roomNumber: z.string(), 
-  buildingWing: z.string(),
+  building: z.string(),
   capacity: z.number().min(1),
   roomType: z.enum(['classroom', 'laboratory', 'auditorium', 'staff_room', 'library', 'computer_lab']),
   status: OperationalStatus.default('draft'),
 });
 
-// ==========================================
 // 5 & 6. ACADEMIC HIERARCHY (Grade & Section)
-// ==========================================
 export const GradeSchema = z.object({
   id: z.string().uuid(),
-  level: z.number(), // V1 assumption. V2 will use academicLevelType (Nursery vs High School)
   name: z.string(), 
+  level: z.number(),
+  minAge: z.number(),
+  maxAge: z.number(),
+  admissionOpen: z.boolean(),
   status: OperationalStatus.default('draft'),
 });
 
 export const SectionSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string(),
   academicYearId: z.string(), 
   gradeId: z.string(),
   name: z.string(), 
   roomId: z.string().optional(),
   classTeacherId: z.string().optional(), 
-  maxCapacity: z.number().min(1).default(40),
-  status: AcademicLifecycle.default('draft'),
+  targetCapacity: z.number().min(1).default(40),
+  status: z.enum(['draft', 'active', 'closed']).default('draft'), // Assuming AcademicLifecycle
 });
 
-// ==========================================
 // 7 & 8. THE SUBJECT MATRIX
-// ==========================================
 export const SubjectSchema = z.object({
   id: z.string().uuid(),
   code: z.string(), // Unique Code
@@ -91,7 +85,6 @@ export const CurriculumSubjectSchema = z.object({
   status: OperationalStatus.default('draft'),
 });
 
-// Type Exports
 export type AcademicYear = z.infer<typeof AcademicYearSchema>;
 export type Department = z.infer<typeof DepartmentSchema>;
 export type Designation = z.infer<typeof DesignationSchema>;

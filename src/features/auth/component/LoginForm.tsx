@@ -5,7 +5,7 @@ import { HiMiniNoSymbol } from "react-icons/hi2";
 import { FaSpinner } from "react-icons/fa";
 import * as yup from "yup";
 import { useDispatch } from "react-redux";
-import { loginUser } from "../../../store/slices/authSlice"; // Adjust path to your slice
+import { loginUser } from "../../../store/slices/authSlice";
 
 const LoginForm = () => {
   const history = useHistory();
@@ -37,8 +37,7 @@ const LoginForm = () => {
       try {
         setIsApiCall(true);
         setLoginError(null);
-
-        // Dispatch the Redux Thunk and unwrap the result
+        
         const response = await dispatch(loginUser(values)).unwrap();
 
         if (response.isFirstLogin) {

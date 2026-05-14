@@ -1,6 +1,6 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 // 1. Import your new API instance instead of standard axios
-import api from '../../services/api'; // Adjust the relative path if needed
+import api from "../../services/api"; // Adjust the relative path if needed
 
 interface AuthState {
   token: string | null;
@@ -11,60 +11,65 @@ interface AuthState {
   error: string | null;
 }
 
+const storedToken = localStorage.getItem("accessToken");
+const storedUser = localStorage.getItem("user");
+
 const initialState: AuthState = {
-  token: localStorage.getItem('token') || null,
-  user: null,
-  isAuthenticated: !!localStorage.getItem('token'),
+  token: storedToken || null,
+  user: storedUser ? JSON.parse(storedUser) : null,
+  isAuthenticated: !!storedToken,
   isFirstLogin: false,
   isLoading: false,
   error: null,
 };
 
 export const loginUser = createAsyncThunk(
-  'auth/loginUser',
-  async (credentials: any, { rejectWithValue }) => {
+  "/auth/loginUser",
+  async (values: { email: string; password: string }, thunkAPI) => {
     try {
-      // 2. Use 'api.post' and drop the BASE_URL
-      const response = await api.post('/api/auth/login', credentials);
-      
-      const responseData = response.data.data;
-      localStorage.setItem('token', responseData.token);
-      
-      return responseData;
+      const response = await api.post("/api/auth/login", values);
+
+      const payload = response.data.data;
+
+      localStorage.setItem("accessToken", payload.token);
+      localStorage.setItem("user", JSON.stringify(payload.user));
+
+      return payload;
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || 'Login failed';
-      return rejectWithValue(errorMessage);
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Login failed",
+      );
     }
-  }
+  },
 );
 
 export const setupNewPassword = createAsyncThunk(
-  'auth/setupNewPassword',
-  // 3. We no longer need 'getState' to manually fetch the token!
-  async (newPassword: string, { rejectWithValue }) => {
+  "/auth/setupPassword",
+  async (newPassword: string, thunkAPI) => {
     try {
-      // 4. Look how clean this is now! The interceptor adds the token automatically.
-      const response = await api.post('/api/auth/setup-password', { newPassword });
-      
+      const response = await api.post("/api/auth/setup-password", { newPassword });
+
       return response.data;
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || 'Password setup failed';
-      return rejectWithValue(errorMessage);
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to setup password",
+      );
     }
-  }
+  },
 );
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     logout: (state) => {
-      localStorage.removeItem('token');
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
       state.token = null;
       state.user = null;
       state.isAuthenticated = false;
       state.isFirstLogin = false;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -95,7 +100,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       });
-  }
+  },
 });
 
 export const { logout } = authSlice.actions;

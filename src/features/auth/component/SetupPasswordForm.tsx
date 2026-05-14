@@ -4,15 +4,16 @@ import { HiMiniNoSymbol } from "react-icons/hi2";
 import { FaSpinner } from "react-icons/fa";
 import { useState } from "react";
 import { useHistory } from 'react-router-dom';
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setupNewPassword } from "../../../store/slices/authSlice"; // Adjust path
-import { RootState } from "../../../store/store";
 
 const SetupPasswordForm = () => {
   const history = useHistory();
   const dispatch = useDispatch<any>();
-  const userRole = useSelector((state: RootState) => state.auth.user?.role);
-  
+  const storedUser = localStorage.getItem("user");
+  const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+  const userRole = parsedUser?.role;
+
   const [animateError, setAnimateError] = useState(false);
   const [isApiCall, setIsApiCall] = useState(false);
   const [setupError, setSetupError] = useState<string | null>(null);
@@ -27,8 +28,8 @@ const SetupPasswordForm = () => {
       password: yup
         .string()
         .required("New password is required")
-        .min(6, "Minimum 6 characters")
-        .max(20, "Password length can't be more than 20 characters."),
+        .min(6, "Password must dddddbe at least 6 characters long.")
+        .max(20, "Password can't exceed 20 characters."),
 
       confirmPassword: yup
         .string()
@@ -40,7 +41,7 @@ const SetupPasswordForm = () => {
       try {
         setIsApiCall(true);
         setSetupError(null);
-
+        console.log(values);
         // Dispatch setup password thunk
         await dispatch(setupNewPassword(values.password)).unwrap();
 
@@ -80,7 +81,7 @@ const SetupPasswordForm = () => {
       setTimeout(() => setAnimateError(false), 500);
       return;
     }
-    formik.handleSubmit(e);
+    await formik.submitForm();
   };
 
   const firstError =

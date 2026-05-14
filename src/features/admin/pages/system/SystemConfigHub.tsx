@@ -13,12 +13,8 @@ import DepartmentPanel from '../../components/system/DepartmentPanel';
 import DesignationPanel from '../../components/system/DesignationPanel';
 import SubjectPanel from '../../components/system/SubjectPanel';
 import api from '../../../../services/api';
-import {
-    upsertAcademicYear,
-    upsertRoom,
-    upsertSection
-} from '../../../../store/slices/systemConfigSlice';
-import { upsertGrade } from '../../../../store/slices/systemConfigSlice';
+import { setAcademicYears, setGrades, setRooms, setSections } from '../../../../store/slices/systemConfigSlice';
+
 const MODULE_MENU = [
     { id: 'academicYears', label: 'Academic Years', icon: <CalendarDays size={18} /> },
     { id: 'departments', label: 'Departments', icon: <Building2 size={18} /> },
@@ -34,39 +30,26 @@ const SystemConfigHub: React.FC = () => {
     const { activeModule, validationErrors } = useSelector((state: RootState) => state.systemConfig);
     const [isLoading, setIsLoading] = useState(false);
     useEffect(() => {
-        const fetchMasterData = async () => {
-            try {
-                setIsLoading(true)
-                const [years, grades, rooms, sections, seats] = await Promise.all([
-                    api.get('/master-data/academic-years'),
-                    api.get('/master-data/grades'),
-                    api.get('/master-data/rooms'),
-                    api.get('/master-data/sections'),
-                    api.get('/master-data/seats')
-                ]);
-                years.data.data.forEach((year: any) => {
-                    dispatch(upsertAcademicYear(year));
-                });
+    const hydrateMasterData = async () => {
+      try {
+        // Fetch ALL master data simultaneously using your api instance
+        const [years, grades, rooms, sections] = await Promise.all([
+          api.get('/api/master-data/academic-years'),
+          api.get('/api/master-data/grades'),
+          api.get('/api/master-data/rooms'),
+          api.get('/api/master-data/sections')
+        ]);
 
-                grades.data.data.forEach((grade: any) => {
-                    dispatch(upsertGrade(grade));
-                });
-
-                rooms.data.data.forEach((room: any) => {
-                    dispatch(upsertRoom(room));
-                });
-
-                sections.data.data.forEach((section: any) => {
-                    dispatch(upsertSection(section));
-                });
-            } catch (err) {
-                console.error("Failed to hydrate Master Data Hub", err);
-            } finally {
-                setIsLoading(false)
-            }
-        };
-        fetchMasterData();
-    }, [dispatch]);
+        dispatch(setAcademicYears(years.data.data));
+        dispatch(setGrades(grades.data.data));
+        dispatch(setRooms(rooms.data.data));
+        dispatch(setSections(sections.data.data));
+      } catch (err) {
+        console.error("Failed to hydrate master data", err);
+      }
+    };
+    hydrateMasterData();
+  }, [dispatch]);
 
     return (
         <AdminLayout

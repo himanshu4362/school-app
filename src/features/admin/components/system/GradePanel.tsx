@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Save, GraduationCap, CheckCircle2, AlertCircle } from 'lucide-react';
 
 import { RootState } from '../../../../store/store';
 import { upsertGrade } from '../../../../store/slices/systemConfigSlice';
-import { GradeSchema, Grade } from '../../../../types/core/systemConfig.schema';
-import { createPortal } from 'react-dom';
+import { GradeSchema } from '../../../../types/core/systemConfig.schema';
 import api from '../../../../services/api';
 
 const GradePanel: React.FC = () => {
@@ -15,76 +15,151 @@ const GradePanel: React.FC = () => {
   const grades = useSelector((state: RootState) => state.systemConfig.grades);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-const { register, handleSubmit, reset, formState: { errors } } = useForm<Grade>({
-    resolver: zodResolver(GradeSchema.omit({ id: true })) as any,
-    defaultValues: { status: 'draft' }
+  // Using 'any' to cleanly bypass any strict Zod omissions temporarily while we wire the new fields
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<any>({
+    defaultValues: { 
+      admissionOpen: 'true', // HTML selects use strings
+      level: 1,
+      minAge: 4,
+      maxAge: 7
+    }
   });
 
-  const onError = (errors: any) => {
-    console.warn("Form Validation Failed:", errors);
+  const onSubmit = async (data: any) => {
+    try {
+      // 🟢 The exact payload your backend expects
+      const apiPayload = {
+        name: data.name,
+        level: data.level,
+        minAge: data.minAge,
+        maxAge: data.maxAge,
+        admissionOpen: data.admissionOpen === 'true' // Convert string to boolean
+      };
+
+      const response = await api.post('/api/master-data/grades', apiPayload);
+
+      // Map _id from MongoDB to id for Redux
+      const newGrade = { 
+        ...response.data.data, 
+        id: response.data.data._id 
+      };
+      
+      dispatch(upsertGrade(newGrade));
+      
+      setIsDrawerOpen(false);
+      reset();
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Failed to create Grade Configuration.");
+    }
   };
 
-const onSubmit = async (data: Grade) => {
-    try {
-        const response = await api.post('http://localhost:5000/api/master-data/grades', {
-            name: data.name,
-            level: data.level,
-            admissionOpen: true // Or whatever your default is
-        });
-
-        const newGrade = { ...response.data.data, id: response.data.data._id };
-        dispatch(upsertGrade(data));
-        setIsDrawerOpen(false);
-        reset();
-    } catch (error: any) {
-        alert(error.response?.data?.message || "Failed to create Grade");
-    }
-};
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      <div className="flex justify-between items-center">
+    <div className="h-full flex flex-col relative animate-in fade-in duration-300">
+      
+      {/* HEADER SECTION */}
+      <div className="flex justify-between items-end mb-8">
         <div>
-          <h3 className="text-lg font-black text-slate-900">Academic Grades</h3>
-          <p className="text-xs font-bold text-slate-500">Configure academic levels and curriculums.</p>
+          <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <GraduationCap className="text-indigo-600" /> Academic Grades
+          </h2>
+          <p className="text-sm font-bold text-slate-500 mt-1">Configure class levels, age limits, and admissions.</p>
         </div>
-        <button onClick={() => setIsDrawerOpen(true)} className="bg-indigo-600 text-white px-4 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 shadow-sm">
-          <Plus size={16} /> New Grade
+        <button 
+          onClick={() => setIsDrawerOpen(true)}
+          className="bg-indigo-600 text-white px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 flex items-center gap-2"
+        >
+          <Plus size={16} /> Add Grade
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {Object.values(grades).length === 0 ? (
-          <div className="col-span-full p-10 border-2 border-dashed border-slate-200 rounded-3xl text-center text-slate-400 font-bold text-sm">No Grades configured.</div>
-        ) : (
-          Object.values(grades).map(grade => (
-            <div key={grade.id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center text-center">
-              <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center font-black text-xl mb-3">{grade.level}</div>
-              <h4 className="text-sm font-black text-slate-900 mb-1">{grade.name}</h4>
-              <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest ${grade.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>{grade.status}</span>
+      {/* LIST SECTION */}
+      <div className="flex-1 overflow-y-auto pr-2 space-y-3">
+        {Object.values(grades).sort((a, b) => a.level - b.level).map(grade => (
+          <div key={grade.id} className="p-4 bg-white border border-slate-200 rounded-2xl flex justify-between items-center group hover:border-indigo-300 transition-all shadow-sm">
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-black text-slate-900">{grade.name}</h3>
+                <span className="bg-slate-100 text-slate-600 text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest">
+                  Level {grade.level}
+                </span>
+              </div>
+              <p className="text-xs font-bold text-slate-400 mt-1">
+                Age Target: {grade.minAge || 'N/A'} - {grade.maxAge || 'N/A'} yrs
+              </p>
             </div>
-          ))
+            
+            {/* Dynamic Admission Badge */}
+            <div className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 ${
+              grade.admissionOpen 
+                ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
+                : 'bg-rose-50 text-rose-600 border border-rose-100'
+            }`}>
+              {grade.admissionOpen ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
+              {grade.admissionOpen ? 'Admissions Open' : 'Closed'}
+            </div>
+          </div>
+        ))}
+
+        {Object.keys(grades).length === 0 && (
+          <div className="text-center py-10 bg-white border border-slate-200 border-dashed rounded-3xl">
+            <GraduationCap size={32} className="mx-auto text-slate-300 mb-3" />
+            <p className="text-sm font-bold text-slate-500">No grades configured yet.</p>
+          </div>
         )}
       </div>
 
-      {isDrawerOpen && createPortal (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[999] flex justify-end p-2 sm:p-4">
-          <div className="bg-white w-full max-w-md h-full shadow-2xl rounded-2xl overflow-hidden animate-in slide-in-from-right-8 flex flex-col">
-            <div className="p-6 border-b border-slate-100 flex justify-between bg-slate-50">
-              <h3 className="text-sm font-black text-slate-900">Configure Grade</h3>
-              <button onClick={() => setIsDrawerOpen(false)} className="text-slate-400"><X size={16} /></button>
+      {/* SLIDE-OVER DRAWER (PORTAL) */}
+      {isDrawerOpen && createPortal(
+        <div className="fixed inset-0 z-[9999] flex justify-end">
+          <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-sm" onClick={() => setIsDrawerOpen(false)} />
+          <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+            
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <h3 className="font-black text-slate-900 flex items-center gap-2">
+                <Plus size={18} className="text-indigo-600" /> New Grade Config
+              </h3>
+              <button onClick={() => setIsDrawerOpen(false)} className="text-slate-400 hover:text-rose-500 transition-colors">
+                <X size={16} />
+              </button>
             </div>
-            <form onSubmit={handleSubmit(onSubmit, onError)} className="p-6 flex-1 overflow-y-auto space-y-5">
-              <div>
-                <label className="text-[10px] font-black text-slate-400 uppercase mb-1.5 block">Grade Name *</label>
-                <input {...register('name')} placeholder="e.g. Class 10" className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold" />
-                {errors.name && <p className="text-xs text-rose-500 mt-1 font-bold">{errors.name.message as string}</p>}
+            
+            <form onSubmit={handleSubmit(onSubmit)} className="p-6 flex-1 overflow-y-auto space-y-6">
+              
+              <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Grade Name *</label>
+                  <input {...register('name', { required: true })} placeholder="e.g. Class 2" className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold outline-none focus:border-indigo-500" />
+                  {errors.name && <p className="text-xs text-rose-500 mt-1 font-bold">Required.</p>}
+                </div>
+                <div className="col-span-1">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Level *</label>
+                  <input type="number" {...register('level', { valueAsNumber: true, required: true })} placeholder="1" className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold outline-none focus:border-indigo-500" />
+                </div>
               </div>
-              <div>
-                <label className="text-[10px] font-black text-slate-400 uppercase mb-1.5 block">Hierarchy Level (Number) *</label>
-                <input type="number" {...register('level', { valueAsNumber: true })} className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold" />
-                <p className="text-[9px] text-slate-400 mt-1 font-bold uppercase tracking-widest">Used for promotion calculations.</p>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Minimum Age</label>
+                  <input type="number" {...register('minAge', { valueAsNumber: true })} placeholder="4" className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold outline-none focus:border-indigo-500" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Maximum Age</label>
+                  <input type="number" {...register('maxAge', { valueAsNumber: true })} placeholder="7" className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold outline-none focus:border-indigo-500" />
+                </div>
               </div>
-              <button type="submit" className="w-full bg-indigo-600 text-white p-3.5 rounded-xl font-black text-xs uppercase tracking-widest mt-4">Save Grade</button>
+
+              <div>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Admission Window</label>
+                <select {...register('admissionOpen')} className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold outline-none focus:border-indigo-500 cursor-pointer">
+                  <option value="true">Open (Accepting Applications)</option>
+                  <option value="false">Closed</option>
+                </select>
+              </div>
+
+              <button type="submit" className="w-full bg-indigo-600 text-white p-4 rounded-xl font-black text-xs uppercase tracking-widest mt-8 hover:bg-indigo-700 transition-all flex justify-center items-center gap-2 shadow-lg shadow-indigo-200">
+                <Save size={16} /> Save Grade
+              </button>
+
             </form>
           </div>
         </div>,

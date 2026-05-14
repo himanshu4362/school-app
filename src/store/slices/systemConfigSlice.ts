@@ -13,7 +13,7 @@ import {
 export interface ValidationError {
   field?: string;
   message: string;
-  severity: 'error' | 'warning';
+  severity: "error" | "warning";
 }
 
 interface SystemConfigState {
@@ -28,7 +28,14 @@ interface SystemConfigState {
   subjects: Record<string, Subject>;
   curriculum: Record<string, CurriculumSubject>;
 
-  activeModule: 'academicYears' | 'departments' | 'designations' | 'rooms' | 'grades' | 'sections' | 'subjects';
+  activeModule:
+    | "academicYears"
+    | "departments"
+    | "designations"
+    | "rooms"
+    | "grades"
+    | "sections"
+    | "subjects";
   validationErrors: ValidationError[];
 }
 
@@ -50,7 +57,10 @@ export const systemConfigSlice = createSlice({
   name: "systemConfig",
   initialState,
   reducers: {
-    setModule: (state, action: PayloadAction<SystemConfigState["activeModule"]>) => {
+    setModule: (
+      state,
+      action: PayloadAction<SystemConfigState["activeModule"]>,
+    ) => {
       state.activeModule = action.payload;
       state.validationErrors = []; // Clear errors on switch
     },
@@ -63,6 +73,36 @@ export const systemConfigSlice = createSlice({
       state.validationErrors = [];
     },
 
+    setAcademicYears: (state, action: PayloadAction<any[]>) => {
+      state.academicYears = {};
+      action.payload.forEach((item) => {
+        const id = item._id || item.id;
+        state.academicYears[id] = { ...item, id };
+        if (item.isActive) state.globalCurrentAcademicYearId = id; // Auto-set active year
+      });
+    },
+    setGrades: (state, action: PayloadAction<any[]>) => {
+      state.grades = {};
+      action.payload.forEach((item) => {
+        const id = item._id || item.id;
+        state.grades[id] = { ...item, id };
+      });
+    },
+    setRooms: (state, action: PayloadAction<any[]>) => {
+      state.rooms = {};
+      action.payload.forEach((item) => {
+        const id = item._id || item.id;
+        state.rooms[id] = { ...item, id };
+      });
+    },
+    setSections: (state, action: PayloadAction<any[]>) => {
+      state.sections = {};
+      action.payload.forEach((item) => {
+        const id = item._id || item.id;
+        state.sections[id] = { ...item, id };
+      });
+    },
+
     // ==========================================
     // VALIDATED UPSERT ENGINES
     // ==========================================
@@ -70,7 +110,6 @@ export const systemConfigSlice = createSlice({
       const newSection = action.payload;
       state.validationErrors = [];
 
-      // FIX: Structured Error
       const isDuplicate = Object.values(state.sections).some(
         (sec) =>
           sec.id !== newSection.id &&
@@ -80,20 +119,20 @@ export const systemConfigSlice = createSlice({
       );
       if (isDuplicate) {
         state.validationErrors.push({
-          field: 'name',
+          field: "name",
           message: `A section named '${newSection.name}' already exists for this Grade and Academic Year.`,
-          severity: 'error'
+          severity: "error",
         });
-        return; 
+        return;
       }
 
-      // FIX: Structured Error
       if (newSection.roomId) {
         const assignedRoom = state.rooms[newSection.roomId];
-        if (assignedRoom && newSection.maxCapacity > assignedRoom.capacity) {
+        // 🟢 CHANGED: maxCapacity -> targetCapacity
+        if (assignedRoom && newSection.targetCapacity > assignedRoom.capacity) {
           state.validationErrors.push({
-            field: 'maxCapacity',
-            message: `Section max capacity (${newSection.maxCapacity}) exceeds room ${assignedRoom.roomNumber} capacity (${assignedRoom.capacity}).`,
+            field: 'targetCapacity',
+            message: `Section target capacity (${newSection.targetCapacity}) exceeds room ${assignedRoom.roomNumber} capacity (${assignedRoom.capacity}).`,
             severity: 'error'
           });
           return; 
@@ -106,22 +145,27 @@ export const systemConfigSlice = createSlice({
     upsertDepartment: (state, action: PayloadAction<Department>) => {
       const newDept = action.payload;
       state.validationErrors = [];
-      
+
       const isDuplicate = Object.values(state.departments).some(
-        (dept) => dept.id !== newDept.id && dept.code.toUpperCase() === newDept.code.toUpperCase(),
+        (dept) =>
+          dept.id !== newDept.id &&
+          dept.code.toUpperCase() === newDept.code.toUpperCase(),
       );
       if (isDuplicate) {
         state.validationErrors.push({
-          field: 'code',
+          field: "code",
           message: `Department code '${newDept.code}' is already in use.`,
-          severity: 'error'
+          severity: "error",
         });
         return;
       }
       state.departments[newDept.id] = newDept;
     },
 
-    attemptCloseSection: (state, action: PayloadAction<{ sectionId: string; activeStudentCount: number }>) => {
+    attemptCloseSection: (
+      state,
+      action: PayloadAction<{ sectionId: string; activeStudentCount: number }>,
+    ) => {
       const { sectionId, activeStudentCount } = action.payload;
       const section = state.sections[sectionId];
       if (!section) return;
@@ -129,7 +173,7 @@ export const systemConfigSlice = createSlice({
       if (activeStudentCount > 0) {
         state.validationErrors.push({
           message: `Cannot close section: ${activeStudentCount} students are still enrolled.`,
-          severity: 'error'
+          severity: "error",
         });
         return;
       }
@@ -137,7 +181,7 @@ export const systemConfigSlice = createSlice({
       if (section.classTeacherId) {
         state.validationErrors.push({
           message: `Cannot close section: A class teacher is still assigned.`,
-          severity: 'error'
+          severity: "error",
         });
         return;
       }
@@ -150,13 +194,15 @@ export const systemConfigSlice = createSlice({
       state.validationErrors = [];
 
       const isDuplicate = Object.values(state.rooms).some(
-        (room) => room.id !== newRoom.id && room.roomNumber.toUpperCase() === newRoom.roomNumber.toUpperCase(),
+        (room) =>
+          room.id !== newRoom.id &&
+          room.roomNumber.toUpperCase() === newRoom.roomNumber.toUpperCase(),
       );
       if (isDuplicate) {
         state.validationErrors.push({
-          field: 'roomNumber',
+          field: "roomNumber",
           message: `Room Number '${newRoom.roomNumber}' already exists in the infrastructure database.`,
-          severity: 'error'
+          severity: "error",
         });
         return;
       }
@@ -168,13 +214,15 @@ export const systemConfigSlice = createSlice({
       state.validationErrors = [];
 
       const isDuplicate = Object.values(state.grades).some(
-        (grade) => grade.id !== newGrade.id && grade.name.toUpperCase() === newGrade.name.toUpperCase(),
+        (grade) =>
+          grade.id !== newGrade.id &&
+          grade.name.toUpperCase() === newGrade.name.toUpperCase(),
       );
       if (isDuplicate) {
         state.validationErrors.push({
-          field: 'name',
+          field: "name",
           message: `Grade name '${newGrade.name}' is already configured.`,
-          severity: 'error'
+          severity: "error",
         });
         return;
       }
@@ -185,13 +233,15 @@ export const systemConfigSlice = createSlice({
       const newYear = action.payload;
       state.validationErrors = [];
 
+      // 🟢 Clean, strict duplicate check using 'name'
       const isDuplicate = Object.values(state.academicYears).some(
-        (y) => y.id !== newYear.id && y.code.toUpperCase() === newYear.code.toUpperCase(),
+        (y) => y.id !== newYear.id && y.name.toUpperCase() === newYear.name.toUpperCase()
       );
+      
       if (isDuplicate) {
         state.validationErrors.push({
-          field: 'code',
-          message: `Academic Year code '${newYear.code}' is already in use.`,
+          field: 'name',
+          message: `Academic Year '${newYear.name}' is already in use.`,
           severity: 'error'
         });
         return;
@@ -214,13 +264,15 @@ export const systemConfigSlice = createSlice({
       state.validationErrors = [];
 
       const isDuplicate = Object.values(state.designations).some(
-        (d) => d.id !== newDesig.id && d.title.toUpperCase() === newDesig.title.toUpperCase(),
+        (d) =>
+          d.id !== newDesig.id &&
+          d.title.toUpperCase() === newDesig.title.toUpperCase(),
       );
       if (isDuplicate) {
         state.validationErrors.push({
-          field: 'title',
+          field: "title",
           message: `Designation '${newDesig.title}' is already configured.`,
-          severity: 'error'
+          severity: "error",
         });
         return;
       }
@@ -232,13 +284,15 @@ export const systemConfigSlice = createSlice({
       state.validationErrors = [];
 
       const isDuplicate = Object.values(state.subjects).some(
-        (s) => s.id !== newSubj.id && s.code.toUpperCase() === newSubj.code.toUpperCase(),
+        (s) =>
+          s.id !== newSubj.id &&
+          s.code.toUpperCase() === newSubj.code.toUpperCase(),
       );
       if (isDuplicate) {
         state.validationErrors.push({
-          field: 'code',
+          field: "code",
           message: `Subject code '${newSubj.code}' is already in use.`,
-          severity: 'error'
+          severity: "error",
         });
         return;
       }
@@ -250,6 +304,10 @@ export const systemConfigSlice = createSlice({
 export const {
   setModule,
   setGlobalAcademicYear,
+  setAcademicYears,
+  setGrades,
+  setRooms,
+  setSections,
   clearValidationErrors,
   upsertGrade,
   upsertRoom,
