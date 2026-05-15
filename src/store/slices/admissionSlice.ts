@@ -59,13 +59,16 @@ const initialState: AdmissionState = {
   classFilter: "ALL",
   selectedLeadId: null,
   isDrawerOpen: false,
-  leads: INITIAL_LEADS,
+  leads: [],
 };
 
 export const admissionSlice = createSlice({
   name: "admission",
   initialState,
   reducers: {
+    setLeads: (state, action: PayloadAction<any[]>) => {
+      state.leads = action.payload;
+    },
     setViewMode: (state, action: PayloadAction<"kanban" | "table">) => {
       state.viewMode = action.payload;
     },
@@ -92,8 +95,7 @@ export const admissionSlice = createSlice({
       if (lead) lead.status = action.payload.status;
     },
     addLead: (state, action: PayloadAction<AdmissionLeadDTO>) => {
-      const newId = `LEAD-00${state.leads.length + 1}`;
-      state.leads.unshift({ ...action.payload, id: newId });
+      state.leads.unshift(action.payload);
     },
     updateLead: (state, action: PayloadAction<AdmissionLeadDTO>) => {
       const index = state.leads.findIndex((l) => l.id === action.payload.id);
@@ -105,6 +107,7 @@ export const admissionSlice = createSlice({
 });
 
 export const {
+  setLeads,
   setViewMode,
   setSearchQuery,
   setClassFilter,

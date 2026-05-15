@@ -92,9 +92,7 @@ const SectionPanel: React.FC = () => {
       <div className="flex-1 overflow-y-auto pr-2 space-y-3">
         {Object.values(sections).map(section => {
           const gradeName = grades[section.gradeId]?.name || 'Unknown Grade';
-          const roomName = section.roomId
-            ? rooms[section.roomId]?.roomNumber || 'Unassigned'
-            : 'Unassigned';
+         const roomName = section.roomId && rooms[section.roomId] ? rooms[section.roomId].roomNumber : 'Unassigned';
 
           return (
             <div key={section.id} className="p-4 bg-white border border-slate-200 rounded-2xl flex justify-between items-center group hover:border-indigo-300 transition-all shadow-sm">

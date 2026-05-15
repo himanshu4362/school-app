@@ -1,171 +1,149 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useDispatch, useSelector } from 'react-redux';
-import { X, User, Phone, BookOpen, Search } from 'lucide-react';
+import { X, User, Phone, BookOpen, Mail } from 'lucide-react';
 import { RootState } from '../../../../store/store';
-import { closeLeadDrawer, addLead, updateLead } from '../../../../store/slices/admissionSlice';
-import { AdmissionLeadDTO, AdmissionLeadSchema } from '../../../../types/admission/lead.schema';
-
+import { closeLeadDrawer, addLead, updateLeadStatus, updateLead } from '../../../../store/slices/admissionSlice';
+import api from '../../../../services/api';
 
 const CaptureLeadDrawer: React.FC = () => {
   const dispatch = useDispatch();
   const { isDrawerOpen, selectedLeadId, leads } = useSelector((state: RootState) => state.admission);
-  // Initialize React Hook Form with Zod validation
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<AdmissionLeadDTO>({
-    resolver: zodResolver(AdmissionLeadSchema),
-    defaultValues: {
-      status: 'new',
-      source: 'walk_in',
-      campaignId: 'CAMP-2026-DEFAULT',
-    }
+  const grades = useSelector((state: RootState) => state.systemConfig.grades);
+
+  // 🟢 FIXED: Solid fallback defaults so the UI NEVER disappears!
+  const [metadata, setMetadata] = useState<{ statuses: { label: string, value: string }[], sources: { label: string, value: string }[] }>({
+    statuses: [
+      { value: 'new', label: 'New Enquiry' },
+      { value: 'contacted', label: 'Contacted' },
+      { value: 'follow_up', label: 'Follow Up' },
+      { value: 'converted', label: 'Converted to Application' },
+      { value: 'closed', label: 'Closed / Rejected' }
+    ],
+    sources: [
+      { value: 'walk_in', label: 'Walk In' },
+      { value: 'website', label: 'Website' },
+      { value: 'referral', label: 'Referral' },
+      { value: 'other', label: 'Other' }
+    ]
   });
+
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<any>({
+    defaultValues: { status: 'new', source: 'walk_in', campaignId: 'CAMP-2026-DEFAULT' }
+  });
+
+  // Fetch updates from API quietly in the background
+  useEffect(() => {
+    api.get('/api/admissions/leads/metadata').then(res => {
+      // Only override if the API gives us valid data
+      if (res.data.success && res.data.data.sources.length > 0) {
+        setMetadata(res.data.data);
+      }
+    }).catch(console.error);
+  }, []);
 
   useEffect(() => {
     if (isDrawerOpen && selectedLeadId) {
-      // FIXED: Added (l: AdmissionLeadDTO) to satisfy TypeScript
-      const leadToEdit = leads.find((l: AdmissionLeadDTO) => l.id === selectedLeadId);
+      const leadToEdit = leads.find((l: any) => l.id === selectedLeadId || l._id === selectedLeadId);
       if (leadToEdit) {
-        reset(leadToEdit);
+        reset({
+          ...leadToEdit,
+          interestedClassId: (leadToEdit.interestedClassId as any)?._id || leadToEdit.interestedClassId || ''
+        });
       }
     } else if (isDrawerOpen) {
-      reset({ status: 'new', source: 'walk_in', campaignId: 'CAMP-2026-DEFAULT' });
+      reset({ status: 'new', source: 'walk_in', campaignId: 'CAMP-2026-DEFAULT', remarks: '', email: '', mobile: '', parentName: '' });
     }
   }, [isDrawerOpen, selectedLeadId, reset, leads]);
 
-  const onSubmit = async (data: AdmissionLeadDTO) => {
+  const onSubmit = async (data: any) => {
     try {
       if (selectedLeadId) {
-        // If we are editing, update the existing lead
+        await api.patch(`/api/admissions/leads/${selectedLeadId}/status`, {
+          status: data.status,
+          remarks: data.remarks
+        });
+        dispatch(updateLeadStatus({ id: selectedLeadId, status: data.status }));
         dispatch(updateLead({ ...data, id: selectedLeadId }));
+        alert("Lead Pipeline Stage Updated!");
       } else {
-        // If no ID, it's a new lead
-        dispatch(addLead(data));
+        const response = await api.post('/api/admissions/leads', data);
+        const newLead = { ...response.data.data, id: response.data.data._id };
+        dispatch(addLead(newLead));
       }
-
       dispatch(closeLeadDrawer());
       reset();
-      alert(selectedLeadId ? "Lead Updated!" : "New Lead Captured!");
-    } catch (error) {
-      console.error("Submission failed", error);
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Failed to save lead.");
     }
   };
+
   return (
     <>
-      {/* Backdrop */}
-      {isDrawerOpen && (
-        <div
-          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 transition-opacity"
-          onClick={() => dispatch(closeLeadDrawer())}
-        />
-      )}
+      {isDrawerOpen && <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 transition-opacity" onClick={() => dispatch(closeLeadDrawer())} />}
 
-      {/* Slide-over Panel */}
-      <div className={`fixed top-0 right-0 h-full w-full md:w-[450px] bg-white shadow-drawer z-50 flex flex-col transition-transform duration-300 ease-in-out border-l border-slate-200
-        ${isDrawerOpen ? 'translate-x-0' : 'translate-x-full'}
-      `}>
-
-        {/* Header */}
+      <div className={`fixed top-0 right-0 h-full w-full md:w-[450px] bg-white shadow-drawer z-50 flex flex-col transition-transform duration-300 ease-in-out border-l border-slate-200 ${isDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="px-6 py-5 border-b border-slate-100 bg-slate-50 flex justify-between items-center shrink-0">
           <div>
-            <h2 className="text-lg font-black text-slate-900">
-              {selectedLeadId ? 'Edit Enquiry' : 'Capture New Lead'}
-            </h2>
+            <h2 className="text-lg font-black text-slate-900">{selectedLeadId ? 'Edit Enquiry' : 'Capture New Lead'}</h2>
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Pre-Admission CRM</p>
           </div>
-          <button
-            onClick={() => dispatch(closeLeadDrawer())}
-            className="p-2 text-slate-400 hover:bg-slate-200 hover:text-slate-700 rounded-xl transition-colors"
-          >
-            <X size={20} />
-          </button>
+          <button onClick={() => dispatch(closeLeadDrawer())} className="p-2 text-slate-400 hover:bg-slate-200 rounded-xl"><X size={20} /></button>
         </div>
 
-        {/* Form Body */}
         <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
           <form id="lead-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 
-            {/* Contact Details Section */}
             <div className="space-y-4">
-              <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest border-b border-slate-100 pb-2 flex items-center gap-2">
-                <User size={14} className="text-blue-500" /> Parent Details
-              </h3>
-
+              <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest border-b border-slate-100 pb-2 flex items-center gap-2"><User size={14} className="text-blue-500" /> Parent Details</h3>
               <div>
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Parent / Guardian Name <span className="text-rose-500">*</span></label>
-                <input
-                  {...register('parentName')}
-                  type="text"
-                  className={`w-full p-2.5 text-sm font-bold bg-white border-2 rounded-xl outline-none transition-all ${errors.parentName ? 'border-rose-400 focus:border-rose-500' : 'border-slate-200 focus:border-blue-500'}`}
-                  placeholder="Full Name"
-                />
-                {errors.parentName && <p className="text-[10px] font-bold text-rose-500 mt-1">{errors.parentName.message}</p>}
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Parent Name *</label>
+                <input {...register('parentName', { required: true })} className="w-full p-2.5 text-sm font-bold bg-white border-2 rounded-xl outline-none focus:border-blue-500 border-slate-200" placeholder="Full Name" />
               </div>
 
-              <div>
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Mobile Number <span className="text-rose-500">*</span></label>
-                <div className="relative">
-                  <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    {...register('mobile')}
-                    type="tel"
-                    maxLength={10}
-                    className={`w-full pl-9 pr-4 py-2.5 text-sm font-bold bg-white border-2 rounded-xl outline-none transition-all ${errors.mobile ? 'border-rose-400 focus:border-rose-500' : 'border-slate-200 focus:border-blue-500'}`}
-                    placeholder="10-digit mobile number"
-                  />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Mobile Number *</label>
+                  <div className="relative">
+                    <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input {...register('mobile', { required: true })} type="tel" maxLength={10} className="w-full pl-9 pr-4 py-2.5 text-sm font-bold bg-white border-2 border-slate-200 rounded-xl outline-none focus:border-blue-500" />
+                  </div>
                 </div>
-                {errors.mobile && <p className="text-[10px] font-bold text-rose-500 mt-1">{errors.mobile.message}</p>}
+                <div>
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Email Address</label>
+                  <div className="relative">
+                    <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input {...register('email')} type="email" className="w-full pl-9 pr-4 py-2.5 text-sm font-bold bg-white border-2 border-slate-200 rounded-xl outline-none focus:border-blue-500" />
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Status Selection (The Movement Engine) */}
             <div>
               <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Pipeline Stage</label>
-              <select
-                {...register('status')}
-                className="w-full p-2.5 text-sm font-bold bg-blue-50 border-2 border-blue-200 text-blue-700 rounded-xl outline-none focus:border-blue-500"
-              >
-                <option value="new">New Enquiry</option>
-                <option value="contacted">Contacted</option>
-                <option value="follow_up">Follow Up</option>
-                <option value="converted">Converted to Application</option>
-                <option value="closed">Closed / Rejected</option>
+              <select {...register('status')} className="w-full p-2.5 text-sm font-bold bg-blue-50 border-2 border-blue-200 text-blue-700 rounded-xl outline-none focus:border-blue-500">
+                {metadata.statuses.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
 
-            {/* Interest & Source Section */}
             <div className="space-y-4 pt-2">
-              <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest border-b border-slate-100 pb-2 flex items-center gap-2">
-                <BookOpen size={14} className="text-purple-500" /> Enrollment Interest
-              </h3>
+              <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest border-b border-slate-100 pb-2 flex items-center gap-2"><BookOpen size={14} className="text-purple-500" /> Enrollment Interest</h3>
 
               <div>
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Interested Class</label>
-                <select
-                  {...register('interestedClassId')}
-                  className="w-full p-2.5 text-sm font-bold bg-white border-2 border-slate-200 rounded-xl outline-none focus:border-blue-500"
-                >
+                <select {...register('interestedClassId')} className="w-full p-2.5 text-sm font-bold bg-white border-2 border-slate-200 rounded-xl outline-none focus:border-blue-500">
                   <option value="">Select a Class...</option>
-                  <option value="Class 1">Class 1</option>
-                  <option value="Class 6">Class 6</option>
-                  <option value="Class 9">Class 9</option>
-                  <option value="Class 11">Class 11</option>
-                </select>
+                  {Object.values(grades).map((grade: any) => <option key={grade._id || grade.id} value={grade._id || grade.id}>{grade.name}</option>)}                </select>
               </div>
 
               <div>
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Enquiry Source</label>
                 <div className="grid grid-cols-2 gap-2">
-                  {(['walk_in', 'website', 'referral', 'other'] as const).map(source => (
-                    <label key={source} className="cursor-pointer">
-                      <input type="radio" value={source} {...register('source')} className="peer sr-only" />
+                  {metadata.sources.map(source => (
+                    <label key={source.value} className="cursor-pointer">
+                      <input type="radio" value={source.value} {...register('source')} className="peer sr-only" />
                       <div className="p-2 text-center text-[10px] font-bold uppercase tracking-widest rounded-lg border-2 border-slate-200 peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 transition-all text-slate-500">
-                        {source.replace('_', ' ')}
+                        {source.label}
                       </div>
                     </label>
                   ))}
@@ -174,30 +152,17 @@ const CaptureLeadDrawer: React.FC = () => {
 
               <div>
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Internal Remarks</label>
-                <textarea
-                  {...register('remarks')}
-                  className="w-full p-3 text-sm font-medium bg-white border-2 border-slate-200 rounded-xl outline-none focus:border-blue-500"
-                  rows={3}
-                  placeholder="Notes from interaction..."
-                />
+                <textarea {...register('remarks')} className="w-full p-3 text-sm font-medium bg-white border-2 border-slate-200 rounded-xl outline-none focus:border-blue-500" rows={3} />
               </div>
             </div>
-
           </form>
         </div>
 
-        {/* Footer Actions */}
         <div className="p-5 border-t border-slate-100 bg-slate-50 shrink-0">
-          <button
-            type="submit"
-            form="lead-form"
-            disabled={isSubmitting}
-            className="w-full py-3.5 bg-blue-600 text-white rounded-xl font-black text-sm shadow-xl shadow-blue-900/20 hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-          >
+          <button type="submit" form="lead-form" disabled={isSubmitting} className="w-full py-3.5 bg-blue-600 text-white rounded-xl font-black text-sm shadow-xl hover:bg-blue-700 transition-all flex justify-center gap-2">
             {isSubmitting ? 'Saving...' : 'Save Lead'}
           </button>
         </div>
-
       </div>
     </>
   );
