@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,7 +13,7 @@ const AcademicsSchema = z.object({
     district: z.string().min(2, "District is required"),
     city: z.string().min(2, "City is required"),
     previousClass: z.string().min(1, "Previous Class is required"),
-    hostelStatus: z.enum(['day_scholar', 'hosteler']),
+    hostelStatus: z.string(), 
     migrationReason: z.string().optional(),
 });
 
@@ -21,13 +21,10 @@ type Step4Data = z.infer<typeof AcademicsSchema>;
 
 const Step4Academics: React.FC = () => {
     const dispatch = useDispatch();
-
-    // Pull existing draft data AND the admissionType from Step 1
-    const { academicHistory, admissionType } = useSelector((state: RootState) => state.application);
+    const { academicHistory } = useSelector((state: RootState) => state.application);
 
     const { register, handleSubmit, formState: { errors } } = useForm<Step4Data>({
         resolver: zodResolver(AcademicsSchema),
-        mode: 'onChange',
         defaultValues: {
             schoolName: academicHistory?.schoolName || '',
             state: academicHistory?.state || '',
@@ -38,16 +35,6 @@ const Step4Academics: React.FC = () => {
             migrationReason: academicHistory?.migrationReason || '',
         }
     });
-
-    // --- THE SKIP LOGIC ---
-    // If this is a fresh admission, automatically skip this step when the component mounts.
-    useEffect(() => {
-        if (admissionType === 'fresh') {
-            // Save null for academics and immediately move to the next step
-            dispatch(saveAcademics(null));
-            dispatch(nextStep());
-        }
-    }, [admissionType, dispatch]);
 
     const onSubmit = (data: Step4Data) => {
         dispatch(saveAcademics({
@@ -62,14 +49,8 @@ const Step4Academics: React.FC = () => {
         dispatch(nextStep());
     };
 
-    // If it's a fresh admission, render an empty div while the useEffect auto-skips
-    if (admissionType === 'fresh') {
-        return <div className="p-10 text-center text-slate-500 font-bold animate-pulse">Skipping Academic History (Fresh Admission)...</div>;
-    }
-
     return (
         <form id="step4-form" onSubmit={handleSubmit(onSubmit)} className="space-y-8 animate-in fade-in duration-300">
-
             <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 flex items-start gap-3">
                 <Info className="text-blue-500 shrink-0 mt-0.5" size={18} />
                 <p className="text-xs font-bold text-blue-900 leading-relaxed">

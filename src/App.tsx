@@ -83,6 +83,8 @@ import StudentDashboardHub from './features/student/pages/dashboard/StudentDashb
 import StudentExamsHub from './features/student/pages/exam/StudentExamsHub';
 import SchoolRegistration from './SchoolRegistration';
 import SetupPassword from './features/auth/pages/SetupPassword';
+import ApplicationDesk from './features/admin/pages/admissions/ApplicationDesk';
+import ApplicationDetail from './features/admin/pages/admissions/ApplicationDetail';
 
 setupIonicReact();
 
@@ -113,7 +115,9 @@ const App: React.FC = () => (
         <Route exact path="/admin/academic/timetable/editor/:classId" component={TimetableEditor} />
         <Route exact path="/admin/config/holidays" component={HolidayCalendarDashboard} />
         <Route exact path="/admin/admissions" component={LeadManagement} />
+        <Route exact path="/admin/admissions/applications" component={ApplicationDesk} />
         <Route exact path="/admin/admissions/wizard" component={AdmissionWizard} />
+        <Route exact path="/admin/admissions/applications/:id" component={ApplicationDetail} />
         <Route exact path="/admin/examination/marks-hub" component={MarksEntryHub} />
         <Route exact path="/admin/examination/evaluate" component={EvaluationTable} />
         <Route exact path="/admin/examination/monthly-tests" component={MonthlyTestHub} />

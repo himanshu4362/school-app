@@ -11,7 +11,6 @@ const CaptureLeadDrawer: React.FC = () => {
   const { isDrawerOpen, selectedLeadId, leads } = useSelector((state: RootState) => state.admission);
   const grades = useSelector((state: RootState) => state.systemConfig.grades);
 
-  // 🟢 FIXED: Solid fallback defaults so the UI NEVER disappears!
   const [metadata, setMetadata] = useState<{ statuses: { label: string, value: string }[], sources: { label: string, value: string }[] }>({
     statuses: [
       { value: 'new', label: 'New Enquiry' },
@@ -32,10 +31,8 @@ const CaptureLeadDrawer: React.FC = () => {
     defaultValues: { status: 'new', source: 'walk_in', campaignId: 'CAMP-2026-DEFAULT' }
   });
 
-  // Fetch updates from API quietly in the background
   useEffect(() => {
     api.get('/api/admissions/leads/metadata').then(res => {
-      // Only override if the API gives us valid data
       if (res.data.success && res.data.data.sources.length > 0) {
         setMetadata(res.data.data);
       }
@@ -77,6 +74,9 @@ const CaptureLeadDrawer: React.FC = () => {
       alert(error.response?.data?.message || "Failed to save lead.");
     }
   };
+
+  // 🟢 SAFE ARRAY PARSING TO PREVENT Object.values() CRASH
+  const gradeList = grades ? Object.values(grades) : [];
 
   return (
     <>
@@ -133,7 +133,15 @@ const CaptureLeadDrawer: React.FC = () => {
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Interested Class</label>
                 <select {...register('interestedClassId')} className="w-full p-2.5 text-sm font-bold bg-white border-2 border-slate-200 rounded-xl outline-none focus:border-blue-500">
                   <option value="">Select a Class...</option>
-                  {Object.values(grades).map((grade: any) => <option key={grade._id || grade.id} value={grade._id || grade.id}>{grade.name}</option>)}                </select>
+                  
+                  {/* 🟢 GUARANTEED UNIQUE KEY MAPPING */}
+                  {gradeList.map((grade: any, index: number) => {
+                      const uniqueKey = grade?._id || grade?.id || `class-opt-${index}`;
+                      const val = grade?._id || grade?.id || '';
+                      return <option key={uniqueKey} value={val}>{grade?.name || 'Unknown Class'}</option>;
+                  })}
+                  
+                </select>
               </div>
 
               <div>

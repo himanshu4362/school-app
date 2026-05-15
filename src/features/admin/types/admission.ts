@@ -76,4 +76,25 @@ export interface AdmissionLead {
 
   // --- PHASE 4: DOCUMENT VAULT ---
   documents: AdmissionDocument[];
+  appliedGradeId: string; // Changed from targetClass
+  admissionType: 'fresh' | 'transfer'; 
+  
+  studentProfile: {
+    firstName: string;
+    lastName: string;
+    dob: string;
+    gender: string;
+    bloodGroup?: string;
+    medicalInfo?: {
+      hasDisability: boolean; // Nested to match MedicalInfoSchema
+    };
+  };
+
+  guardians: Array<{
+    guardianId?: string; // Or however you handle new vs existing
+    relation: 'father' | 'mother' | 'guardian' | 'other';
+    isPrimaryContact: boolean;
+  }>;
+
+  
 }

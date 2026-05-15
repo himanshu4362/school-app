@@ -3,12 +3,13 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../../../store/store';
 import { prevStep } from '../../../../store/slices/applicationSlice';
 import AdminLayout from '../../components/layout/AdminLayout';
-import Step1Student from '../../components/admissions/wizard/Step1Student';
 import { ChevronRight, ChevronLeft, Check, ShieldCheck } from 'lucide-react';
+
+import Step1Student from '../../components/admissions/wizard/Step1Student';
 import Step2Guardians from '../../components/admissions/wizard/Step2Guardians';
-import Step3Address from './wizard/Step3Address';
-import Step4Academics from './wizard/Step4Academics';
-import Step5Vault from './wizard/Step5Vault';
+import Step3Address from '../../components/admissions/wizard/Step3Address';
+import Step4Academics from '../../components/admissions/wizard/Step4Academics';
+import Step5Vault from '../../components/admissions/wizard/Step5Vault';
 
 const WIZARD_STEPS = [
   { id: 1, title: 'Student' },
@@ -83,7 +84,6 @@ const AdmissionWizard: React.FC = () => {
             <ChevronLeft size={16} /> Back
           </button>
 
-          {/* THIS IS THE BUTTON TO UPDATE */}
           <button 
             type="submit"
             form={`step${currentStep}-form`} 

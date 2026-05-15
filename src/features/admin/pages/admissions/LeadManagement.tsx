@@ -2,13 +2,12 @@ import React, { useMemo, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../../store/store';
 import { setSearchQuery, setClassFilter, openLeadDrawer, setLeads } from '../../../../store/slices/admissionSlice';
-import { upsertGrade } from '../../../../store/slices/systemConfigSlice'; // 🟢 ADDED IMPORT
+import { upsertGrade } from '../../../../store/slices/systemConfigSlice'; 
 import CaptureLeadDrawer from '../../components/admissions/CaptureLeadDrawer';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { Search, Filter, Phone, Plus, MessageSquare, Clock, Users, ChevronRight } from 'lucide-react';
-import { AdmissionLeadDTO } from '../../../../types/admission/lead.schema';
 import { initializeFromLead } from '../../../../store/slices/applicationSlice';
-import { useHistory } from 'react-router';
+import { useHistory } from 'react-router-dom'; // 🟢 FIXED: Correct import from react-router-dom
 import api from '../../../../services/api';
 
 const PIPELINE_COLUMNS = [
@@ -29,7 +28,7 @@ const LeadManagement: React.FC = () => {
       try {
         const [leadsRes, gradesRes] = await Promise.all([
           api.get('/api/admissions/leads?limit=100'),
-          api.get('/api/master-data/grades') // Fetching the classes
+          api.get('/api/master-data/grades') 
         ]);
 
         if (gradesRes.data.success) {
@@ -37,7 +36,6 @@ const LeadManagement: React.FC = () => {
           formattedGrades.forEach((grade: any) => dispatch(upsertGrade(grade)));
         }
 
-        // Save Leads to Redux
         if (leadsRes.data.success) {
           const formattedLeads = leadsRes.data.data.leads.map((l: any) => ({ ...l, id: l._id }));
           dispatch(setLeads(formattedLeads));
@@ -51,10 +49,15 @@ const LeadManagement: React.FC = () => {
 
   const filteredLeads = useMemo(() => {
     return leads.filter((lead: any) => {
-      const matchesSearch = lead.parentName.toLowerCase().includes(searchQuery.toLowerCase()) || lead.mobile.includes(searchQuery);
+      // 🟢 FIXED: Added safe fallbacks so undefined mobile/names don't crash the app
+      const safeName = lead.parentName?.toLowerCase() || '';
+      const safeMobile = lead.mobile || '';
+      const matchesSearch = safeName.includes(searchQuery.toLowerCase()) || safeMobile.includes(searchQuery);
+      
       const leadClassName = lead.interestedClassId?.name || lead.interestedClassId;
       const matchesClass = classFilter === 'ALL' || leadClassName === classFilter;
       const isNotClosed = lead.status !== 'closed';
+      
       return matchesSearch && matchesClass && isNotClosed;
     });
   }, [leads, searchQuery, classFilter]);
@@ -153,7 +156,6 @@ const LeadManagement: React.FC = () => {
           })}
         </div>
       </div>
-      <CaptureLeadDrawer />
     </AdminLayout>
   );
 };

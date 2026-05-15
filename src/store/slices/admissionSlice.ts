@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { AdmissionLeadDTO } from "../../types/admission/lead.schema";
 
 interface AdmissionState {
   viewMode: "kanban" | "table";
@@ -7,51 +6,13 @@ interface AdmissionState {
   classFilter: string | "ALL";
   selectedLeadId: string | null;
   isDrawerOpen: boolean;
-  leads: AdmissionLeadDTO[]; // Holding mock data for frontend V1
-}
+  leads: any[];
 
-// --- MOCK V1 DATA ---
-const INITIAL_LEADS: AdmissionLeadDTO[] = [
-  {
-    id: "LEAD-001",
-    campaignId: "CAMP-2026",
-    parentName: "Rajesh Sharma",
-    mobile: "9876543210",
-    interestedClassId: "Class 1",
-    source: "website",
-    status: "new",
-    remarks: "Looking for early admission",
-  },
-  {
-    id: "LEAD-002",
-    campaignId: "CAMP-2026",
-    parentName: "Priya Patel",
-    mobile: "8765432109",
-    interestedClassId: "Class 6",
-    source: "walk_in",
-    status: "contacted",
-    remarks: "Visited campus on Tuesday",
-  },
-  {
-    id: "LEAD-003",
-    campaignId: "CAMP-2026",
-    parentName: "Amit Verma",
-    mobile: "7654321098",
-    interestedClassId: "Class 9",
-    source: "social_media",
-    status: "follow_up",
-    remarks: "Asked to call back next week",
-  },
-  {
-    id: "LEAD-004",
-    campaignId: "CAMP-2026",
-    parentName: "Neha Singh",
-    mobile: "6543210987",
-    interestedClassId: "Class 1",
-    source: "referral",
-    status: "new",
-  },
-];
+  // Application Desk State
+  applications: any[];
+  selectedApplicationId: string | null;
+  isReviewDrawerOpen: boolean;
+}
 
 const initialState: AdmissionState = {
   viewMode: "kanban",
@@ -60,12 +21,17 @@ const initialState: AdmissionState = {
   selectedLeadId: null,
   isDrawerOpen: false,
   leads: [],
+
+  applications: [],
+  selectedApplicationId: null,
+  isReviewDrawerOpen: false,
 };
 
 export const admissionSlice = createSlice({
   name: "admission",
   initialState,
   reducers: {
+    // Lead Reducers
     setLeads: (state, action: PayloadAction<any[]>) => {
       state.leads = action.payload;
     },
@@ -86,21 +52,34 @@ export const admissionSlice = createSlice({
       state.selectedLeadId = null;
       state.isDrawerOpen = false;
     },
-    // Action to move a lead across the Kanban board
-    updateLeadStatus: (
-      state,
-      action: PayloadAction<{ id: string; status: AdmissionLeadDTO["status"] }>,
-    ) => {
-      const lead = state.leads.find((l) => l.id === action.payload.id);
+    updateLeadStatus: (state, action: PayloadAction<{ id: string; status: string }>) => {
+      const lead = state.leads.find((l) => l.id === action.payload.id || l._id === action.payload.id);
       if (lead) lead.status = action.payload.status;
     },
-    addLead: (state, action: PayloadAction<AdmissionLeadDTO>) => {
+    addLead: (state, action: PayloadAction<any>) => {
       state.leads.unshift(action.payload);
     },
-    updateLead: (state, action: PayloadAction<AdmissionLeadDTO>) => {
-      const index = state.leads.findIndex((l) => l.id === action.payload.id);
+    updateLead: (state, action: PayloadAction<any>) => {
+      const index = state.leads.findIndex((l) => l.id === action.payload.id || l._id === action.payload.id);
+      if (index !== -1) state.leads[index] = action.payload;
+    },
+
+    // Application Reducers
+    setApplications: (state, action: PayloadAction<any[]>) => {
+      state.applications = action.payload;
+    },
+    openReviewDrawer: (state, action: PayloadAction<string>) => {
+      state.selectedApplicationId = action.payload;
+      state.isReviewDrawerOpen = true;
+    },
+    closeReviewDrawer: (state) => {
+      state.selectedApplicationId = null;
+      state.isReviewDrawerOpen = false;
+    },
+    updateApplicationState: (state, action: PayloadAction<{ id: string; updates: any }>) => {
+      const index = state.applications.findIndex((a) => a._id === action.payload.id);
       if (index !== -1) {
-        state.leads[index] = action.payload;
+        state.applications[index] = { ...state.applications[index], ...action.payload.updates };
       }
     },
   },
@@ -116,6 +95,10 @@ export const {
   updateLeadStatus,
   addLead,
   updateLead,
+  setApplications,
+  openReviewDrawer,
+  closeReviewDrawer,
+  updateApplicationState,
 } = admissionSlice.actions;
 
 export default admissionSlice.reducer;

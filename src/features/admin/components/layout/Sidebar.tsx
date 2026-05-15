@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Users, 
-  BookOpen, 
+import {
+  LayoutDashboard,
+  Users,
+  BookOpen,
   LogOut,
   ChevronDown,
   ChevronRight,
@@ -32,26 +32,34 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   };
 
   // Navigation Array with Sub-Menus
-const navItems = [
+  const navItems = [
     { name: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard size={20} /> },
-    
-    { name: 'Admissions Hub', path: '/admin/admissions', icon: <TrendingUp size={20} /> },
-    
-    { 
-      name: 'Students & Alumni', 
-      icon: <Users size={20} />, 
+
+    {
+      name: 'Admissions Hub',
+      icon: <TrendingUp size={20} />,
+      basePath: '/admin/admissions',
+      subItems: [
+        { name: 'Lead CRM', path: '/admin/admissions' },
+        { name: 'Application Desk', path: '/admin/admissions/applications' }
+      ]
+    },
+
+    {
+      name: 'Students & Alumni',
+      icon: <Users size={20} />,
       basePath: '/admin/student',
       subItems: [
         { name: 'Active Directory', path: '/admin/students' },
         { name: 'Exit & Alumni Hub', path: '/admin/student/exits' },
       ]
     },
-    { 
-      name: 'HR & Faculty', 
-      icon: <Briefcase size={20} />, 
+    {
+      name: 'HR & Faculty',
+      icon: <Briefcase size={20} />,
       basePath: '/admin/faculty',
       subItems: [
-        { name: 'Talent Acquisition', path: '/admin/faculty/recruitment' },        
+        { name: 'Talent Acquisition', path: '/admin/faculty/recruitment' },
         { name: 'Staff Directory', path: '/admin/faculty/directory' },
         { name: 'Separation Engine', path: '/admin/hr/separations' },
         { name: 'Daily Attendance', path: '/admin/faculty/attendance' },
@@ -60,9 +68,9 @@ const navItems = [
         { name: 'Leave Inbox', path: '/admin/faculty/leave' },
       ]
     },
-    { 
-      name: 'Finance & Accounts', 
-      icon: <Wallet size={20} />, 
+    {
+      name: 'Finance & Accounts',
+      icon: <Wallet size={20} />,
       basePath: '/admin/finance',
       subItems: [
         { name: 'Executive P&L', path: '/admin/finance/executive-dashboard' },
@@ -75,10 +83,10 @@ const navItems = [
       ]
     },
     // 4. ACADEMIC OPERATIONS
-    { 
-      name: 'Academic Hub', 
+    {
+      name: 'Academic Hub',
       icon: <BookOpen size={20} />,
-      basePath: '/admin/academic', 
+      basePath: '/admin/academic',
       subItems: [
         { name: 'Subjects & Allocation', path: '/admin/academic/subjects' },
         { name: 'Timetable Desk', path: '/admin/academic/timetable' },
@@ -89,14 +97,14 @@ const navItems = [
       name: 'System Config',
       icon: <Settings size={20} />,
       basePath: '/admin/config',
-      subItems: [ 
-        { name: 'Master Data Hub', path: '/admin/config/master-data' }, 
+      subItems: [
+        { name: 'Master Data Hub', path: '/admin/config/master-data' },
         { name: 'Holiday Calendar', path: '/admin/config/holidays' },
-        { name: 'Seat Management', path: "/admin/config/seats" }, 
+        { name: 'Seat Management', path: "/admin/config/seats" },
       ]
     },
-    { 
-      name: 'Examination', 
+    {
+      name: 'Examination',
       icon: <Award size={20} />,
       basePath: '/admin/examination',
       subItems: [
@@ -105,9 +113,9 @@ const navItems = [
         { name: 'Monthly Tests', path: '/admin/examination/monthly-tests' },
       ]
     },
-    { 
-      name: 'Library Hub', 
-      icon: <Library size={20} />, 
+    {
+      name: 'Library Hub',
+      icon: <Library size={20} />,
       basePath: '/admin/library',
       subItems: [
         { name: 'Procurement & Catalog', path: '/admin/library/procurement' },
@@ -120,7 +128,7 @@ const navItems = [
 
   // Auto-expand the menu if the user is currently on a nested route
   useEffect(() => {
-    const activeItem = navItems.find(item => 
+    const activeItem = navItems.find(item =>
       item.subItems && location.pathname.startsWith(item.basePath || '')
     );
     if (activeItem) setExpandedMenu(activeItem.name);
@@ -148,7 +156,7 @@ const navItems = [
         ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         flex flex-col h-screen border-r border-slate-800
       `}>
-        
+
         {/* White-Label School Brand Area */}
         <div className="flex items-center gap-3 px-6 py-6 border-b border-slate-800">
           <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center font-black text-slate-900 shadow-md">
@@ -171,8 +179,8 @@ const navItems = [
                 <button
                   onClick={() => hasSubItems ? toggleMenu(item.name) : handleNavigation(item.path!)}
                   className={`flex items-center justify-between px-4 py-3 w-full rounded-xl transition-all duration-200 text-left
-                    ${(isExactActive || isParentActive) 
-                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20 font-bold' 
+                    ${(isExactActive || isParentActive)
+                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20 font-bold'
                       : 'text-slate-400 hover:bg-slate-800 hover:text-white font-medium'
                     }`}
                 >
@@ -195,8 +203,8 @@ const navItems = [
                         key={sub.name}
                         onClick={() => handleNavigation(sub.path)}
                         className={`block w-full text-left px-4 py-2 rounded-lg text-sm transition-colors
-                          ${location.pathname === sub.path 
-                            ? 'text-blue-400 font-bold bg-slate-800/50' 
+                          ${location.pathname === sub.path
+                            ? 'text-blue-400 font-bold bg-slate-800/50'
                             : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/30'
                           }`}
                       >
@@ -212,7 +220,7 @@ const navItems = [
 
         <div className="p-4 border-t border-slate-800">
           <button className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-slate-400 hover:bg-rose-500/10 hover:text-rose-400 transition-colors text-left font-medium">
-            <LogOut size={20} /> 
+            <LogOut size={20} />
             <span className="text-sm">Logout</span>
           </button>
         </div>
