@@ -18,12 +18,12 @@ const QuizConfigurator: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Exam Title</label>
-            {/* 🟢 FIXED: Added bg-slate-50 */}
+            {/*   FIXED: Added bg-slate-50 */}
             <input type="text" value={state.title} onChange={e => dispatch(setBasicInfo({...state, title: e.target.value}))} className="w-full mt-1 bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 outline-none focus:border-blue-500" placeholder="e.g. Mid-Term Science Practical" />
           </div>
           <div>
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Subject</label>
-            {/* 🟢 FIXED: Added bg-slate-50 */}
+            {/*   FIXED: Added bg-slate-50 */}
             <input type="text" value={state.subject} onChange={e => dispatch(setBasicInfo({...state, subject: e.target.value}))} className="w-full mt-1 bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 outline-none focus:border-blue-500" placeholder="e.g. Science" />
           </div>
         </div>
@@ -46,7 +46,7 @@ const QuizConfigurator: React.FC = () => {
             
             {config.timingMode === 'FLEXIBLE_DURATION' && (
               <div className="pl-8 flex items-center gap-3">
-                {/* 🟢 FIXED: Added bg-slate-50 */}
+                {/*   FIXED: Added bg-slate-50 */}
                 <input type="number" value={config.durationMinutes} onChange={e => dispatch(updateConfig({ durationMinutes: parseInt(e.target.value)||0 }))} className="w-20 bg-slate-50 border-2 border-slate-200 rounded-lg px-3 py-2 text-center font-bold text-slate-700 outline-none focus:border-blue-500" />
                 <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Minutes</span>
               </div>
@@ -80,7 +80,7 @@ const QuizConfigurator: React.FC = () => {
         <div className="col-span-1 md:col-span-2 bg-white p-6 rounded-[32px] border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6">
            <div>
              <h2 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-2"><Eye size={16}/> Result Publication</h2>
-             {/* 🟢 FIXED: Added bg-slate-50 */}
+             {/*   FIXED: Added bg-slate-50 */}
              <select value={config.resultMode} onChange={e => dispatch(updateConfig({ resultMode: e.target.value as any }))} className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 outline-none focus:border-blue-500">
                 <option value="MANUAL_HOLD">Manual Publish (Held by Teacher)</option>
                 <option value="AUTO_INSTANT">Auto-Publish Instantly on Submit</option>

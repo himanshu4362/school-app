@@ -52,7 +52,7 @@ const ActiveAttendanceSession: React.FC = () => {
                     <h3 className="font-black text-slate-800">Class {activeClassId}-{activeSectionId}</h3>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Session</p>
                 </div>
-                {/* 🟢 FIXED: Now uses navToPreFlight */}
+                {/*   FIXED: Now uses navToPreFlight */}
                 <button onClick={() => dispatch(navToPreFlight({ classId: activeClassId!, sectionId: activeSectionId! }))} className="w-8 h-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center hover:bg-slate-300 transition-colors">
                     <X size={16} />
                 </button>

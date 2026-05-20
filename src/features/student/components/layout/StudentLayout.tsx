@@ -7,7 +7,7 @@ interface Props {
 }
 
 const StudentLayout: React.FC<Props> = ({ children }) => {
-    // 🟢 FIXED: Added state to handle the mobile drawer
+    //   FIXED: Added state to handle the mobile drawer
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     return (
@@ -33,7 +33,7 @@ const StudentLayout: React.FC<Props> = ({ children }) => {
                 {/* TOP BAR */}
                 <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-10 shrink-0">
                     <div className="flex items-center gap-4">
-                        {/* 🟢 FIXED: Hamburger button now triggers the drawer state */}
+                        {/*   FIXED: Hamburger button now triggers the drawer state */}
                         <button
                             onClick={() => setIsMobileMenuOpen(true)}
                             className="lg:hidden p-2 text-slate-500 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors"

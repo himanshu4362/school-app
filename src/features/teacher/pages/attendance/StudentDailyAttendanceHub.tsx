@@ -27,8 +27,8 @@ const StudentDailyAttendanceHub: React.FC = () => {
   const currentSession = sessionKey ? sessions[sessionKey] : null;
   const markedCount = currentSession ? Object.keys(currentSession.draftRegister).length : 0;
 
-  // 🟢 INTERACTIVE BREADCRUMB BUILDER
-  // 🟢 INTERACTIVE BREADCRUMB BUILDER (FIXED WRAPPING)
+  //   INTERACTIVE BREADCRUMB BUILDER
+  //   INTERACTIVE BREADCRUMB BUILDER (FIXED WRAPPING)
   const renderBreadcrumbs = () => (
     <div className="flex flex-wrap items-center gap-y-2 gap-x-2 text-[10px] sm:text-xs font-black uppercase tracking-widest text-slate-400 mb-6 bg-slate-50 w-full lg:w-fit px-4 py-3 rounded-xl border border-slate-200 leading-relaxed">
       <button className="flex items-center gap-1 hover:text-blue-600 transition-colors whitespace-nowrap"><Home size={14}/> Dashboard</button>

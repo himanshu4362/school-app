@@ -9,7 +9,7 @@ export const AcademicLifecycle = z.enum(['draft', 'active', 'sunsetting', 'close
 // ==========================================
 export const AcademicYearSchema = z.object({
   id: z.string(), // REMOVED .uuid()
-  name: z.string(), // 🟢 MUST BE 'name', NOT 'code'
+  name: z.string(), //   MUST BE 'name', NOT 'code'
   startDate: z.string(),
   endDate: z.string(),
   isActive: z.boolean()

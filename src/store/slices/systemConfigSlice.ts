@@ -128,7 +128,7 @@ export const systemConfigSlice = createSlice({
 
       if (newSection.roomId) {
         const assignedRoom = state.rooms[newSection.roomId];
-        // 🟢 CHANGED: maxCapacity -> targetCapacity
+        //   CHANGED: maxCapacity -> targetCapacity
         if (assignedRoom && newSection.targetCapacity > assignedRoom.capacity) {
           state.validationErrors.push({
             field: 'targetCapacity',
@@ -233,7 +233,7 @@ export const systemConfigSlice = createSlice({
       const newYear = action.payload;
       state.validationErrors = [];
 
-      // 🟢 Clean, strict duplicate check using 'name'
+      //   Clean, strict duplicate check using 'name'
       const isDuplicate = Object.values(state.academicYears).some(
         (y) => y.id !== newYear.id && y.name.toUpperCase() === newYear.name.toUpperCase()
       );

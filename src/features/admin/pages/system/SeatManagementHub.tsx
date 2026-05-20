@@ -8,7 +8,7 @@ import { RootState } from '../../../../store/store';
 import AdminLayout from '../../components/layout/AdminLayout';
 import api from '../../../../services/api';
 
-// 🟢 Import the Redux setters to populate the dropdowns
+//   Import the Redux setters to populate the dropdowns
 import { setAcademicYears, setGrades, setSections } from '../../../../store/slices/systemConfigSlice';
 
 const SeatManagementHub: React.FC = () => {
@@ -19,7 +19,7 @@ const SeatManagementHub: React.FC = () => {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [liveInventories, setLiveInventories] = useState<any[]>([]);
 
-    // 🟢 FETCH EVERYTHING ON LOAD (Bulletproof Hydration)
+    //   FETCH EVERYTHING ON LOAD (Bulletproof Hydration)
     const fetchAllData = async () => {
         try {
             const [yearsRes, gradesRes, sectionsRes, seatsRes] = await Promise.all([
@@ -219,7 +219,7 @@ const SeatManagementHub: React.FC = () => {
                                         </select>
                                     </div>
                                     <div>
-                                        {/* 🟢 SMART PLACEHOLDER LOGIC */}
+                                        {/*   SMART PLACEHOLDER LOGIC */}
                                         <label className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1.5 block">Target Section *</label>
                                         <select {...register('sectionId', { required: true })} disabled={!watchGrade || !watchYear} className="w-full p-3 bg-indigo-50 border-2 border-indigo-100 rounded-xl text-sm font-bold text-indigo-900 outline-none focus:border-indigo-500 disabled:opacity-50">
                                             <option value="">

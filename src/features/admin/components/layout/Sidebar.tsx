@@ -34,14 +34,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   // Navigation Array with Sub-Menus
   const navItems = [
     { name: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard size={20} /> },
-
     {
       name: 'Admissions Hub',
       icon: <TrendingUp size={20} />,
       basePath: '/admin/admissions',
       subItems: [
-        { name: 'Lead CRM', path: '/admin/admissions' },
-        { name: 'Application Desk', path: '/admin/admissions/applications' }
+        { name: 'Lead CRM (Enquiries)', path: '/admin/admissions' },
+        { name: 'Application Desk', path: '/admin/admissions/applications' },
+        { name: 'New Admission Form', path: '/admin/admissions/wizard' } //   Added Wizard Link
       ]
     },
 

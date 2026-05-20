@@ -27,7 +27,7 @@ const GradePanel: React.FC = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      // 🟢 The exact payload your backend expects
+      //   The exact payload your backend expects
       const apiPayload = {
         name: data.name,
         level: data.level,

@@ -139,7 +139,7 @@ export const quizBuilderSlice = createSlice({
       state.questions = state.questions.filter(q => q.id !== action.payload);
     },
     
-    // 🟢 The Finalization Trigger
+    //   The Finalization Trigger
     publishImmutableSnapshot: (state) => {
       // 1. Validate data (ensure at least 1 question, positive marks, etc.)
       if (state.questions.length === 0) {

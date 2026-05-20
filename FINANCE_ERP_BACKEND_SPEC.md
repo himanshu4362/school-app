@@ -88,7 +88,7 @@ This is a high-security financial ERP. It does not use "mutable" debt counters. 
 
 ## 3. Required REST API Endpoints
 
-### 🟢 3.1 Cash Desk (POS) APIs
+###   3.1 Cash Desk (POS) APIs
 * `POST /api/v1/finance/sessions/open`
   * **Payload:** `{ openingBalance: 1000 }`
   * **Logic:** Fails if the user already has an `OPEN` session.
@@ -96,7 +96,7 @@ This is a high-security financial ERP. It does not use "mutable" debt counters. 
   * **Payload:** `{ declaredCash: 5000 }`
   * **Logic:** Calculates variance (`declaredCash` - `expectedCash`), updates status to `CLOSED`.
 
-### 🟢 3.2 Billing & Concessions
+###   3.2 Billing & Concessions
 * `POST /api/v1/finance/invoices/generate`
   * **Payload:** `studentId`, array of `componentIds`, `dueDate`.
   * **Logic:** Backend fetches component prices from DB (do NOT trust frontend prices). Calculates `subTotal` and creates `UNPAID` invoice.
@@ -104,7 +104,7 @@ This is a high-security financial ERP. It does not use "mutable" debt counters. 
   * **Payload:** `{ amount: 2000, reason: "Merit Scholarship" }`
   * **Guards:** Fails if invoice is already `PAID`. Fails if amount > `subTotal`. Updates `totalAmount` and sets to `PAID` if remaining due is 0.
 
-### 🟢 3.3 Payments (Inflows)
+###   3.3 Payments (Inflows)
 * `POST /api/v1/finance/payments`
   * **Payload:** `{ invoiceId, amount, method, bankReference, sessionId? }`
   * **Transactions (Must be ACID compliant):**
@@ -112,7 +112,7 @@ This is a high-security financial ERP. It does not use "mutable" debt counters. 
     2. Update `FeeInvoice.amountPaid`. If `amountPaid >= totalAmount`, set status to `PAID`.
     3. **CRITICAL:** If method is `CASH`, look up the `sessionId` and increment `expectedCash` by `amount`.
 
-### 🟢 3.4 Payroll & Disbursements (Outflows)
+###   3.4 Payroll & Disbursements (Outflows)
 * `POST /api/v1/finance/payroll/draft`
   * **Payload:** `{ staffId, monthYear, finalAllowances, finalDeductions, finalPenalty }`
   * **Logic:** Generates/Updates the `DRAFT` record for that specific month.
@@ -124,7 +124,7 @@ This is a high-security financial ERP. It does not use "mutable" debt counters. 
     1. Set Payroll record to `DISBURSED`.
     2. Generate an `ExpenseTransaction` categorized as `PAYROLL` mapped to the `payrollId`.
 
-### 🟢 3.5 Executive Aggregations (Read-Only)
+###   3.5 Executive Aggregations (Read-Only)
 * `GET /api/v1/finance/dashboard`
   * **Returns:** Highly optimized aggregation query (SUM of all SUCCESS payments, SUM of all CLEARED expenses, SUM of UNPAID invoices). *Hint: Use SQL Views or MongoDB Aggregation Pipelines to prevent heavy load on the frontend.*
 

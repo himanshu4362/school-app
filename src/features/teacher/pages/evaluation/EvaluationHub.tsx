@@ -18,7 +18,7 @@ const EvaluationHub: React.FC = () => {
   const { currentStage, activeExamId } = useSelector((state: RootState) => state.evaluation);
   const { currentStage: quizStage } = useSelector((state: RootState) => state.quizBuilder);
 
-  // 🟢 Top Navigation Tabs (Fixed Layout)
+  //   Top Navigation Tabs (Fixed Layout)
   const renderTabs = () => (
     <div className="flex flex-wrap bg-slate-100 p-1 rounded-xl w-full max-w-4xl mb-6 shadow-inner gap-1">
       <button
@@ -39,7 +39,7 @@ const EvaluationHub: React.FC = () => {
       >
         <BarChart3 size={16} /> Analytics
       </button>
-      {/* 🟢 Digital Exam Button safely inside the tabs */}
+      {/*   Digital Exam Button safely inside the tabs */}
       <button
         onClick={() => dispatch(navToTab('CREATE_DIGITAL_EXAM'))}
         className={`flex-1 py-3 px-4 rounded-lg text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${currentStage === 'CREATE_DIGITAL_EXAM' ? 'bg-white text-rose-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
@@ -65,7 +65,7 @@ const EvaluationHub: React.FC = () => {
 
         {renderTabs()}
 
-        {/* 🟢 Routing Engine (Fixed Collisions) */}
+        {/*   Routing Engine (Fixed Collisions) */}
         
         {/* Module 1: The Inbox & Standard offline tests */}
         {currentStage === 'INBOX' && <EvaluationInbox />}

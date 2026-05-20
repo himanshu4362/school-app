@@ -22,7 +22,7 @@ const RoomPanel: React.FC = () => {
         const response = await api.get('/api/master-data/config/room-types');
         const rawData = response.data.data;
 
-        // 🟢 BULLETPROOF FORMATTER: Handles both Array of Strings and Array of Objects
+        //   BULLETPROOF FORMATTER: Handles both Array of Strings and Array of Objects
         if (Array.isArray(rawData)) {
           const formattedOptions = rawData.map((item: any) => {
             // If backend sends strings: "STANDARD_CLASSROOM"
@@ -147,7 +147,7 @@ const RoomPanel: React.FC = () => {
                 <input {...register('building')} placeholder="e.g. East Block" className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold outline-none focus:border-indigo-500" />
               </div>
 
-              {/* 🟢 FULLY DYNAMIC DROPDOWN */}
+              {/*   FULLY DYNAMIC DROPDOWN */}
               <div>
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Room Type</label>
                 <select {...register('roomType', { required: true })} className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold outline-none focus:border-indigo-500">

@@ -107,7 +107,7 @@ const AcademicYearPanel: React.FC = () => {
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="p-6 flex-1 overflow-y-auto space-y-6">
               
-              {/* 🟢 CHANGED TO NAME INSTEAD OF CODE */}
+              {/*   CHANGED TO NAME INSTEAD OF CODE */}
               <div>
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Academic Year Name *</label>
                 <input {...register('name', { required: "Name is required" })} placeholder="e.g. 2028-2029" className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold outline-none focus:border-indigo-500" />

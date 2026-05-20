@@ -178,7 +178,7 @@ const TeacherTimetableHub: React.FC = () => {
 
         <div className="mb-8 rounded-[32px] border border-slate-200 bg-white p-6 lg:p-8 shadow-sm">
 
-          {/* 🟢 FIXED BREADCRUMB COMPONENT */}
+          {/*   FIXED BREADCRUMB COMPONENT */}
           <Breadcrumbs items={[
             { label: 'My Timetable' }
           ]} />

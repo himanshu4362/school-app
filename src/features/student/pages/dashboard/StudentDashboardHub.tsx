@@ -19,7 +19,7 @@ const StudentDashboardHub: React.FC = () => {
           <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full blur-[120px] opacity-20 -mr-48 -mt-48"></div>
           
           <div className="z-10 text-center lg:text-left">
-            {/* 🟢 FIXED: DPS Ranchi branding */}
+            {/*   FIXED: DPS Ranchi branding */}
             <div className="inline-flex items-center gap-2 bg-blue-500/20 text-blue-300 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest mb-6">
               <Sparkles size={14}/> Welcome to DPS Ranchi
             </div>

@@ -11,9 +11,9 @@ const NAV_LINKS = [
   { path: '/teacher', label: 'Daily Execution', icon: LayoutDashboard, exact: true },
   { path: '/teacher/attendance', label: 'My Attendance', icon: UserCircle },
   { path: '/teacher/attendance/homeroom', label: 'Homeroom Register', icon: Users },
-  { path: '/teacher/attendance/gate-pass', label: 'Issue Gate Pass', icon: LogOut }, // 🟢 NEW
+  { path: '/teacher/attendance/gate-pass', label: 'Issue Gate Pass', icon: LogOut }, //   NEW
   { path: '/teacher/schedule', label: 'My Timetable', icon: Calendar },
-  { path: '/teacher/evaluation', label: 'Marks & Evaluation', icon: BookOpenCheck }, // 🟢 UPDATED
+  { path: '/teacher/evaluation', label: 'Marks & Evaluation', icon: BookOpenCheck }, //   UPDATED
   { path: '/teacher/syllabus', label: 'Syllabus Tracker', icon: BookOpen },
 ];
 

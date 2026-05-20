@@ -40,14 +40,14 @@ const SectionPanel: React.FC = () => {
     ? rooms[watchRoomId]
     : null;
   const onSubmit = async (data: any) => {
-    // 🟢 Condition Check: Frontend Guard against Room Overcapacity
+    //   Condition Check: Frontend Guard against Room Overcapacity
     if (selectedRoom && data.targetCapacity > selectedRoom.capacity) {
       alert(`Physical Limit Breach: Room ${selectedRoom.roomNumber} only has ${selectedRoom.capacity} seats.`);
       return;
     }
 
     try {
-      // 🟢 Exactly matching your successful Postman payload
+      //   Exactly matching your successful Postman payload
       const apiPayload = {
         academicYearId: data.academicYearId,
         gradeId: data.gradeId,

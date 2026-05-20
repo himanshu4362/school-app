@@ -33,7 +33,7 @@ const VideoConsentCapture: React.FC = () => {
     setIsRecording(false);
     setIsUploading(true);
     
-    // 🟢 MOCKED S3 POST SIMULATION (Wait 2 seconds)
+    //   MOCKED S3 POST SIMULATION (Wait 2 seconds)
     setTimeout(() => {
       const mockS3Url = `https://aws-s3-edu-vault.com/consent/${selectedStudentId}-${Date.now()}.mp4`;
       dispatch(setVideoUrl(mockS3Url));

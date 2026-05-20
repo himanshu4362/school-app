@@ -42,8 +42,6 @@ import TimetableOverview from './features/admin/pages/academic/TimetableOverview
 import ClassTimetableDashboard from './features/admin/pages/academic/ClassTimetableDashboard';
 import TimetableEditor from './features/admin/pages/academic/TimetableEditor';
 import HolidayCalendarDashboard from './features/admin/pages/config/HolidayCalendarDashboard';
-import LeadManagement from './features/admin/pages/admissions/LeadManagement';
-import AdmissionWizard from './features/admin/components/admissions/AdmissionWizard';
 import MarksEntryHub from './features/admin/pages/examination/MarksEntryHub';
 import EvaluationTable from './features/admin/pages/examination/EvaluationTable';
 import MonthlyTestHub from './features/admin/pages/examination/MonthlyTestHub';
@@ -83,8 +81,11 @@ import StudentDashboardHub from './features/student/pages/dashboard/StudentDashb
 import StudentExamsHub from './features/student/pages/exam/StudentExamsHub';
 import SchoolRegistration from './SchoolRegistration';
 import SetupPassword from './features/auth/pages/SetupPassword';
+import LeadManagement from './features/admin/pages/admissions/LeadManagement';
 import ApplicationDesk from './features/admin/pages/admissions/ApplicationDesk';
+import AdmissionWizard from './features/admin/components/admissions/AdmissionWizard';
 import ApplicationDetail from './features/admin/pages/admissions/ApplicationDetail';
+
 
 setupIonicReact();
 
@@ -101,7 +102,7 @@ const App: React.FC = () => (
         <Route exact path="/auth/forgot-password" component={ResetPassword} />
         <Route exact path="/auth/verify-otp" component={VerifyOtp} />
         <Route exact path="/auth/setup-password" component={SetupPassword} />
-        
+
         <Route exact path="/admin" render={() => <Redirect to="/admin/dashboard" />} />
         <Route exact path="/admin/dashboard" component={Dashboard} />
         <Route exact path="/admin/academic/syllabus" component={SyllabusOverview} />
@@ -114,10 +115,6 @@ const App: React.FC = () => (
         <Route exact path="/admin/academic/timetable/manage/:classId" component={ClassTimetableDashboard} />
         <Route exact path="/admin/academic/timetable/editor/:classId" component={TimetableEditor} />
         <Route exact path="/admin/config/holidays" component={HolidayCalendarDashboard} />
-        <Route exact path="/admin/admissions" component={LeadManagement} />
-        <Route exact path="/admin/admissions/applications" component={ApplicationDesk} />
-        <Route exact path="/admin/admissions/wizard" component={AdmissionWizard} />
-        <Route exact path="/admin/admissions/applications/:id" component={ApplicationDetail} />
         <Route exact path="/admin/examination/marks-hub" component={MarksEntryHub} />
         <Route exact path="/admin/examination/evaluate" component={EvaluationTable} />
         <Route exact path="/admin/examination/monthly-tests" component={MonthlyTestHub} />
@@ -145,6 +142,10 @@ const App: React.FC = () => (
         <Route exact path="/admin/library/opac" component={OpacHub} />
         <Route exact path="/admin/library/analytics" component={LibraryAnalyticsHub} />
         <Route exact path="/admin/academic/subjects" component={AcademicAdminHub} />
+        <Route exact path="/admin/admissions" component={LeadManagement} />
+        <Route exact path="/admin/admissions/applications" component={ApplicationDesk} />
+        <Route exact path="/admin/admissions/wizard" component={AdmissionWizard} />
+        <Route exact path="/admin/admissions/applications/:id" component={ApplicationDetail} />
 
         <Route exact path="/teacher" component={TeacherDashboardHub} />
         <Route exact path="/teacher/schedule" component={TeacherTimetableHub} />

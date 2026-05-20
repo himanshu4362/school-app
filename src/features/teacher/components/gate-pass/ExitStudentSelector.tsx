@@ -17,7 +17,7 @@ const ExitStudentSelector: React.FC<Props> = ({ classRoster, onSelectStudent }) 
   return (
     <div className="flex-1 bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm flex flex-col animate-in fade-in zoom-in-95 duration-300">
       
-      {/* 🟢 SEARCH BAR HEADER */}
+      {/*   SEARCH BAR HEADER */}
       <div className="p-6 border-b border-slate-100 bg-slate-50">
         <h3 className="text-sm font-black uppercase tracking-widest text-slate-600 mb-4">Select Student for Gate Pass</h3>
         <div className="relative">

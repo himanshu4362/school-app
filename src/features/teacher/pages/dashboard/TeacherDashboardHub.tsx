@@ -16,7 +16,7 @@ const TeacherDashboardHub: React.FC = () => {
     <TeacherLayout>
       <div className="max-w-5xl mx-auto w-full flex flex-col h-full">
         
-        {/* 🟢 BREADCRUMBS ADDED */}
+        {/*   BREADCRUMBS ADDED */}
         <Breadcrumbs items={[
           { label: 'Daily Execution' }
         ]} />

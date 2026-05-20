@@ -36,7 +36,7 @@ export const studentAttemptSlice = createSlice({
       state.startTime = new Date().toISOString();
     },
     
-    // 🟢 LIGHTWEIGHT DELTA SYNC ENGINE
+    //   LIGHTWEIGHT DELTA SYNC ENGINE
     syncResponse: (state, action: PayloadAction<{ questionId: string; optionId: string; timeIncr: number }>) => {
       if (state.currentStatus !== 'ACTIVE') return;
       
