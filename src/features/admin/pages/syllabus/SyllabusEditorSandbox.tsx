@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import * as Yup from 'yup';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { useSyllabusTree, SyllabusNode } from '../../hooks/useSyllabusTree';
+import { useSyllabusTree } from '../../hooks/useSyllabusTree';
+import { SyllabusNode } from '../../../../types/academic/academic.schema';
 import CurriculumNode from './CurriculumNode';
 import { Save, PlusCircle, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 // Formik-style strict validation schema
-const syllabusSchema = Yup.array().of(
+const syllabusSchema: any = Yup.array().of(
   Yup.object().shape({
     isDeleted: Yup.boolean(),
     title: Yup.string().when('isDeleted', {

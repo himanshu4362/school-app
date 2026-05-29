@@ -1,5 +1,23 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AdmissionCampaignDTO, AcademicClassDTO } from '../../types/admission/config.schema';
+// --- Types defined here since they are only used in this slice ---
+export interface AdmissionCampaignDTO {
+  id: string;
+  name: string;
+  academicYear: string;
+  startsAt: string;
+  endsAt: string;
+  isActive: boolean;
+}
+
+export interface AcademicClassDTO {
+  id: string;
+  name: string;
+  section?: string;
+  academicYear: string;
+  totalSeats: number;
+  occupiedSeats: number;
+  admissionOpen: boolean;
+}
 
 // --- MOCK V1 DATA ---
 const INITIAL_CAMPAIGNS: AdmissionCampaignDTO[] = [

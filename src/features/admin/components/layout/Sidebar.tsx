@@ -15,6 +15,10 @@ import {
   Library
 } from 'lucide-react';
 
+
+import { useDispatch } from 'react-redux';
+import { logout } from '../../../../store/slices/authSlice';
+
 interface SidebarProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -23,6 +27,11 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const location = useLocation();
   const history = useHistory();
+  const dispatch = useDispatch();
+  const handleLogout = () => {
+    dispatch(logout());
+    history.push('/auth/login');
+  };
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
 
   // White-label configuration
@@ -132,7 +141,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
       item.subItems && location.pathname.startsWith(item.basePath || '')
     );
     if (activeItem) setExpandedMenu(activeItem.name);
-  }, [location.pathname]);
+  }, [location.pathname, navItems]);
 
   const toggleMenu = (name: string) => {
     setExpandedMenu(expandedMenu === name ? null : name);
@@ -219,7 +228,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         </nav>
 
         <div className="p-4 border-t border-slate-800">
-          <button className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-slate-400 hover:bg-rose-500/10 hover:text-rose-400 transition-colors text-left font-medium">
+          <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-slate-400 hover:bg-rose-500/10 hover:text-rose-400 transition-colors text-left font-medium">
             <LogOut size={20} />
             <span className="text-sm">Logout</span>
           </button>

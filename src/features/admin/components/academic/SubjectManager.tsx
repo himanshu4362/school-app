@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { BookOpen, Save, Search } from 'lucide-react';
 import { addSubject } from '../../../../store/slices/academicSlice';
-import { Subject, SubjectTypeEnum } from '../../../../types/academic/academic.schema';
+import { Subject } from '../../../../types/academic/academic.schema';
 
 interface Props {
   subjects: Record<string, Subject>;
@@ -18,7 +18,7 @@ export const SubjectManager: React.FC<Props> = ({ subjects }) => {
 
   const handleSave = () => {
     if (!code || !name) return;
-    dispatch(addSubject({ id: crypto.randomUUID(), code, name, type }));
+    dispatch(addSubject({ id: crypto.randomUUID(), code, name, type, chapters: [] }));
     setCode(''); setName(''); setType('THEORY');
   };
 

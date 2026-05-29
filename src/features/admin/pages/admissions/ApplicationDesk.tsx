@@ -16,7 +16,7 @@ const ApplicationDesk: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('ALL');
     const [error, setError] = useState<string | null>(null);
-
+   
     //   FETCH APPLICATIONS FROM BACKEND
     useEffect(() => {
         const fetchApps = async () => {

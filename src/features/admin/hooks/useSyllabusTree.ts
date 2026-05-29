@@ -1,17 +1,6 @@
 import { useState, useCallback } from 'react';
+import { SyllabusNode } from '../../../types/academic/academic.schema';
 
-export interface SyllabusNode {
-  id: string;
-  type: 'chapter' | 'topic' | 'subtopic';
-  title: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  hours: number | string;
-  outcome: string;
-  isDeleted: boolean;
-  children: SyllabusNode[];
-}
 
 export const useSyllabusTree = (initialData: SyllabusNode[]) => {
   const [nodes, setNodes] = useState<SyllabusNode[]>(initialData);
@@ -64,8 +53,8 @@ export const useSyllabusTree = (initialData: SyllabusNode[]) => {
   // --- THE SMART CALCULATOR ---
   const calculateMetrics = useCallback((node: SyllabusNode) => {
     let totalHours = 0;
-    let startDates: number[] = [];
-    let endDates: number[] = [];
+    const startDates: number[] = [];
+    const endDates: number[] = [];
 
     const activeChildren = node.children.filter(c => !c.isDeleted);
     

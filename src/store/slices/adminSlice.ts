@@ -1,7 +1,13 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { AdminAPI, DashboardStatsResponse } from '../data/mockApi';
+import api from '../../services/api';
 
-// 1. Define the state shape
+export interface DashboardStatsResponse {
+  totalStudents: number;
+  totalTeachers: number;
+  monthlyRevenue: number;
+  pendingComplaints: number;
+}
+
 interface AdminState {
   dashboardStats: DashboardStatsResponse | null;
   isLoading: boolean;
@@ -14,25 +20,23 @@ const initialState: AdminState = {
   error: null,
 };
 
-// 2. Create Async Thunk for fetching data
 export const fetchDashboardStats = createAsyncThunk(
   'admin/fetchDashboardStats',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await AdminAPI.getDashboardStats();
-      return response;
+      const response = await api.get('/api/admin/dashboard/stats');
+      return response.data.data as DashboardStatsResponse;
     } catch (error) {
+      console.log("Error :", error)
       return rejectWithValue('Failed to fetch dashboard stats');
     }
   }
 );
 
-// 3. Create the Slice
 const adminSlice = createSlice({
   name: 'admin',
   initialState,
   reducers: {
-    // Synchronous actions go here (e.g., clearing state)
     clearAdminData: (state) => {
       state.dashboardStats = null;
     }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Plus, Trash2, Undo2, CalendarDays, Clock, FileText, Target, CornerDownRight } from 'lucide-react';
-import { SyllabusNode } from '../../hooks/useSyllabusTree';
+import { SyllabusNode } from '../../../../types/academic/academic.schema';
 
 interface NodeProps {
   node: SyllabusNode;
@@ -19,7 +19,7 @@ const CurriculumNode: React.FC<NodeProps> = ({ node, serial, onUpdate, onDelete,
 
   // Process live calculations
   const metrics = calculateMetrics(node);
-  const hasChildren = node.children && node.children.filter(c => !c.isDeleted).length > 0;
+  const hasChildren = node.children && node.children.filter((c: SyllabusNode) => !c.isDeleted).length > 0;
 
   // --- HIGH CONTRAST STYLING ---
   const containerStyle = isChapter 
@@ -181,10 +181,10 @@ const CurriculumNode: React.FC<NodeProps> = ({ node, serial, onUpdate, onDelete,
       </div>
 
       {/* RENDER CHILDREN RECURSIVELY */}
-      {!isDeleted && node.children.map((child, idx) => (
+      {!isDeleted && node.children.map((child: SyllabusNode, idx: number) => (
         <CurriculumNode 
           key={child.id} 
-          node={child} 
+          node={child}
           serial={`${serial}.${idx + 1}`} 
           onUpdate={onUpdate} 
           onDelete={onDelete} 

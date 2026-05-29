@@ -7,7 +7,7 @@ import StatCard from '../../components/shared/StatCard';
 
 // Redux hooks
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
-import { fetchDashboardStats } from '../../store/adminSlice';
+import { fetchDashboardStats } from '../../../../store/slices/adminSlice';
 
 const Dashboard: React.FC = () => {
   const dispatch = useAppDispatch();

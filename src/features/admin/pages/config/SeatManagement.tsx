@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { Users, Lock, CheckCircle, Loader2 } from 'lucide-react';
 import api from '../../../../services/api'; // Aapka axios instance
@@ -7,9 +6,7 @@ import api from '../../../../services/api'; // Aapka axios instance
 const SeatManagement: React.FC = () => {
   const [classes, setClasses] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  // 🟢 BACKEND FETCH: Live seat inventory data lekar aao
-  // 🟢 FRONTEND FETCH & AGGREGATE LOGIC
+  
   const fetchSeatInventory = async () => {
     try {
       setIsLoading(true);

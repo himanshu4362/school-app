@@ -59,6 +59,19 @@ export const TimetablePeriodSchema = z.object({
   roomId: z.string().optional(),
 });
 
+export interface SyllabusNode {
+  id: string;
+  type: 'chapter' | 'topic' | 'subtopic';
+  title: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  hours: number | string;
+  outcome: string;
+  isDeleted: boolean;
+  children: SyllabusNode[];
+}
+
 export type Subject = z.infer<typeof SubjectSchema>;
 export type ClassSyllabus = z.infer<typeof ClassSyllabusSchema>;
 export type FacultyAllocation = z.infer<typeof FacultyAllocationSchema>;

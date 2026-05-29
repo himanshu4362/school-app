@@ -92,4 +92,5 @@ export type Room = z.infer<typeof RoomSchema>;
 export type Grade = z.infer<typeof GradeSchema>;
 export type Section = z.infer<typeof SectionSchema>;
 export type Subject = z.infer<typeof SubjectSchema>;
+export type SubjectCatalog = Subject;
 export type CurriculumSubject = z.infer<typeof CurriculumSubjectSchema>;

@@ -15,18 +15,6 @@ export interface FinanceValidationError {
   severity: "error" | "warning";
 }
 
-export interface FinanceValidationError {
-  field?: string;
-  message: string;
-  severity: "error" | "warning";
-}
-
-export interface FinanceValidationError {
-  field?: string;
-  message: string;
-  severity: "error" | "warning";
-}
-
 interface FinanceState {
   feeComponents: Record<string, FeeComponent>;
   invoices: Record<string, FeeInvoice>;

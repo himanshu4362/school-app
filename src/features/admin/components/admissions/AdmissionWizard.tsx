@@ -9,9 +9,8 @@ import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import AdminLayout from '../layout/AdminLayout';
 import {
-    ChevronRight, ChevronLeft, Check, User, Users, MapPin,
-    GraduationCap, FileText, Loader2, AlertCircle, Plus, Trash2, CloudUpload, Camera, CheckCircle,
-    Clock,
+    ChevronRight, ChevronLeft, Check, Users, MapPin,
+    GraduationCap, Loader2, AlertCircle, Plus, Trash2, Camera, CheckCircle,
     UploadCloud,
     CheckCircle2
 } from 'lucide-react';
@@ -112,6 +111,7 @@ const ProfilePhotoUploader = ({ onUploadSuccess, defaultImageKey, studentName }:
             await axios.put(data.data.uploadUrl, file, { headers: { 'Content-Type': file.type } });
             onUploadSuccess(data.data.fileKey);
         } catch (err) {
+            console.log("Error :", err)
             alert("Photo upload failed.");
             setPreview(null);
         } finally {
@@ -559,18 +559,6 @@ const Step4 = ({ draft }: any) => {
     );
 };
 
-const DropzoneArea = ({ onDrop, isUploading }: { onDrop: (files: File[]) => void, isUploading: boolean }) => {
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, multiple: false });
-    return (
-        <div {...getRootProps()} className={`h-full min-h-[100px] p-4 border-2 border-dashed rounded-2xl cursor-pointer transition-all flex flex-col items-center justify-center text-center ${isDragActive ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-slate-300 bg-white hover:bg-slate-50 text-slate-500'}`}>
-            <input {...getInputProps()} />
-            {isUploading ? <Loader2 className="animate-spin mb-2 text-blue-500" size={24} /> : <CloudUpload size={28} className="mb-2" />}
-            <span className="text-[10px] font-black uppercase tracking-widest leading-tight">{isUploading ? 'Uploading...' : 'Drag & Drop or Click'}</span>
-        </div>
-    );
-};
-
-
 // DOCUMENT ENGINE MATRIX (Frontend Replica)
 const REQUIREMENT_MATRIX: Record<string, Record<string, string[]>> = {
     'fresh': {
@@ -721,7 +709,7 @@ const Step5 = ({ draft, globalYearId, meta, setShowSuccess }: any) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [docs, setDocs] = useState<any[]>(() => {
         const requiredTypes = REQUIREMENT_MATRIX[draft.admissionType]?.[draft.category] || REQUIREMENT_MATRIX[draft.admissionType]?.['GENERAL'] || [];
-        let finalTypes = [...requiredTypes];
+        const finalTypes = [...requiredTypes];
 
         if (draft.hasDisability && !finalTypes.includes('MEDICAL_CERTIFICATE')) {
             finalTypes.push('MEDICAL_CERTIFICATE');
@@ -749,7 +737,7 @@ const Step5 = ({ draft, globalYearId, meta, setShowSuccess }: any) => {
     };
 
     useEffect(() => {
-        let requiredDocs = [...docs];
+        const requiredDocs = [...docs];
         if (draft.admissionType === 'transfer' && !requiredDocs.find(d => d.documentType === 'TRANSFER_CERTIFICATE')) {
             requiredDocs.push({ id: 'tc', documentType: 'TRANSFER_CERTIFICATE', displayName: 'Transfer Certificate', documentNumber: '', status: 'PENDING', fileKey: '', isMandatory: true, progress: 0 });
         }

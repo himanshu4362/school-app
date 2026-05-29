@@ -47,7 +47,7 @@ type RegistrationFormData = z.infer<typeof SchoolRegistrationSchema>;
 const SYSTEM_SECRET_KEY = `${import.meta.env.VITE_SYSTEM_SECRET_KEY}`; 
 
 const SchoolRegistration: React.FC = () => {
-    const dispatch = useDispatch();
+
     const router = useIonRouter();
     const [apiError, setApiError] = useState<string | null>(null);
     const [apiSuccess, setApiSuccess] = useState<string | null>(null);

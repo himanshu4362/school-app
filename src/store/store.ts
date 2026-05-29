@@ -1,5 +1,4 @@
 import { configureStore } from "@reduxjs/toolkit";
-import adminReducer from "../features/admin/store/adminSlice";
 import configSlice from "./slices/configSlice";
 import examinationReducer from "./slices/examinationSlice";
 import monthlyTestReducer from "./slices/monthlyTestSlice";
@@ -24,6 +23,7 @@ import quizBuilderSlice from "./slices/quizBuilderSlice"
 import studentAttemptReducer from "./slices/studentAttemptSlice"
 import authSlice from "./slices/authSlice"
 import admissionReducer from './slices/admissionSlice'
+import adminReducer from "./slices/adminSlice";
 
 export const store = configureStore({
   reducer: {

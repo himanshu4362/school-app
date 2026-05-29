@@ -7,7 +7,7 @@ interface SeatManagementState {
   reservations: Record<string, SeatReservation>; // By ID
   
   // Indexes for fast querying
-  policyByGradeYear: Record<string, string>; // `${gradeId}_${yearId}` -> policyId
+  policyByGradeYear: Record<string, string>;
   reservationsByGradeYear: Record<string, string[]>; // `${gradeId}_${yearId}` -> [reservationIds]
   
   validationErrors: ValidationError[];
