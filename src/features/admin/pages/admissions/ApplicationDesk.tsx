@@ -4,8 +4,18 @@ import { useHistory } from 'react-router-dom';
 import { RootState } from '../../../../store/store';
 import { setApplications } from '../../../../store/slices/admissionSlice';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { Search, Filter, Eye, AlertCircle, FileText, CheckCircle2, Clock } from 'lucide-react';
+import { Search, Filter, Eye, AlertCircle, FileText, CheckCircle2, Clock, XCircle, Plus, Users } from 'lucide-react';
 import api from '../../../../services/api';
+
+const AdmissionTabs = ({ active }: { active: 'leads' | 'applications' }) => {
+    const h = useHistory();
+    return (
+        <div className="flex gap-1 bg-slate-100 p-1 rounded-xl mb-6 w-max">
+            <button onClick={() => h.push('/admin/admissions')} className={`px-5 py-2.5 rounded-lg font-black text-sm transition-all ${active === 'leads' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Lead CRM</button>
+            <button onClick={() => h.push('/admin/admissions/applications')} className={`px-5 py-2.5 rounded-lg font-black text-sm transition-all ${active === 'applications' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Application Desk</button>
+        </div>
+    );
+};
 
 const ApplicationDesk: React.FC = () => {
     const dispatch = useDispatch();
@@ -50,15 +60,20 @@ const ApplicationDesk: React.FC = () => {
         });
     }, [applications, searchTerm, statusFilter]);
 
-    // Dynamic Badges
+    // Dynamic Badges — Complete Status Map
     const getStatusBadge = (status: string) => {
-        switch (status) {
-            case 'SUBMITTED': return <span className="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-lg text-[10px] font-black uppercase flex items-center w-max gap-1"><Clock size={12} /> Under Review</span>;
-            case 'DOCUMENT_PENDING': return <span className="px-2.5 py-1 bg-amber-100 text-amber-700 rounded-lg text-[10px] font-black uppercase flex items-center w-max gap-1"><AlertCircle size={12} /> Doc Pending</span>;
-            case 'APPROVED': return <span className="px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-[10px] font-black uppercase flex items-center w-max gap-1"><CheckCircle2 size={12} /> Approved</span>;
-            case 'ENROLLED': return <span className="px-2.5 py-1 bg-purple-100 text-purple-700 rounded-lg text-[10px] font-black uppercase flex items-center w-max gap-1"><FileText size={12} /> Enrolled</span>;
-            default: return <span className="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg text-[10px] font-black uppercase flex items-center w-max gap-1">{status}</span>;
-        }
+        const map: Record<string, { label: string; color: string; Icon: any }> = {
+            'SUBMITTED': { label: 'Submitted', color: 'bg-blue-100 text-blue-700', Icon: Clock },
+            'UNDER_REVIEW': { label: 'Under Review', color: 'bg-indigo-100 text-indigo-700', Icon: Eye },
+            'DOCUMENT_PENDING': { label: 'Doc Pending', color: 'bg-amber-100 text-amber-700', Icon: AlertCircle },
+            'APPROVED': { label: 'Approved', color: 'bg-emerald-100 text-emerald-700', Icon: CheckCircle2 },
+            'WAITLISTED': { label: 'Waitlisted', color: 'bg-purple-100 text-purple-700', Icon: Clock },
+            'ENROLLED': { label: 'Enrolled', color: 'bg-green-100 text-green-700', Icon: FileText },
+            'REJECTED': { label: 'Rejected', color: 'bg-rose-100 text-rose-700', Icon: XCircle },
+            'CANCELLED': { label: 'Cancelled', color: 'bg-slate-200 text-slate-600', Icon: XCircle },
+        };
+        const cfg = map[status] || { label: status, color: 'bg-slate-100 text-slate-700', Icon: Clock };
+        return <span className={`px-2.5 py-1 ${cfg.color} rounded-lg text-[10px] font-black uppercase flex items-center w-max gap-1`}><cfg.Icon size={12} /> {cfg.label}</span>;
     };
 
     return (
@@ -66,7 +81,35 @@ const ApplicationDesk: React.FC = () => {
             pageTitle="Application Desk"
             pageDescription="Review submitted applications, verify documents, and enroll students."
             breadcrumbs={[{ label: 'Admissions' }, { label: 'Application Desk' }]}
+            headerActions={
+                <button onClick={() => history.push('/admin/admissions/wizard')} className="px-5 py-2.5 bg-blue-600 text-white rounded-xl font-black text-sm shadow-lg active:scale-95 transition-all flex items-center gap-2">
+                    <Plus size={18} /> <span className="hidden md:inline">New Application</span>
+                </button>
+            }
         >
+            <AdmissionTabs active="applications" />
+
+            {/* Status Summary Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+                {[
+                    { key: 'ALL', label: 'All', icon: Users, color: 'bg-slate-50 text-slate-700 border-slate-200' },
+                    { key: 'SUBMITTED', label: 'Submitted', icon: Clock, color: 'bg-blue-50 text-blue-700 border-blue-200' },
+                    { key: 'UNDER_REVIEW', label: 'Reviewing', icon: Eye, color: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+                    { key: 'DOCUMENT_PENDING', label: 'Doc Pending', icon: AlertCircle, color: 'bg-amber-50 text-amber-700 border-amber-200' },
+                    { key: 'APPROVED', label: 'Approved', icon: CheckCircle2, color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+                    { key: 'ENROLLED', label: 'Enrolled', icon: FileText, color: 'bg-green-50 text-green-700 border-green-200' },
+                ].map(s => {
+                    const count = s.key === 'ALL' ? applications.length : applications.filter((a: any) => a.status === s.key).length;
+                    const Icon = s.icon;
+                    return (
+                        <button key={s.key} onClick={() => setStatusFilter(s.key)} className={`p-3 rounded-xl border font-bold text-left transition-all hover:shadow-md active:scale-95 ${statusFilter === s.key ? s.color + ' shadow-md ring-2 ring-offset-1 ring-current/20' : 'bg-white border-slate-100 text-slate-500'}`}>
+                            <Icon size={16} className="mb-1.5 opacity-70" />
+                            <p className="text-lg font-black">{count}</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest">{s.label}</p>
+                        </button>
+                    );
+                })}
+            </div>
 
             {/* Top Bar: Search & Filters */}
             <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-6 flex flex-col md:flex-row justify-between gap-4">
@@ -88,10 +131,14 @@ const ApplicationDesk: React.FC = () => {
                         className="text-sm font-black text-slate-700 outline-none bg-transparent w-full cursor-pointer py-1"
                     >
                         <option value="ALL">All Statuses</option>
-                        <option value="SUBMITTED">Under Review</option>
+                        <option value="SUBMITTED">Submitted</option>
+                        <option value="UNDER_REVIEW">Under Review</option>
                         <option value="DOCUMENT_PENDING">Document Pending</option>
                         <option value="APPROVED">Approved</option>
+                        <option value="WAITLISTED">Waitlisted</option>
                         <option value="ENROLLED">Enrolled</option>
+                        <option value="REJECTED">Rejected</option>
+                        <option value="CANCELLED">Cancelled</option>
                     </select>
                 </div>
             </div>

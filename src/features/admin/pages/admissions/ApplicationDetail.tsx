@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { updateApplicationStatus } from '../../../../store/slices/admissionSlice';
 import { useParams, useHistory } from 'react-router-dom';
 import AdminLayout from '../../components/layout/AdminLayout';
 import {
     Users, ShieldCheck, GraduationCap, Loader2, AlertCircle,
-    FileCheck, CheckCircle, X, UploadCloud, Check, XCircle, ArrowRight, Eye, History,
-    Clock,
-    MapPin
+    FileCheck, CheckCircle, CheckCircle2, X, UploadCloud, Check, XCircle, ArrowRight, Eye, History,
+    Clock, MapPin, Ban, RotateCcw, MessageSquare, FileText, CheckSquare
 } from 'lucide-react';
+import { useIonToast } from '@ionic/react';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import api from '../../../../services/api';
@@ -22,14 +24,112 @@ import { Document, Page, pdfjs } from 'react-pdf';
 pdfjs.GlobalWorkerOptions.workerSrc =
     `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-//  DROPZONE FOR RE-UPLOADS
-const ReuploadDropzone = ({ onDrop, isUploading }: { onDrop: (files: File[]) => void, isUploading: boolean }) => {
+//  ENHANCED DROPZONE FOR RE-UPLOADS
+const ReuploadDropzone = ({ onUpload, isUploading }: { onUpload: (file: File, customName: string) => void, isUploading: boolean }) => {
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [customName, setCustomName] = useState<string>('');
+
+    const onDrop = (acceptedFiles: File[]) => {
+        if (acceptedFiles.length > 0) {
+            setSelectedFile(acceptedFiles[0]);
+            // Pre-fill the custom name with the file name (without extension)
+            const nameWithoutExt = acceptedFiles[0].name.substring(0, acceptedFiles[0].name.lastIndexOf('.')) || acceptedFiles[0].name;
+            setCustomName(nameWithoutExt);
+        }
+    };
+
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, multiple: false });
+
+    if (selectedFile) {
+        return (
+            <div className="p-5 mt-3 border border-blue-200 bg-blue-50/50 rounded-xl">
+                <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
+                            <FileText size={20} />
+                        </div>
+                        <div>
+                            <p className="text-sm font-black text-slate-800 line-clamp-1">{selectedFile.name}</p>
+                            <p className="text-[10px] font-bold text-slate-500 uppercase flex gap-2">
+                                <span>{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</span>
+                                <span>•</span>
+                                <span>{selectedFile.type || 'Unknown Type'}</span>
+                            </p>
+                        </div>
+                    </div>
+                    <button onClick={() => setSelectedFile(null)} disabled={isUploading} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors">
+                        <XCircle size={18} />
+                    </button>
+                </div>
+                
+                <div className="space-y-3">
+                    <div>
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Rename File (Optional)</label>
+                        <input 
+                            type="text" 
+                            value={customName}
+                            onChange={(e) => setCustomName(e.target.value)}
+                            disabled={isUploading}
+                            className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                            placeholder="Enter document name..."
+                        />
+                    </div>
+                    
+                    <button 
+                        onClick={() => onUpload(selectedFile, customName)}
+                        disabled={isUploading || !customName.trim()}
+                        className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-black shadow-md flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {isUploading ? <Loader2 size={16} className="animate-spin" /> : <UploadCloud size={16} />}
+                        {isUploading ? 'Uploading to S3 Vault...' : 'Confirm & Upload Document'}
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div {...getRootProps()} className={`p-4 mt-3 border-2 border-dashed rounded-xl cursor-pointer text-center transition-all ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-slate-300 bg-white hover:bg-slate-50'}`}>
+        <div {...getRootProps()} className={`p-8 mt-3 border-2 border-dashed rounded-xl cursor-pointer text-center transition-all ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-slate-300 bg-slate-50 hover:bg-slate-100 hover:border-slate-400'}`}>
             <input {...getInputProps()} />
-            {isUploading ? <Loader2 className="animate-spin mx-auto text-blue-500 mb-2" size={24} /> : <UploadCloud className="mx-auto text-slate-400 mb-2" size={24} />}
-            <span className="text-xs font-bold text-slate-500">{isUploading ? 'Uploading to Vault...' : 'Drag & Drop missing document here'}</span>
+            <div className="w-16 h-16 mx-auto bg-white rounded-full shadow-sm flex items-center justify-center mb-4">
+                <UploadCloud className="text-blue-500" size={32} />
+            </div>
+            <h4 className="text-sm font-black text-slate-700 mb-1">Drag & Drop Document Here</h4>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">or click to browse files</p>
+            <div className="mt-4 flex items-center justify-center gap-4 text-[10px] font-bold text-slate-400">
+                <span className="flex items-center gap-1"><CheckCircle2 size={12} /> PDF</span>
+                <span className="flex items-center gap-1"><CheckCircle2 size={12} /> JPG/PNG</span>
+                <span className="flex items-center gap-1"><CheckCircle2 size={12} /> Max 5MB</span>
+            </div>
+        </div>
+    );
+};
+
+// ==========================================
+// CONFIRMATION MODAL COMPONENT
+// ==========================================
+const ConfirmationModal = ({ title, description, confirmLabel, confirmColor, isProcessing, onConfirm, onCancel, children }: {
+    title: string; description: string; confirmLabel: string; confirmColor: string;
+    isProcessing: boolean; onConfirm: (remarks: string) => void; onCancel: () => void; children?: React.ReactNode;
+}) => {
+    const [remarks, setRemarks] = useState('');
+    return (
+        <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={onCancel}>
+            <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
+                <h2 className="text-xl font-black text-slate-900 mb-2">{title}</h2>
+                <p className="text-sm font-bold text-slate-500 mb-6 leading-relaxed">{description}</p>
+                {children}
+                <div className="mb-6">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Remarks (Optional)</label>
+                    <textarea value={remarks} onChange={(e) => setRemarks(e.target.value)} rows={3} placeholder="Add any notes for the audit trail..." className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 font-bold text-sm resize-none" />
+                </div>
+                <div className="flex gap-3">
+                    <button onClick={onCancel} disabled={isProcessing} className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-black text-sm hover:bg-slate-200 transition-all">Cancel</button>
+                    <button onClick={() => onConfirm(remarks)} disabled={isProcessing} className={`flex-1 py-3 ${confirmColor} text-white rounded-xl font-black text-sm shadow-lg transition-all flex items-center justify-center gap-2`}>
+                        {isProcessing ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />} {confirmLabel}
+                    </button>
+                </div>
+            </div>
         </div>
     );
 };
@@ -38,13 +138,18 @@ const ApplicationDetail: React.FC = () => {
     const params = useParams<any>();
     const safeId = params.id || params.applicationId || Object.values(params)[0];
     const history = useHistory();
+    const dispatch = useDispatch();
+    const [present] = useIonToast();
     const [activeDropzoneId, setActiveDropzoneId] = useState<string | null>(null);
     const [app, setApp] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null); const [viewingDoc, setViewingDoc] = useState<{ url: string, name: string } | null>(null);
+    const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
+    const [viewingDoc, setViewingDoc] = useState<{ url: string, name: string } | null>(null);
     const [updatingDocId, setUpdatingDocId] = useState<string | null>(null);
     const [pdfPages, setPdfPages] = useState(0);
+    const [marksInput, setMarksInput] = useState<string>('');
+    const [confirmModal, setConfirmModal] = useState<{ title: string; description: string; confirmLabel: string; confirmColor: string; action: (remarks: string) => void } | null>(null);
     const allDocsVerified =
         app?.documents?.every(
             (d: any) => d.status === 'VERIFIED'
@@ -119,23 +224,22 @@ const ApplicationDetail: React.FC = () => {
             if (res.data.success) {
                 await fetchData(); // RELOAD FROM BACKEND (Source of Truth)
             }
-        } catch (err: any) { alert(err.response?.data?.message || "Failed to update document."); }
+        } catch (err: any) { present({ message: err.response?.data?.message || 'Failed to update document.', duration: 3000, position: 'top', color: 'danger' }); }
         finally { setUpdatingDocId(null); }
     };
 
-    const handleReUpload = async (acceptedFiles: File[], docId: string, docName: string) => {
-        const file = acceptedFiles[0];
+    const handleReUpload = async (file: File, customName: string, docId: string) => {
         if (!file) return;
         setUpdatingDocId(docId);
         try {
             const ext = file.name.split('.').pop();
-            const safeName = `${(docName || 'Document').replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.${ext}`;
+            const safeName = `${(customName || 'Document').replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.${ext}`;
             const studentName = `${app.studentProfile.firstName}_${app.studentProfile.lastName}`;
             const { data } = await api.get(`/api/admissions/upload-url?fileName=${encodeURIComponent(safeName)}&fileType=${encodeURIComponent(file.type)}&studentName=${encodeURIComponent(studentName)}&applicationId=${safeId}`);
             await axios.put(data.data.uploadUrl, file, { headers: { 'Content-Type': file.type } });
             await updateDocStatus(docId, 'SUBMITTED', data.data.fileKey);
-            alert("Document uploaded! Ready for verification.");
-        } catch (err) { alert("Upload failed. Ensure S3 CORS is enabled."); setUpdatingDocId(null); }
+            present({ message: 'Document uploaded! Ready for verification.', duration: 3000, position: 'top', color: 'success' });
+        } catch (err) { present({ message: 'Upload failed. Check S3 CORS config.', duration: 3000, position: 'top', color: 'danger' }); setUpdatingDocId(null); }
     };
     const updateAppStatus = async (nextStatus: string, remarks: string) => {
         try {
@@ -143,28 +247,62 @@ const ApplicationDetail: React.FC = () => {
             const payload = { status: nextStatus, remarks };
             const res = await api.patch(`/api/admissions/applications/${safeId}/status`, payload);
             if (res.data.success) {
-                await fetchData(); // RELOAD FROM BACKEND
+                dispatch(updateApplicationStatus({ id: safeId, status: nextStatus }));
+                present({ message: `Status updated to ${nextStatus.replace('_', ' ')}`, duration: 2500, position: 'top', color: 'success' });
+                await fetchData();
             }
-        } catch (err: any) { alert(err.response?.data?.message || "Failed to progress pipeline."); }
-        finally { setIsProcessing(false); }
+        } catch (err: any) {
+            present({ message: err.response?.data?.message || 'Failed to progress pipeline.', duration: 3000, position: 'top', color: 'danger' });
+        } finally {
+            setIsProcessing(false);
+            setConfirmModal(null);
+        }
     };
-    const enrollStudent = async () => {
-        if (!window.confirm("Are you sure you want to officially enroll this student? This will consume a seat and generate a permanent Student ID.")) return;
+    const enrollStudent = async (remarks: string) => {
+        setIsProcessing(true);
         try {
-            setIsProcessing(true);
-            const res = await api.post(`/api/admissions/applications/${safeId}/enroll`);
-            if (res.data.success) {
-                alert(`Success! Student Enrolled. Enrollment Number: ${res.data.data.enrollmentNumber}`);
-                fetchData(); // Data refresh karne ke liye
-            }
-        } catch (error: any) {
-            console.error("Enrollment failed:", error);
-            alert(error.response?.data?.message || "Failed to enroll student.");
+            const res = await api.post(`/api/admissions/applications/${safeId}/enroll`, { remarks });
+            setApp(res.data.data);
+            dispatch(updateApplicationStatus({ id: safeId, status: 'ENROLLED' }));
+            present({ message: `Enrolled successfully! Student ID: ${res.data.data.enrollmentNumber}`, duration: 5000, color: 'success' });
+        } catch (err: any) { present({ message: err.response?.data?.message || 'Enrollment failed.', duration: 3000, color: 'danger' }); }
+        finally { setIsProcessing(false); setConfirmModal(null); }
+    };
+
+    // ==========================================
+    // ASSESSMENT MARKS UPLOAD (OFFLINE TEST)
+    // ==========================================
+    const handleAssessmentUpload = async () => {
+        if (marksInput === '' || isNaN(Number(marksInput))) {
+            present({ message: 'Please enter valid numeric marks.', duration: 3000, color: 'danger' });
+            return;
+        }
+        
+        setIsProcessing(true);
+        try {
+            // Update the admissionTest marks field in the application
+            await api.patch(`/api/admissions/applications/${safeId}`, {
+                admissionTest: {
+                    ...(app.admissionTest || {}),
+                    score: Number(marksInput),
+                    status: 'COMPLETED',
+                    date: new Date().toISOString()
+                }
+            });
+            
+            // Re-fetch application to get updated state
+            const res = await api.get(`/api/admissions/applications/${safeId}`);
+            setApp(res.data.data);
+            
+            present({ message: 'Assessment marks updated successfully!', duration: 3000, color: 'success' });
+        } catch (err: any) {
+            present({ message: err.response?.data?.message || 'Failed to update marks.', duration: 3000, color: 'danger' });
         } finally {
             setIsProcessing(false);
         }
     };
-    if (isLoading) return <div className="p-20 flex justify-center"><Loader2 className="animate-spin text-blue-500" size={48} /></div>;
+
+    if (isLoading) return <AdminLayout pageTitle="Application Details" breadcrumbs={[]}><div className="flex justify-center py-20"><Loader2 className="animate-spin text-blue-500" size={32} /></div></AdminLayout>;
     if (!app) return <AdminLayout pageTitle="Error" breadcrumbs={[]}><div className="p-10 text-center text-rose-500 font-bold bg-rose-50 rounded-2xl">Application not found.</div></AdminLayout>;
     return (
         <AdminLayout pageTitle={`Application: ${app.applicationNumber}`} breadcrumbs={[{ label: 'Applications', path: '/admin/admissions/applications' }, { label: 'Review' }]}>
@@ -592,8 +730,8 @@ const ApplicationDetail: React.FC = () => {
 
                                         {(needsUpload || activeDropzoneId === doc._id) && (
                                             <ReuploadDropzone
-                                                onDrop={(files) => {
-                                                    handleReUpload(files, doc._id, docName);
+                                                onUpload={(file, customName) => {
+                                                    handleReUpload(file, customName, doc._id);
                                                     setActiveDropzoneId(null);
                                                 }}
                                                 isUploading={updatingDocId === doc._id}
@@ -630,122 +768,252 @@ const ApplicationDetail: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* DYNAMIC PIPELINE ENGINE WITH VISUAL TRACKER */}
+                    {/* ==========================================
+                       FULL WORKFLOW ENGINE WITH SMART TRACKER
+                       ========================================== */}
                     <div className="bg-slate-900 p-6 rounded-3xl shadow-xl text-white">
-                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2 border-b border-slate-700 pb-3"><GraduationCap size={16} className="text-emerald-400" /> Pipeline Action</h3>
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5 flex items-center gap-2 border-b border-slate-700 pb-3"><GraduationCap size={16} className="text-emerald-400" /> Pipeline Engine</h3>
 
-                        {/* Visual Stage Tracker */}
+                        {/* CURRENT STATUS INDICATOR */}
+                        {(() => {
+                            const statusConfig: Record<string, { label: string; color: string; bg: string; icon: any }> = {
+                                'SUBMITTED': { label: 'Submitted — Awaiting Review', color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20', icon: Clock },
+                                'UNDER_REVIEW': { label: 'Under Review — Admin Evaluating', color: 'text-indigo-400', bg: 'bg-indigo-500/10 border-indigo-500/20', icon: Eye },
+                                'DOCUMENT_PENDING': { label: 'Document Pending — Action Required', color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20', icon: AlertCircle },
+                                'APPROVED': { label: 'Approved — Ready for Enrollment', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20', icon: CheckCircle },
+                                'WAITLISTED': { label: 'Waitlisted — No Seats Available', color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20', icon: Clock },
+                                'ENROLLED': { label: 'Enrolled — Student Active', color: 'text-green-400', bg: 'bg-green-500/10 border-green-500/20', icon: CheckCircle },
+                                'REJECTED': { label: 'Rejected — Application Denied', color: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20', icon: XCircle },
+                                'CANCELLED': { label: 'Cancelled — Application Withdrawn', color: 'text-slate-400', bg: 'bg-slate-500/10 border-slate-500/20', icon: Ban },
+                            };
+                            const cfg = statusConfig[app.status] || statusConfig['SUBMITTED'];
+                            const Icon = cfg.icon;
+                            return (
+                                <div className={`p-4 rounded-2xl border ${cfg.bg} mb-6 flex items-center gap-3`}>
+                                    <Icon size={20} className={cfg.color} />
+                                    <span className={`text-sm font-black ${cfg.color}`}>{cfg.label}</span>
+                                </div>
+                            );
+                        })()}
+
+                        {/* VISUAL PIPELINE TRACKER */}
                         <div className="flex justify-between items-center mb-8 relative">
                             <div className="absolute top-1/2 left-0 right-0 h-1 bg-slate-700 -translate-y-1/2 z-0"></div>
-                            {['SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'ENROLLED'].map((stage, idx) => {
-                                const stages = [
-                                    'SUBMITTED',
-                                    'UNDER_REVIEW',
-                                    'APPROVED',
-                                    'ENROLLED'
-                                ];
+                            {(() => {
+                                const mainPipeline = ['SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'ENROLLED'];
+                                const terminalStates = ['REJECTED', 'CANCELLED'];
+                                const isTerminal = terminalStates.includes(app.status);
+                                const branchStates = ['DOCUMENT_PENDING', 'WAITLISTED'];
+                                const isBranch = branchStates.includes(app.status);
+                                const effectiveIndex = isTerminal
+                                    ? mainPipeline.indexOf('UNDER_REVIEW')
+                                    : isBranch
+                                        ? (app.status === 'WAITLISTED' ? mainPipeline.indexOf('APPROVED') : mainPipeline.indexOf('UNDER_REVIEW'))
+                                        : mainPipeline.indexOf(app.status);
 
-                                const stageIndex =
-                                    stages.indexOf(app.status); const isActive = stageIndex >= idx;
-                                return (
-                                    <div key={stage} className="relative z-10 flex flex-col items-center gap-2 bg-slate-900 px-2">
-                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center border-4 border-slate-900 ${isActive ? 'bg-emerald-500 text-slate-900' : 'bg-slate-700 text-slate-400'}`}>
-                                            {isActive ? <Check size={12} className="font-black" /> : <span className="text-[10px]">{idx + 1}</span>}
+                                return mainPipeline.map((stage, idx) => {
+                                    const isPast = idx < effectiveIndex;
+                                    const isCurrent = idx === effectiveIndex && !isTerminal && !isBranch;
+                                    const isActive = isPast || isCurrent;
+                                    return (
+                                        <div key={stage} className="relative z-10 flex flex-col items-center gap-2 bg-slate-900 px-2">
+                                            <div className={`w-7 h-7 rounded-full flex items-center justify-center border-4 border-slate-900 transition-all ${isCurrent ? 'bg-blue-500 text-white ring-4 ring-blue-500/30' : isPast ? 'bg-emerald-500 text-slate-900' : 'bg-slate-700 text-slate-400'}`}>
+                                                {isPast ? <Check size={12} /> : <span className="text-[10px] font-black">{idx + 1}</span>}
+                                            </div>
+                                            <span className={`text-[8px] font-black uppercase tracking-widest ${isCurrent ? 'text-blue-400' : isPast ? 'text-emerald-400' : 'text-slate-500'}`}>{stage.replace('_', ' ')}</span>
                                         </div>
-                                        <span className={`text-[8px] font-black uppercase tracking-widest ${isActive ? 'text-emerald-400' : 'text-slate-500'}`}>{String(stage).replace('_', ' ')}</span>
-                                    </div>
-                                );
-                            })}
+                                    );
+                                });
+                            })()}
                         </div>
 
-                        <div className="flex flex-col gap-4">
-                            {/* STATE 5: FINAL DESTINATION */}
+                        {/* BRANCH / TERMINAL INDICATOR CHIPS */}
+                        {['DOCUMENT_PENDING', 'WAITLISTED', 'REJECTED', 'CANCELLED'].includes(app.status) && (
+                            <div className="flex gap-2 mb-6 flex-wrap">
+                                {app.status === 'DOCUMENT_PENDING' && <span className="px-3 py-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-[10px] font-black uppercase flex items-center gap-1.5"><AlertCircle size={12} /> Branched: Document Re-upload Required</span>}
+                                {app.status === 'WAITLISTED' && <span className="px-3 py-1.5 bg-purple-500/20 text-purple-400 rounded-lg text-[10px] font-black uppercase flex items-center gap-1.5"><Clock size={12} /> Branched: Waiting for Seat</span>}
+                                {app.status === 'REJECTED' && <span className="px-3 py-1.5 bg-rose-500/20 text-rose-400 rounded-lg text-[10px] font-black uppercase flex items-center gap-1.5"><XCircle size={12} /> Terminal: Rejected</span>}
+                                {app.status === 'CANCELLED' && <span className="px-3 py-1.5 bg-slate-500/20 text-slate-400 rounded-lg text-[10px] font-black uppercase flex items-center gap-1.5"><Ban size={12} /> Terminal: Cancelled</span>}
+                            </div>
+                        )}
+
+                        {/* ==========================================
+                           ACTION BUTTONS (Status-Contextual)
+                           ========================================== */}
+                        <div className="flex flex-col gap-3">
+
+                            {/* ✅ ENROLLED — FINAL DESTINATION */}
                             {app.status === 'ENROLLED' && (
-                                <div className="text-center py-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-                                    <CheckCircle className="mx-auto text-emerald-400 mb-2" size={24} />
-                                    <p className="text-xs font-black uppercase text-emerald-400">Student Enrolled Successfully</p>
+                                <div className="text-center py-6 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
+                                    <CheckCircle className="mx-auto text-emerald-400 mb-3" size={32} />
+                                    <p className="text-sm font-black uppercase text-emerald-400">Student Enrolled Successfully</p>
+                                    {app.lifecycle?.enrolledAt && <p className="text-[10px] text-slate-500 font-bold mt-2">Enrolled on {new Date(app.lifecycle.enrolledAt).toLocaleDateString()}</p>}
                                 </div>
                             )}
 
-                            {/* STATE 4: READY FOR ENROLLMENT */}
+                            {/* ❌ REJECTED / CANCELLED — TERMINAL */}
+                            {['REJECTED', 'CANCELLED'].includes(app.status) && (
+                                <div className={`text-center py-6 ${app.status === 'REJECTED' ? 'bg-rose-500/10 border-rose-500/20' : 'bg-slate-500/10 border-slate-500/20'} border rounded-2xl`}>
+                                    {app.status === 'REJECTED' ? <XCircle className="mx-auto text-rose-400 mb-3" size={32} /> : <Ban className="mx-auto text-slate-400 mb-3" size={32} />}
+                                    <p className={`text-sm font-black uppercase ${app.status === 'REJECTED' ? 'text-rose-400' : 'text-slate-400'}`}>Application {app.status.toLowerCase()}</p>
+                                    {app.lifecycle?.remarks && <p className="text-[10px] text-slate-500 font-bold mt-2 px-4">Reason: {app.lifecycle.remarks}</p>}
+                                </div>
+                            )}
+
+                            {/* 📝 SUBMITTED — Begin Review or Reject */}
+                            {app.status === 'SUBMITTED' && (
+                                <>
+                                    <button onClick={() => updateAppStatus('UNDER_REVIEW', 'Application moved to Under Review.')} disabled={isProcessing} className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-sm shadow-lg active:scale-95 flex items-center justify-center gap-2 transition-all">
+                                        {isProcessing ? <Loader2 size={16} className="animate-spin" /> : <ArrowRight size={16} />} Begin Review
+                                    </button>
+                                    <button onClick={() => setConfirmModal({ title: 'Reject Application', description: 'This will permanently reject this application. The applicant will be notified.', confirmLabel: 'Reject', confirmColor: 'bg-rose-600 hover:bg-rose-500', action: (remarks) => updateAppStatus('REJECTED', remarks || 'Application rejected at submission stage.') })} className="w-full py-3 bg-transparent border border-slate-700 text-slate-400 hover:text-rose-400 hover:border-rose-500/50 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all">
+                                        <XCircle size={14} /> Reject Application
+                                    </button>
+                                </>
+                            )}
+
+                            {/* 🔍 UNDER REVIEW — Approve, Request Docs, or Reject */}
+                            {app.status === 'UNDER_REVIEW' && (
+                                <>
+                                    <button
+                                        onClick={() => setConfirmModal({
+                                            title: 'Approve Application',
+                                            description: allDocsVerified ? 'All documents have been verified. Application will be approved and student can be enrolled.' : 'Some documents are not yet verified. The application will still be approved.',
+                                            confirmLabel: 'Approve',
+                                            confirmColor: 'bg-emerald-600 hover:bg-emerald-500',
+                                            action: (remarks) => updateAppStatus('APPROVED', remarks || (allDocsVerified ? 'All documents verified.' : 'Approved with pending verification.'))
+                                        })}
+                                        disabled={isProcessing}
+                                        className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-sm shadow-lg active:scale-95 flex items-center justify-center gap-2 transition-all"
+                                    >
+                                        {isProcessing ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={16} />} Approve Application
+                                    </button>
+
+                                    {!allDocsVerified && (
+                                        <div className="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-xl text-[10px] font-bold flex items-start gap-2">
+                                            <AlertCircle size={14} className="shrink-0 mt-0.5" />
+                                            <span>Some documents are pending verification. You can still approve or request re-uploads.</span>
+                                        </div>
+                                    )}
+
+                                    <button onClick={() => updateAppStatus('DOCUMENT_PENDING', 'Documents require re-upload from parent.')} disabled={isProcessing} className="w-full py-3 bg-amber-600/20 border border-amber-500/30 text-amber-400 hover:bg-amber-600/30 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all">
+                                        <AlertCircle size={14} /> Request Document Re-upload
+                                    </button>
+
+                                    <button onClick={() => setConfirmModal({ title: 'Reject Application', description: 'This will permanently reject this application after review.', confirmLabel: 'Reject', confirmColor: 'bg-rose-600 hover:bg-rose-500', action: (remarks) => updateAppStatus('REJECTED', remarks || 'Application rejected after review.') })} className="w-full py-3 bg-transparent border border-slate-700 text-slate-400 hover:text-rose-400 hover:border-rose-500/50 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all">
+                                        <XCircle size={14} /> Reject Application
+                                    </button>
+                                </>
+                            )}
+
+                            {/* ⚠️ DOCUMENT PENDING — Resume Review or Cancel (FIXES THE DEAD END!) */}
+                            {app.status === 'DOCUMENT_PENDING' && (
+                                <>
+                                    <div className="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-300 rounded-xl text-xs font-bold flex items-start gap-2 mb-1">
+                                        <Clock size={14} className="shrink-0 mt-0.5" />
+                                        <span>Waiting for parent/guardian to re-upload required documents. Once uploaded, you can resume the review.</span>
+                                    </div>
+                                    <button onClick={() => updateAppStatus('UNDER_REVIEW', 'Documents re-submitted. Resuming review.')} disabled={isProcessing} className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-sm shadow-lg active:scale-95 flex items-center justify-center gap-2 transition-all">
+                                        {isProcessing ? <Loader2 size={16} className="animate-spin" /> : <RotateCcw size={16} />} Resume Review
+                                    </button>
+                                    <button onClick={() => setConfirmModal({ title: 'Cancel Application', description: 'This will permanently cancel this application. Use this if the applicant is unresponsive.', confirmLabel: 'Cancel Application', confirmColor: 'bg-slate-600 hover:bg-slate-500', action: (remarks) => updateAppStatus('CANCELLED', remarks || 'Application cancelled due to missing documents.') })} className="w-full py-3 bg-transparent border border-slate-700 text-slate-400 hover:text-rose-400 hover:border-rose-500/50 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all">
+                                        <Ban size={14} /> Cancel Application
+                                    </button>
+                                </>
+                            )}
+
+                            {/* ✅ APPROVED — Enroll */}
                             {app.status === 'APPROVED' && (
-                                <button onClick={enrollStudent} disabled={isProcessing} className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-sm shadow-lg active:scale-95 flex items-center justify-center gap-2 transition-all">
+                                <button onClick={() => setConfirmModal({ title: 'Enroll Student', description: 'This will officially enroll the student, consume a seat, and generate a permanent Student ID. This action cannot be undone.', confirmLabel: 'Enroll Now', confirmColor: 'bg-emerald-600 hover:bg-emerald-500', action: (remarks) => enrollStudent(remarks) })} disabled={isProcessing} className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-sm shadow-lg active:scale-95 flex items-center justify-center gap-2 transition-all">
                                     {isProcessing ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={16} />} Enroll Student
                                 </button>
                             )}
 
-                            {/* STATE 2 & 3: UNDER REVIEW (Checking Documents) */}
-                            {app.status === 'UNDER_REVIEW' && (
+                            {/* 🕐 WAITLISTED — Approve or Reject */}
+                            {app.status === 'WAITLISTED' && (
                                 <>
-                                    <button
-                                        onClick={() =>
-                                            updateAppStatus(
-                                                'APPROVED',
-                                                allDocsVerified
-                                                    ? 'All documents verified.'
-                                                    : 'Approved with pending document verification.'
-                                            )
-                                        }
-                                        disabled={isProcessing}
-                                        className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black text-sm shadow-lg active:scale-95 flex items-center justify-center gap-2 transition-all"
-                                    >
-                                        {isProcessing
-                                            ? <Loader2 size={16} className="animate-spin" />
-                                            : <ArrowRight size={16} />
-                                        }
-
-                                        Approve Application
+                                    <button onClick={() => setConfirmModal({ title: 'Approve from Waitlist', description: 'A seat is now available. Move this application to Approved status.', confirmLabel: 'Approve', confirmColor: 'bg-emerald-600 hover:bg-emerald-500', action: (remarks) => updateAppStatus('APPROVED', remarks || 'Moved from waitlist — seat available.') })} disabled={isProcessing} className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-sm shadow-lg active:scale-95 flex items-center justify-center gap-2 transition-all">
+                                        {isProcessing ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={16} />} Approve (Seat Available)
                                     </button>
-
-                                    {!allDocsVerified && (
-                                        <div className="mb-3 p-3 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-xl text-[10px] font-bold flex items-start gap-2">
-                                            <AlertCircle size={14} className="shrink-0 mt-0.5" />
-
-                                            <span>
-                                                Application is being approved with pending document verification.
-                                            </span>
-                                        </div>
-                                    )}
-
-                                    {anyDocRejected && (
-                                        <button
-                                            onClick={() =>
-                                                updateAppStatus(
-                                                    'DOCUMENT_PENDING',
-                                                    'Documents rejected, waiting for re-upload.'
-                                                )
-                                            }
-                                            disabled={isProcessing}
-                                            className="w-full py-4 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-black text-sm shadow-lg active:scale-95 flex items-center justify-center gap-2 transition-all"
-                                        >
-                                            {isProcessing
-                                                ? <Loader2 size={16} className="animate-spin" />
-                                                : <ArrowRight size={16} />
-                                            }
-
-                                            Move to Document Pending
-                                        </button>
-                                    )}
+                                    <button onClick={() => setConfirmModal({ title: 'Reject Application', description: 'Reject this waitlisted application permanently.', confirmLabel: 'Reject', confirmColor: 'bg-rose-600 hover:bg-rose-500', action: (remarks) => updateAppStatus('REJECTED', remarks || 'Rejected from waitlist.') })} className="w-full py-3 bg-transparent border border-slate-700 text-slate-400 hover:text-rose-400 hover:border-rose-500/50 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all">
+                                        <XCircle size={14} /> Reject Application
+                                    </button>
                                 </>
                             )}
-
-                            {/* STATE 1: NEW APPLICATION */}
-                            {app.status === 'SUBMITTED' && (
-                                <button onClick={() => updateAppStatus('UNDER_REVIEW', 'Application moved to Under Review phase.')} disabled={isProcessing} className="w-full py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-black text-sm shadow-lg active:scale-95 flex items-center justify-center gap-2 transition-all">
-                                    {isProcessing ? <Loader2 size={16} className="animate-spin" /> : <ArrowRight size={16} />} Move to Under Review
-                                </button>
-                            )}
-
-                            {/* STATE: WAITING FOR PARENT */}
-                            {app.status === 'DOCUMENT_PENDING' && (
-                                <div className="w-full py-4 bg-amber-50 text-amber-600 rounded-xl font-black text-sm text-center border border-amber-200 flex justify-center items-center gap-2">
-                                    <Clock size={16} /> Awaiting Document Re-upload
-                                </div>
-                            )}
                         </div>
+
+                        {/* ==========================================
+                           ASSESSMENT MARKS UPLOAD (OFFLINE TEST)
+                           ========================================== */}
+                        {['UNDER_REVIEW', 'APPROVED'].includes(app.status) && (
+                            <div className="mt-8 pt-6 border-t border-slate-700">
+                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-4">
+                                    <CheckSquare size={14} className="text-blue-400" /> Offline Assessment Marks
+                                </h4>
+                                
+                                {app.admissionTest?.status === 'COMPLETED' ? (
+                                    <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 flex items-center justify-between">
+                                        <div>
+                                            <p className="text-xs font-bold text-slate-400">Test Score Logged</p>
+                                            <p className="text-lg font-black text-blue-400">{app.admissionTest.score} <span className="text-[10px] text-slate-500 uppercase tracking-widest">Marks</span></p>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <input 
+                                                type="number" 
+                                                placeholder="Update" 
+                                                value={marksInput}
+                                                onChange={(e) => setMarksInput(e.target.value)}
+                                                className="w-20 p-2 bg-slate-900 border border-slate-700 rounded-lg text-sm font-bold text-white outline-none focus:border-blue-500"
+                                            />
+                                            <button 
+                                                onClick={handleAssessmentUpload}
+                                                disabled={isProcessing || !marksInput.trim()}
+                                                className="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs font-black transition-colors disabled:opacity-50"
+                                            >
+                                                Update
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+                                        <p className="text-[10px] font-bold text-blue-300 mb-3 leading-relaxed">If an offline test was conducted, enter the marks here before enrolling.</p>
+                                        <div className="flex gap-3">
+                                            <input 
+                                                type="number" 
+                                                placeholder="Enter Score" 
+                                                value={marksInput}
+                                                onChange={(e) => setMarksInput(e.target.value)}
+                                                className="flex-1 p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm font-bold text-white outline-none focus:border-blue-500"
+                                            />
+                                            <button 
+                                                onClick={handleAssessmentUpload}
+                                                disabled={isProcessing || !marksInput.trim()}
+                                                className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-black shadow-lg transition-colors disabled:opacity-50"
+                                            >
+                                                Upload Marks
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                     </div>
                 </div>
             </div>
+
+            {/* CONFIRMATION MODAL */}
+            {confirmModal && (
+                <ConfirmationModal
+                    title={confirmModal.title}
+                    description={confirmModal.description}
+                    confirmLabel={confirmModal.confirmLabel}
+                    confirmColor={confirmModal.confirmColor}
+                    isProcessing={isProcessing}
+                    onConfirm={confirmModal.action}
+                    onCancel={() => setConfirmModal(null)}
+                />
+            )}
         </AdminLayout>
     );
 };

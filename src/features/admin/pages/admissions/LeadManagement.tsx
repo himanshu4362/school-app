@@ -9,6 +9,16 @@ import CaptureLeadDrawer from '../../components/admissions/CaptureLeadDrawer';
 import { IonButton, useIonToast } from '@ionic/react';
 import { useHistory } from 'react-router';
 
+const AdmissionTabs = ({ active }: { active: 'leads' | 'applications' }) => {
+    const h = useHistory();
+    return (
+        <div className="flex gap-1 bg-slate-100 p-1 rounded-xl mb-6 w-max">
+            <button onClick={() => h.push('/admin/admissions')} className={`px-5 py-2.5 rounded-lg font-black text-sm transition-all ${active === 'leads' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Lead CRM</button>
+            <button onClick={() => h.push('/admin/admissions/applications')} className={`px-5 py-2.5 rounded-lg font-black text-sm transition-all ${active === 'applications' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Application Desk</button>
+        </div>
+    );
+};
+
 const LeadManagement: React.FC = () => {
     const history = useHistory()
     const dispatch = useDispatch();
@@ -80,6 +90,7 @@ const LeadManagement: React.FC = () => {
                 </button>
             }
         >
+            <AdmissionTabs active="leads" />
             {/* Search & Filter Bar */}
             <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-6 flex flex-col md:flex-row gap-4">
                 <div className="flex-1 relative">
