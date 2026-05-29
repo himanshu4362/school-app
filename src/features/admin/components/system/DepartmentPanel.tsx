@@ -16,19 +16,16 @@ const DepartmentPanel: React.FC = () => {
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<Department>({
         resolver: zodResolver(DepartmentSchema.omit({ id: true })) as any,
-        defaultValues: { status: 'draft', budget: 0 }
+        defaultValues: { status: 'draft' }
     });
 
-    const onSubmit = (data: Department) => {
-    const apiPayload = {
+    const onSubmit = (data: any) => {
+    const newDept: Department = {
+      id: crypto.randomUUID(),
       code: data.code,
       name: data.name,
-      budget: data.budget,
       status: data.status || 'draft'
     };
-    console.log(JSON.stringify(apiPayload, null, 2));
-
-    const newDept: Department = { ...data, id: crypto.randomUUID() };
     dispatch(upsertDepartment(newDept));
     setTimeout(() => { setIsDrawerOpen(false); reset(); }, 100);
   };
@@ -57,7 +54,6 @@ const DepartmentPanel: React.FC = () => {
                             </div>
                             <div className="text-right">
                                 <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest ${dept.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>{dept.status}</span>
-                                <p className="text-[11px] font-bold text-slate-500 mt-2">₹ {dept.budget.toLocaleString()}</p>
                             </div>
                         </div>
                     ))
@@ -82,10 +78,6 @@ const DepartmentPanel: React.FC = () => {
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Department Name *</label>
                                 <input {...register('name')} placeholder="e.g. Science & Technology" className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold outline-none focus:border-indigo-500" />
                                 {errors.name && <p className="text-xs text-rose-500 mt-1 font-bold">{errors.name.message}</p>}
-                            </div>
-                            <div>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Annual Budget (₹)</label>
-                                <input type="number" {...register('budget', { valueAsNumber: true })} className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold outline-none focus:border-indigo-500" />
                             </div>
                             <button type="submit" className="w-full bg-indigo-600 text-white p-3.5 rounded-xl font-black text-xs uppercase tracking-widest mt-4">Save Department</button>
                         </form>

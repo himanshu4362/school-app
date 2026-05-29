@@ -18,10 +18,8 @@ const GradePanel: React.FC = () => {
   // Using 'any' to cleanly bypass any strict Zod omissions temporarily while we wire the new fields
   const { register, handleSubmit, reset, formState: { errors } } = useForm<any>({
     defaultValues: { 
-      admissionOpen: 'true', // HTML selects use strings
-      level: 1,
-      minAge: 4,
-      maxAge: 7
+      admissionOpen: 'true',
+      level: 1
     }
   });
 
@@ -31,21 +29,19 @@ const GradePanel: React.FC = () => {
       const apiPayload = {
         name: data.name,
         level: data.level,
-        minAge: data.minAge,
-        maxAge: data.maxAge,
-        admissionOpen: data.admissionOpen === 'true' // Convert string to boolean
+        admissionOpen: data.admissionOpen === 'true'
       };
 
       const response = await api.post('/api/master-data/grades', apiPayload);
 
       // Map _id from MongoDB to id for Redux
-      const newGrade = { 
-        ...response.data.data, 
-        id: response.data.data._id 
+      const newGrade = {
+        ...response.data.data,
+        id: response.data.data._id
       };
-      
+
       dispatch(upsertGrade(newGrade));
-      
+
       setIsDrawerOpen(false);
       reset();
     } catch (error: any) {
@@ -55,7 +51,7 @@ const GradePanel: React.FC = () => {
 
   return (
     <div className="h-full flex flex-col relative animate-in fade-in duration-300">
-      
+
       {/* HEADER SECTION */}
       <div className="flex justify-between items-end mb-8">
         <div>
@@ -64,7 +60,7 @@ const GradePanel: React.FC = () => {
           </h2>
           <p className="text-sm font-bold text-slate-500 mt-1">Configure class levels, age limits, and admissions.</p>
         </div>
-        <button 
+        <button
           onClick={() => setIsDrawerOpen(true)}
           className="bg-indigo-600 text-white px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 flex items-center gap-2"
         >
@@ -84,16 +80,15 @@ const GradePanel: React.FC = () => {
                 </span>
               </div>
               <p className="text-xs font-bold text-slate-400 mt-1">
-                Age Target: {grade.minAge || 'N/A'} - {grade.maxAge || 'N/A'} yrs
+                Sort Order: Level {grade.level}
               </p>
             </div>
-            
+
             {/* Dynamic Admission Badge */}
-            <div className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 ${
-              grade.admissionOpen 
-                ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
-                : 'bg-rose-50 text-rose-600 border border-rose-100'
-            }`}>
+            <div className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 ${grade.admissionOpen
+              ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+              : 'bg-rose-50 text-rose-600 border border-rose-100'
+              }`}>
               {grade.admissionOpen ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
               {grade.admissionOpen ? 'Admissions Open' : 'Closed'}
             </div>
@@ -113,7 +108,7 @@ const GradePanel: React.FC = () => {
         <div className="fixed inset-0 z-[9999] flex justify-end">
           <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-sm" onClick={() => setIsDrawerOpen(false)} />
           <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
-            
+
             <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <h3 className="font-black text-slate-900 flex items-center gap-2">
                 <Plus size={18} className="text-indigo-600" /> New Grade Config
@@ -122,9 +117,9 @@ const GradePanel: React.FC = () => {
                 <X size={16} />
               </button>
             </div>
-            
+
             <form onSubmit={handleSubmit(onSubmit)} className="p-6 flex-1 overflow-y-auto space-y-6">
-              
+
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Grade Name *</label>
@@ -134,17 +129,6 @@ const GradePanel: React.FC = () => {
                 <div className="col-span-1">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Level *</label>
                   <input type="number" {...register('level', { valueAsNumber: true, required: true })} placeholder="1" className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold outline-none focus:border-indigo-500" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Minimum Age</label>
-                  <input type="number" {...register('minAge', { valueAsNumber: true })} placeholder="4" className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold outline-none focus:border-indigo-500" />
-                </div>
-                <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Maximum Age</label>
-                  <input type="number" {...register('maxAge', { valueAsNumber: true })} placeholder="7" className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-bold outline-none focus:border-indigo-500" />
                 </div>
               </div>
 

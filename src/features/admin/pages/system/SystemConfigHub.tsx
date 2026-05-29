@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Building2, Users, Presentation, GraduationCap, BookOpen, Library, CalendarDays, Settings, AlertCircle, X } from 'lucide-react';
 import { IonLoading } from '@ionic/react';
 import { RootState } from '../../../../store/store';
-import { setModule, clearValidationErrors } from '../../../../store/slices/systemConfigSlice';
+import { setModule, clearValidationErrors, setAcademicYears, setGrades, setRooms, setSections, setSeatInventories } from '../../../../store/slices/systemConfigSlice';
 import AdminLayout from '../../components/layout/AdminLayout';
 import AcademicYearPanel from '../../components/system/AcademicYearPanel';
 import RoomPanel from '../../components/system/RoomPanel';
@@ -13,7 +13,6 @@ import DepartmentPanel from '../../components/system/DepartmentPanel';
 import DesignationPanel from '../../components/system/DesignationPanel';
 import SubjectPanel from '../../components/system/SubjectPanel';
 import api from '../../../../services/api';
-import { setAcademicYears, setGrades, setRooms, setSections } from '../../../../store/slices/systemConfigSlice';
 
 const MODULE_MENU = [
     { id: 'academicYears', label: 'Academic Years', icon: <CalendarDays size={18} /> },
@@ -28,28 +27,33 @@ const MODULE_MENU = [
 const SystemConfigHub: React.FC = () => {
     const dispatch = useDispatch();
     const { activeModule, validationErrors } = useSelector((state: RootState) => state.systemConfig);
-    const [isLoading, setIsLoading] = useState(false);
-    useEffect(() => {
-    const hydrateMasterData = async () => {
-      try {
-        // Fetch ALL master data simultaneously using your api instance
-        const [years, grades, rooms, sections] = await Promise.all([
-          api.get('/api/master-data/academic-years'),
-          api.get('/api/master-data/grades'),
-          api.get('/api/master-data/rooms'),
-          api.get('/api/master-data/sections')
-        ]);
+    const [isLoading, setIsLoading] = useState(true);
 
-        dispatch(setAcademicYears(years.data.data));
-        dispatch(setGrades(grades.data.data));
-        dispatch(setRooms(rooms.data.data));
-        dispatch(setSections(sections.data.data));
-      } catch (err) {
-        console.error("Failed to hydrate master data", err);
-      }
-    };
-    hydrateMasterData();
-  }, [dispatch]);
+    useEffect(() => {
+        const hydrateMasterData = async () => {
+            setIsLoading(true);
+            try {
+                const [years, grades, rooms, sections, seats] = await Promise.all([
+                    api.get('/api/master-data/academic-years'),
+                    api.get('/api/master-data/grades'),
+                    api.get('/api/master-data/rooms'),
+                    api.get('/api/master-data/sections'),
+                    api.get('/api/master-data/seats'),
+                ]);
+
+                dispatch(setAcademicYears(years.data.data));
+                dispatch(setGrades(grades.data.data));
+                dispatch(setRooms(rooms.data.data));
+                dispatch(setSections(sections.data.data));
+                dispatch(setSeatInventories(seats.data.data));
+            } catch (err) {
+                console.error("Failed to hydrate master data", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        hydrateMasterData();
+    }, [dispatch]);
 
     return (
         <AdminLayout
@@ -113,7 +117,6 @@ const SystemConfigHub: React.FC = () => {
                     {activeModule === 'designations' && <DesignationPanel />}
                     {activeModule === 'subjects' && <SubjectPanel />}
 
-                    {/* placeholder for the future features */}
                     {['curriculum'].includes(activeModule) && (
                         <div className="h-full flex flex-col items-center justify-center text-center opacity-40 py-20">
                             <Settings size={48} className="mb-4 text-slate-400" />

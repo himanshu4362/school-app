@@ -28,7 +28,7 @@ export const selectLiveGradeInventory = (
         (s) =>
           s.gradeId === gradeId &&
           s.academicYearId === academicYearId &&
-          (s.status === "active" || s.status === "draft"),
+          (s.status === "ACTIVE" || !s.status),
       );
       const totalPhysicalCapacity = activeSections.reduce(
         (sum, sec) => sum + sec.targetCapacity,

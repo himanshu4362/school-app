@@ -141,7 +141,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
       item.subItems && location.pathname.startsWith(item.basePath || '')
     );
     if (activeItem) setExpandedMenu(activeItem.name);
-  }, [location.pathname, navItems]);
+  }, [location.pathname]);
 
   const toggleMenu = (name: string) => {
     setExpandedMenu(expandedMenu === name ? null : name);
