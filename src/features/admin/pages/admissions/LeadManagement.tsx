@@ -6,7 +6,7 @@ import AdminLayout from '../../components/layout/AdminLayout';
 import { Search, Filter, Plus, Phone, MessageSquare, Calendar } from 'lucide-react';
 import api from '../../../../services/api';
 import CaptureLeadDrawer from '../../components/admissions/CaptureLeadDrawer';
-import { IonButton, useIonToast } from '@ionic/react';
+import { useIonToast } from '@ionic/react';
 import { useHistory } from 'react-router';
 
 const AdmissionTabs = ({ active }: { active: 'leads' | 'applications' }) => {
